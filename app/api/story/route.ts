@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { generateStructured } from "@/lib/anthropic";
+import { describeKey, generateStructured } from "@/lib/anthropic";
 import { STORY_SYSTEM, storyUserMessage } from "@/lib/prompts";
 import { StoryRequestSchema, StorySchema } from "@/lib/schema";
 
@@ -42,9 +42,10 @@ export async function POST(req: Request) {
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Unknown error";
+    const hint = /authentication|api-key|api_key/i.test(message) ? ` (${describeKey()})` : "";
     console.error("[api/story]", message);
     return NextResponse.json(
-      { error: "The Story Machine could not build a story from that. " + message },
+      { error: "The Story Machine could not build a story from that. " + message + hint },
       { status: 502 }
     );
   }

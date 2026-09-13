@@ -8,11 +8,28 @@ import { describeViolations, repairDashes, voiceViolations } from "./voice";
 const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-5";
 
 let client: Anthropic | null = null;
+function keyHint(raw: string): string {
+  const key = raw.trim();
+  const tail = key.length > 4 ? key.slice(-4) : "";
+  const extra = raw.length !== key.length ? ", had surrounding whitespace" : "";
+  return `key length ${key.length}, starts ${key.slice(0, 7)}, ends ${tail}${extra}`;
+}
+
+export function describeKey(): string {
+  const raw = process.env.ANTHROPIC_API_KEY ?? "";
+  return raw ? keyHint(raw) : "ANTHROPIC_API_KEY is not set";
+}
+
 function getClient(): Anthropic {
-  if (!process.env.ANTHROPIC_API_KEY) {
+  const raw = process.env.ANTHROPIC_API_KEY ?? "";
+  const apiKey = raw.trim();
+  if (!apiKey) {
     throw new Error("ANTHROPIC_API_KEY is not set");
   }
-  if (!client) client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  if (!client) {
+    console.log(JSON.stringify({ tag: "anthropic-key", hint: keyHint(raw), model: MODEL }));
+    client = new Anthropic({ apiKey });
+  }
   return client;
 }
 

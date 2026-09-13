@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { generateStructured } from "@/lib/anthropic";
+import { describeKey, generateStructured } from "@/lib/anthropic";
 import { LAND_SYSTEM, landUserMessage } from "@/lib/prompts";
 import { LandRequestSchema, LandingSchema } from "@/lib/schema";
 
@@ -42,9 +42,10 @@ export async function POST(req: Request) {
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Unknown error";
+    const hint = /authentication|api-key|api_key/i.test(message) ? ` (${describeKey()})` : "";
     console.error("[api/land]", message);
     return NextResponse.json(
-      { error: "The Story Machine could not finish that. " + message },
+      { error: "The Story Machine could not finish that. " + message + hint },
       { status: 502 }
     );
   }
