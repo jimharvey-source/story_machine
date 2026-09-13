@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { describeKey, generateStructured } from "@/lib/anthropic";
-import { STORY_SYSTEM, storyUserMessage } from "@/lib/prompts";
+import { storySystem, storyUserMessage } from "@/lib/prompts";
 import { StoryRequestSchema, StorySchema } from "@/lib/schema";
 
 export const runtime = "nodejs";
@@ -20,11 +20,11 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-  const { notes, audience, intent } = parsed.data;
+  const { notes, audience, intent, register } = parsed.data;
 
   try {
     const result = await generateStructured({
-      system: STORY_SYSTEM,
+      system: storySystem(register),
       user: storyUserMessage(notes, audience, intent),
       schema: StorySchema,
       maxTokens: 3000,

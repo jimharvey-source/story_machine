@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { describeKey, generateStructured } from "@/lib/anthropic";
-import { LAND_SYSTEM, landUserMessage } from "@/lib/prompts";
+import { landSystem, landUserMessage } from "@/lib/prompts";
 import { LandRequestSchema, LandingSchema } from "@/lib/schema";
 
 export const runtime = "nodejs";
@@ -20,11 +20,11 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-  const { notes, story } = parsed.data;
+  const { notes, story, register } = parsed.data;
 
   try {
     const result = await generateStructured({
-      system: LAND_SYSTEM,
+      system: landSystem(register),
       user: landUserMessage(notes, JSON.stringify(story, null, 2)),
       schema: LandingSchema,
       maxTokens: 3000,

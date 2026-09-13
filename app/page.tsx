@@ -3,6 +3,13 @@
 import { useState } from "react";
 import type { Landing, Story } from "@/lib/schema";
 
+type Register = "formal" | "business" | "conversational";
+const REGISTERS: Array<{ value: Register; label: string; hint: string }> = [
+  { value: "formal", label: "Formal", hint: "No contractions, no rhetorical questions" },
+  { value: "business", label: "Business", hint: "Direct, spoken sections may use contractions" },
+  { value: "conversational", label: "Conversational", hint: "Plain, warm, short sentences" },
+];
+
 type Meta = {
   model: string;
   attempts: number;
@@ -15,6 +22,7 @@ export default function Home() {
   const [notes, setNotes] = useState("");
   const [audience, setAudience] = useState("");
   const [intent, setIntent] = useState("");
+  const [register, setRegister] = useState<Register>("business");
   const [story, setStory] = useState<Story | null>(null);
   const [landing, setLanding] = useState<Landing | null>(null);
   const [meta, setMeta] = useState<Meta | null>(null);
@@ -30,7 +38,7 @@ export default function Home() {
       const res = await fetch("/api/story", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ notes, audience, intent }),
+        body: JSON.stringify({ notes, audience, intent, register }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong");
@@ -51,7 +59,7 @@ export default function Home() {
       const res = await fetch("/api/land", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ notes, story }),
+        body: JSON.stringify({ notes, story, register }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong");
@@ -104,6 +112,25 @@ export default function Home() {
               />
             </label>
           </div>
+          <fieldset className="text-sm">
+            <legend className="text-muted">Register</legend>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {REGISTERS.map((r) => (
+                <button
+                  key={r.value}
+                  type="button"
+                  onClick={() => setRegister(r.value)}
+                  title={r.hint}
+                  className={
+                    "rounded-md border px-3 py-1.5 " +
+                    (register === r.value ? "border-foreground bg-foreground text-white" : "border-rule bg-white text-foreground")
+                  }
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
           <button
             onClick={findStory}
             disabled={busy !== null || notes.trim().length < 40}
@@ -154,6 +181,12 @@ export default function Home() {
                 </p>
                 <h2 className="mt-2 text-2xl font-semibold leading-snug">{act.headline}</h2>
                 <p className="mt-3 text-lg">{act.coreMessage}</p>
+                <p className="mt-4 border-l-2 border-accent pl-4">
+                  <span className="block text-xs uppercase tracking-[0.2em] text-muted">
+                    Soundbite &middot; {act.soundbite.source === "material" ? "from your notes" : "proposed, find your own"}
+                  </span>
+                  <span className="mt-1 block text-xl font-medium">&ldquo;{act.soundbite.text}&rdquo;</span>
+                </p>
                 <ul className="mt-4 space-y-2 text-muted">
                   {act.supportingPoints.map((p, j) => (
                     <li key={j} className="pl-4 border-l-2 border-rule">
@@ -197,11 +230,11 @@ export default function Home() {
             </>
           )}
 
-          {story.gaps.length > 0 && (
+          {(landing ? landing.gaps : story.gaps).length > 0 && (
             <section className="border-t border-rule pt-8">
-              <h2 className="text-xs uppercase tracking-[0.2em] text-muted">What would make this stronger</h2>
+              <h2 className="text-xs uppercase tracking-[0.2em] text-muted">What only you can add</h2>
               <ul className="mt-3 space-y-2">
-                {story.gaps.map((g, i) => (
+                {(landing ? landing.gaps : story.gaps).map((g, i) => (
                   <li key={i}>{g}</li>
                 ))}
               </ul>

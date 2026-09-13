@@ -3,8 +3,20 @@ import { z } from "zod";
 // Stage one: Get your story straight (Worksheet 1).
 // Audience, intent, argument, Big Idea, three acts.
 
+export const SoundbiteSchema = z.object({
+  text: z.string().describe("The soundbite itself. Under fourteen words."),
+  source: z
+    .enum(["material", "proposed"])
+    .describe(
+      '"material" if these words appear in the presenter\'s source material, quoted verbatim; "proposed" if you wrote it because the material had none'
+    ),
+});
+
 export const ActSchema = z.object({
   headline: z.string().describe("One line a presenter could say aloud that captures this act"),
+  soundbite: SoundbiteSchema.describe(
+    "The phrase the audience could repeat afterwards. WHY: the problem in a phrase. HOW: the insight or solution in a phrase. WHAT: the closing image or headline."
+  ),
   coreMessage: z.string().describe("One or two sentences: the single thing the audience must take from this act"),
   supportingPoints: z
     .array(z.string())
@@ -75,17 +87,26 @@ export const LandingSchema = z.object({
     what: z.string(),
     epilogue: z.string(),
   }),
+  gaps: z
+    .array(z.string())
+    .describe(
+      "Gaps re-assessed against the finished story: only what the presenter alone can supply. Empty if nothing is missing."
+    ),
 });
 
 export type Landing = z.infer<typeof LandingSchema>;
+
+export const RegisterSchema = z.enum(["formal", "business", "conversational"]).default("business");
 
 export const StoryRequestSchema = z.object({
   notes: z.string().min(40, "Paste at least a few lines of notes").max(60000),
   audience: z.string().max(400).optional().default(""),
   intent: z.string().max(400).optional().default(""),
+  register: RegisterSchema,
 });
 
 export const LandRequestSchema = z.object({
   notes: z.string().min(40).max(60000),
   story: StorySchema,
+  register: RegisterSchema,
 });

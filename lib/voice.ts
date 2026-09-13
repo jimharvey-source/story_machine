@@ -4,7 +4,8 @@ export type Violation = { path: string; rule: string; sample: string };
 
 const BANNED: Array<[RegExp, string]> = [
   [/—|–/g, "dash"],
-  [/\bnot (just|only|merely|simply)\b[^.]{0,80}\bbut\b/gi, "not-just-but"],
+  [/\bnot (?:just |only |merely |simply |by |about |for |because )?[^.;:,!?]{1,70}\bbut\b/gi, "antithesis"],
+  [/\b(?:isn't|aren't|wasn't|weren't|doesn't|don't|is not|are not|was not|were not|does not|do not)\b[^.!?]{1,70}[.!?]\s+(?:It's|It is|They're|They are|We're|We are|You're|You are|That's|That is|This is|Instead)\b/g, "antithesis-split"],
   [/\bleverag(e|es|ed|ing)\b/gi, "leverage"],
   [/\bdelv(e|es|ed|ing)\b/gi, "delve"],
   [/\bgame[- ]chang(er|ing)\b/gi, "game-changer"],
@@ -52,9 +53,27 @@ function walk(value: unknown, path: string, out: Violation[]): void {
   }
 }
 
+const REASSURANCE = ["genuine", "genuinely", "real", "really", "simple", "simply", "powerful", "authentic", "meaningful", "sincere", "sincerely", "truly"];
+const REASSURANCE_LIMIT = 2;
+
+function allText(value: unknown, out: string[]): void {
+  if (typeof value === "string") out.push(value);
+  else if (Array.isArray(value)) value.forEach((v) => allText(v, out));
+  else if (value && typeof value === "object") Object.values(value).forEach((v) => allText(v, out));
+}
+
 export function voiceViolations(value: unknown): Violation[] {
   const out: Violation[] = [];
   walk(value, "", out);
+  const texts: string[] = [];
+  allText(value, texts);
+  const joined = texts.join(" ").toLowerCase();
+  for (const w of REASSURANCE) {
+    const n = (joined.match(new RegExp(`\\b${w}\\b`, "g")) || []).length;
+    if (n > REASSURANCE_LIMIT) {
+      out.push({ path: "(whole response)", rule: "repetition", sample: `"${w}" appears ${n} times, limit ${REASSURANCE_LIMIT}` });
+    }
+  }
   return out;
 }
 
