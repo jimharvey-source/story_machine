@@ -27,7 +27,7 @@ export async function POST(req: Request) {
       system: storySystem(register),
       user: storyUserMessage(notes, audience, intent),
       schema: StorySchema,
-      maxTokens: 3000,
+      maxTokens: 8000,
       label: "story",
     });
     return NextResponse.json({

@@ -27,7 +27,7 @@ export async function POST(req: Request) {
       system: landSystem(register),
       user: landUserMessage(notes, JSON.stringify(story, null, 2)),
       schema: LandingSchema,
-      maxTokens: 3000,
+      maxTokens: 8000,
       label: "land",
     });
     return NextResponse.json({

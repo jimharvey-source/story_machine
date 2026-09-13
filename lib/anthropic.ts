@@ -56,16 +56,28 @@ export async function generateStructured<T>(opts: {
 }): Promise<GenerateResult<T>> {
   const anthropic = getClient();
   const format = zodOutputFormat(opts.schema);
-  const maxTokens = opts.maxTokens ?? 4000;
+  const maxTokens = opts.maxTokens ?? 8000;
 
   async function call(messages: Anthropic.MessageParam[]): Promise<{ parsed: T; raw: string }> {
-    const res = await anthropic.messages.parse({
-      model: MODEL,
-      max_tokens: maxTokens,
-      system: opts.system,
-      messages,
-      output_config: { format },
-    });
+    let res;
+    try {
+      res = await anthropic.messages.parse({
+        model: MODEL,
+        max_tokens: maxTokens,
+        system: opts.system,
+        messages,
+        output_config: { format },
+      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (/Unterminated|Unexpected end|parse structured output/i.test(msg)) {
+        throw new Error(`The response was cut off before it finished (limit ${maxTokens} tokens). ${msg}`);
+      }
+      throw e;
+    }
+    if (res.stop_reason === "max_tokens") {
+      throw new Error(`The response was cut off before it finished (limit ${maxTokens} tokens)`);
+    }
     const block = res.content.find((b) => b.type === "text");
     const raw = block && block.type === "text" ? block.text : "";
     if (!raw.trim()) {
