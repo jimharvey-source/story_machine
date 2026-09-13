@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import type { ZodType } from "zod";
-import { describeViolations, repairDashes, voiceViolations } from "./voice";
+import { describeViolations, repairDashes, voiceViolations, type VoiceOptions } from "./voice";
 
 // Server-side only. Never import this file from a client component.
 
@@ -55,6 +55,7 @@ export async function generateStructured<T>(opts: {
   label: string;
   /** Prior conversation turns to place after the first user message (for refine). */
   history?: Anthropic.MessageParam[];
+  voice?: VoiceOptions;
 }): Promise<GenerateResult<T>> {
   const anthropic = getClient();
   const format = zodOutputFormat(opts.schema);
@@ -97,7 +98,7 @@ export async function generateStructured<T>(opts: {
   const messages: Anthropic.MessageParam[] = [{ role: "user", content: opts.user }, ...(opts.history ?? [])];
   let attempts = 1;
   let { parsed, raw } = await call(messages);
-  const before = voiceViolations(parsed);
+  const before = voiceViolations(parsed, opts.voice);
   let violations = before;
 
   if (violations.length) {
@@ -111,7 +112,7 @@ export async function generateStructured<T>(opts: {
       ]);
       parsed = retry.parsed;
       raw = retry.raw;
-      violations = voiceViolations(parsed);
+      violations = voiceViolations(parsed, opts.voice);
     } catch (e) {
       console.warn(`[voice] ${opts.label}: retry failed, keeping first answer`, e);
     }
@@ -119,7 +120,7 @@ export async function generateStructured<T>(opts: {
 
   if (violations.some((v) => v.rule === "dash")) {
     parsed = repairDashes(parsed);
-    violations = voiceViolations(parsed);
+    violations = voiceViolations(parsed, opts.voice);
   }
 
   const unresolved = violations.map((v) => `${v.path}: ${v.rule}`);

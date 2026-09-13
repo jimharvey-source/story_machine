@@ -29,6 +29,7 @@ export async function POST(req: Request) {
       schema: LandingSchema,
       maxTokens: 8000,
       label: "land",
+      voice: { contractionsInWritten: register === "conversational" },
     });
     return NextResponse.json({
       landing: result.data,

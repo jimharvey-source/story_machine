@@ -45,6 +45,7 @@ export async function POST(req: Request) {
         schema: RefineFullResultSchema,
         maxTokens: 10000,
         label: "refine:full",
+        voice: { contractionsInWritten: register === "conversational" },
       });
       return NextResponse.json({ reply: result.data.reply, story: result.data.story, landing: result.data.landing, meta: { attempts: result.attempts, violationsAfter: result.violationsAfter } });
     }
@@ -55,6 +56,7 @@ export async function POST(req: Request) {
       schema: RefineStoryResultSchema,
       maxTokens: 8000,
       label: "refine:story",
+      voice: { contractionsInWritten: register === "conversational" },
     });
     return NextResponse.json({ reply: result.data.reply, story: result.data.story, meta: { attempts: result.attempts, violationsAfter: result.violationsAfter } });
   } catch (e) {

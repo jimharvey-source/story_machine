@@ -38,6 +38,7 @@ export async function POST(req: Request) {
         schema: EditListSchema,
         maxTokens: 2000,
         label: `edit:${path}`,
+        voice: { contractionsInWritten: register === "conversational" },
       });
       return NextResponse.json({ value: result.data.items, meta: { attempts: result.attempts } });
     }
@@ -47,6 +48,7 @@ export async function POST(req: Request) {
       schema: EditTextSchema,
       maxTokens: 1500,
       label: `edit:${path}`,
+      voice: { contractionsInWritten: register === "conversational" },
     });
     return NextResponse.json({ value: result.data.value, meta: { attempts: result.attempts } });
   } catch (e) {

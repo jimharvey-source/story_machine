@@ -5,7 +5,9 @@ export type Violation = { path: string; rule: string; sample: string };
 const BANNED: Array<[RegExp, string]> = [
   [/—|–/g, "dash"],
   [/\bnot (?:just |only |merely |simply |by |about |for |because )?[^.;:,!?]{1,70}\bbut\b/gi, "antithesis"],
-  [/\b(?:isn't|aren't|wasn't|weren't|doesn't|don't|is not|are not|was not|were not|does not|do not)\b[^.!?]{1,70}[.!?]\s+(?:It's|It is|They're|They are|We're|We are|You're|You are|That's|That is|This is|Instead)\b/g, "antithesis-split"],
+  [/\b(?:isn't|aren't|wasn't|weren't|doesn't|don't|is not|are not|was not|were not|does not|do not|I'm not|I am not|we're not|we are not)\b[^.!?]{1,70}[.!?]\s+(?:It's|It is|They're|They are|We're|We are|You're|You are|That's|That is|This is|Instead|I'm|I am)\b/g, "antithesis-split"],
+  [/,\s*not\s+(?:a\s+|an\s+|the\s+)?\w+(?:\s+\w+)?[.!?]/g, "antithesis-tail"],
+  [/\bNot (?:a|an|the)\s+\w+\.\s+(?:A|An|The)\s+\w+\./g, "antithesis-fragments"],
   [/\bleverag(e|es|ed|ing)\b/gi, "leverage"],
   [/\bdelv(e|es|ed|ing)\b/gi, "delve"],
   [/\bgame[- ]chang(er|ing)\b/gi, "game-changer"],
@@ -65,9 +67,53 @@ function allText(value: unknown, out: string[]): void {
   else if (value && typeof value === "object") Object.values(value).forEach((v) => allText(v, out));
 }
 
-export function voiceViolations(value: unknown): Violation[] {
+const SPOKEN_PATHS = /(^|\.)(prologue|epilogue|signpost)$/;
+const CONTRACTION = /\b\w+(?:'re|'ve|'ll|'d|n't|'s)\b|\bI'm\b/g;
+const POSSESSIVE = /\b(?:[A-Za-z]+s'|[A-Za-z]+'s\s+(?:own|[a-z]+ing))\b/;
+
+function contractionViolations(value: unknown, path: string, out: Violation[]): void {
+  if (typeof value === "string") {
+    if (SPOKEN_PATHS.test(path)) return;
+    CONTRACTION.lastIndex = 0;
+    let m: RegExpExecArray | null;
+    while ((m = CONTRACTION.exec(value))) {
+      const hit = m[0];
+      // 's is ambiguous (possessive). Only flag it after a pronoun or "here/there/that/what".
+      if (/'s$/.test(hit) && !/^(it|he|she|that|there|here|what|who|where)'s$/i.test(hit)) continue;
+      if (POSSESSIVE.test(hit)) continue;
+      const start = Math.max(0, m.index - 30);
+      out.push({ path, rule: "contraction", sample: value.slice(start, m.index + hit.length + 30) });
+      break;
+    }
+    return;
+  }
+  if (Array.isArray(value)) value.forEach((v, i) => contractionViolations(v, `${path}[${i}]`, out));
+  else if (value && typeof value === "object") {
+    const o = value as Record<string, unknown>;
+    if (o.source === "material" && typeof o.text === "string") return;
+    for (const [k, v] of Object.entries(o)) contractionViolations(v, path ? `${path}.${k}` : k, out);
+  }
+}
+
+function soundbiteViolations(value: unknown, path: string, out: Violation[]): void {
+  if (!value || typeof value !== "object") return;
+  const o = value as Record<string, unknown>;
+  if (typeof o.text === "string" && (o.source === "material" || o.source === "proposed")) {
+    if (/^(They|It|This|That|These|Those|He|She|We)\b/.test(o.text.trim())) {
+      out.push({ path, rule: "soundbite-pronoun", sample: o.text });
+    }
+    return;
+  }
+  for (const [k, v] of Object.entries(o)) soundbiteViolations(v, path ? `${path}.${k}` : k, out);
+}
+
+export type VoiceOptions = { contractionsInWritten?: boolean };
+
+export function voiceViolations(value: unknown, options: VoiceOptions = {}): Violation[] {
   const out: Violation[] = [];
   walk(value, "", out);
+  soundbiteViolations(value, "", out);
+  if (options.contractionsInWritten === false) contractionViolations(value, "", out);
   const texts: string[] = [];
   allText(value, texts);
   const joined = texts.join(" ").toLowerCase();

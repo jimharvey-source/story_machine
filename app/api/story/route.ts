@@ -29,6 +29,7 @@ export async function POST(req: Request) {
       schema: StorySchema,
       maxTokens: 8000,
       label: "story",
+      voice: { contractionsInWritten: register === "conversational" },
     });
     return NextResponse.json({
       story: result.data,
