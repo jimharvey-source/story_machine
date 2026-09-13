@@ -1,0 +1,91 @@
+import { z } from "zod";
+
+// Stage one: Get your story straight (Worksheet 1).
+// Audience, intent, argument, Big Idea, three acts.
+
+export const ActSchema = z.object({
+  headline: z.string().describe("One line a presenter could say aloud that captures this act"),
+  coreMessage: z.string().describe("One or two sentences: the single thing the audience must take from this act"),
+  supportingPoints: z
+    .array(z.string())
+    .describe("Two to four points drawn only from the source material"),
+});
+
+export const StorySchema = z.object({
+  audience: z.object({
+    who: z.string().describe("Who the audience is, in one line"),
+    needToHear: z.string().describe("What they need or want to hear, in one or two lines"),
+    doNotNeedToHear: z
+      .string()
+      .describe("What they do not need to hear and should be left out, in one line"),
+  }),
+  intent: z
+    .string()
+    .describe(
+      'Statement of intent, no more than two lines, beginning "After my presentation, the audience will"'
+    ),
+  argument: z.string().describe("The argument of the presentation in one plain sentence"),
+  bigIdea: z
+    .string()
+    .describe("The soundbite: the one phrase the audience will carry out of the room. Under twelve words."),
+  why: ActSchema,
+  how: ActSchema,
+  what: ActSchema,
+  gaps: z
+    .array(z.string())
+    .describe(
+      "Up to three things the story needs that the source material does not supply, written as coaching, not as errors. Empty if none."
+    ),
+});
+
+export type Story = z.infer<typeof StorySchema>;
+
+// Stage two: Make it land and stick (Worksheet 2).
+// Prologue, signposts, visuals, epilogue, five-line story.
+
+export const LandingActSchema = z.object({
+  signpost: z
+    .string()
+    .describe("A natural spoken sentence that tells the audience the important idea has arrived"),
+  visualIdea: z
+    .string()
+    .describe(
+      "One slide or visual that illustrates rather than explains. If no visual would help, say so plainly."
+    ),
+});
+
+export const LandingSchema = z.object({
+  prologue: z
+    .string()
+    .describe(
+      "The golden first minute, written as spoken words: states the Big Idea, establishes why it matters and why now, sets expectations and says what is needed from the audience. Under 150 words."
+    ),
+  why: LandingActSchema,
+  how: LandingActSchema,
+  what: LandingActSchema,
+  epilogue: z
+    .string()
+    .describe(
+      "The ending, written as spoken words: reinforces the Big Idea, reconnects with the audience's need, states what they should think, feel or do next, and bookends the prologue. Under 120 words."
+    ),
+  fiveLineStory: z.object({
+    prologue: z.string(),
+    why: z.string(),
+    how: z.string(),
+    what: z.string(),
+    epilogue: z.string(),
+  }),
+});
+
+export type Landing = z.infer<typeof LandingSchema>;
+
+export const StoryRequestSchema = z.object({
+  notes: z.string().min(40, "Paste at least a few lines of notes").max(60000),
+  audience: z.string().max(400).optional().default(""),
+  intent: z.string().max(400).optional().default(""),
+});
+
+export const LandRequestSchema = z.object({
+  notes: z.string().min(40).max(60000),
+  story: StorySchema,
+});
