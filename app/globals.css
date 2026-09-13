@@ -1,24 +1,144 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fbfaf7;
-  --foreground: #1a1a1a;
-  --muted: #6b6b6b;
-  --rule: #e4e1da;
-  --accent: #b3261e;
+  --paper: #faf8f3;
+  --paper-2: #ffffff;
+  --ink: #16140f;
+  --ink-2: #3d3a33;
+  --muted: #7a766c;
+  --rule: #e6e2d8;
+  --red: #b3261e;
+  --red-soft: #f6e4e2;
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
   --color-muted: var(--muted);
   --color-rule: var(--rule);
-  --color-accent: var(--accent);
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --color-red: var(--red);
+  --color-red-soft: var(--red-soft);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+}
+
+html {
+  background: var(--paper);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-feature-settings: "kern", "liga";
+  -webkit-font-smoothing: antialiased;
+}
+
+.display {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 96, "SOFT" 30, "WONK" 0;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Spoken sections: words the presenter says aloud. Set as script. */
+.spoken {
+  position: relative;
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 18, "SOFT" 50, "WONK" 1;
+  font-weight: 400;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: var(--ink);
+  padding-left: 1.6rem;
+}
+.spoken::before {
+  content: "\201C";
+  position: absolute;
+  left: 0;
+  top: -0.35rem;
+  font-size: 2.4rem;
+  line-height: 1;
+  color: var(--red);
+  opacity: 0.85;
+}
+
+/* Editable fields: quiet until hovered or focused. */
+.editable {
+  border-radius: 4px;
+  outline: 1px solid transparent;
+  outline-offset: 4px;
+  transition: outline-color 120ms ease, background-color 120ms ease;
+  cursor: text;
+}
+.editable:hover {
+  outline-color: var(--rule);
+}
+.editable:focus-within,
+.editable[data-editing="true"] {
+  outline-color: var(--ink);
+  background: var(--paper-2);
+}
+.editable textarea {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  resize: none;
+  font: inherit;
+  color: inherit;
+  line-height: inherit;
+  padding: 0;
+  margin: 0;
+}
+
+.actions {
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+.group:hover .actions,
+.group:focus-within .actions {
+  opacity: 1;
+}
+@media (hover: none) {
+  .actions {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rise {
+    animation: rise 420ms ease-out both;
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+button:focus-visible,
+textarea:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
 }

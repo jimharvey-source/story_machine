@@ -110,3 +110,45 @@ export const LandRequestSchema = z.object({
   story: StorySchema,
   register: RegisterSchema,
 });
+
+// Contextual edit
+
+export const EditRequestSchema = z.object({
+  notes: z.string().min(40).max(60000),
+  story: StorySchema,
+  landing: LandingSchema.optional(),
+  register: RegisterSchema,
+  path: z.string().min(1).max(80),
+  current: z.union([z.string(), z.array(z.string())]),
+  action: z.enum(["sharper", "simpler", "provocative", "senior", "another", "memorable", "clearer", "custom"]),
+  instruction: z.string().max(600).optional().default(""),
+});
+
+export const EditTextSchema = z.object({ value: z.string() });
+export const EditListSchema = z.object({ items: z.array(z.string()) });
+
+// Refine conversation
+
+export const RefineMessageSchema = z.object({
+  role: z.enum(["user", "assistant"]),
+  content: z.string().min(1).max(4000),
+});
+
+export const RefineRequestSchema = z.object({
+  notes: z.string().min(40).max(60000),
+  story: StorySchema,
+  landing: LandingSchema.optional(),
+  register: RegisterSchema,
+  messages: z.array(RefineMessageSchema).min(1).max(30),
+});
+
+export const RefineStoryResultSchema = z.object({
+  reply: z.string(),
+  story: StorySchema,
+});
+
+export const RefineFullResultSchema = z.object({
+  reply: z.string(),
+  story: StorySchema,
+  landing: LandingSchema,
+});

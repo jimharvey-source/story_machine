@@ -10,7 +10,10 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.125.0",
+    "jszip": "^3.10.2",
+    "mammoth": "^1.12.3",
     "next": "16.3.5",
+    "pdf-parse": "^2.4.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "zod": "^4.6.4"

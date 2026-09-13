@@ -53,6 +53,8 @@ export async function generateStructured<T>(opts: {
   schema: ZodType<T>;
   maxTokens?: number;
   label: string;
+  /** Prior conversation turns to place after the first user message (for refine). */
+  history?: Anthropic.MessageParam[];
 }): Promise<GenerateResult<T>> {
   const anthropic = getClient();
   const format = zodOutputFormat(opts.schema);
@@ -92,7 +94,7 @@ export async function generateStructured<T>(opts: {
     return { parsed: parsed.data, raw };
   }
 
-  const messages: Anthropic.MessageParam[] = [{ role: "user", content: opts.user }];
+  const messages: Anthropic.MessageParam[] = [{ role: "user", content: opts.user }, ...(opts.history ?? [])];
   let attempts = 1;
   let { parsed, raw } = await call(messages);
   const before = voiceViolations(parsed);

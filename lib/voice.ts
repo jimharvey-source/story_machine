@@ -49,7 +49,10 @@ function walk(value: unknown, path: string, out: Violation[]): void {
     return;
   }
   if (value && typeof value === "object") {
-    for (const [k, v] of Object.entries(value)) walk(v, path ? `${path}.${k}` : k, out);
+    const o = value as Record<string, unknown>;
+    // A soundbite quoted from the presenter's own material is theirs. The rules do not apply to it.
+    if (o.source === "material" && typeof o.text === "string") return;
+    for (const [k, v] of Object.entries(o)) walk(v, path ? `${path}.${k}` : k, out);
   }
 }
 
