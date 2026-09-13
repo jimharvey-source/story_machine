@@ -22,7 +22,14 @@ const ACTS: Array<{ key: ActKey; n: string; word: string; job: string }> = [
 
 async function postJson<T>(url: string, body: unknown): Promise<T> {
   const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-  const data = await res.json();
+  const text = await res.text();
+  let data: { error?: string } & T;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    if (res.status === 504) throw new Error("That took too long and the server gave up. Try again; shorter notes finish faster.");
+    throw new Error(`The server replied with an error (${res.status}). ${text.slice(0, 120)}`);
+  }
   if (!res.ok) throw new Error(data.error || "Something went wrong");
   return data as T;
 }

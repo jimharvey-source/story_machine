@@ -5,7 +5,7 @@ import { refineSystem, refineUserContext } from "@/lib/prompts";
 import { RefineFullResultSchema, RefineRequestSchema, RefineStoryResultSchema } from "@/lib/schema";
 
 export const runtime = "nodejs";
-export const maxDuration = 90;
+export const maxDuration = 300;
 
 export async function POST(req: Request) {
   let body: unknown;

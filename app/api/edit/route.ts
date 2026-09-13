@@ -4,7 +4,7 @@ import { EDIT_ACTIONS, editSystem, editUserMessage } from "@/lib/prompts";
 import { EditListSchema, EditRequestSchema, EditTextSchema } from "@/lib/schema";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 export async function POST(req: Request) {
   let body: unknown;

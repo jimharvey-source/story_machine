@@ -4,7 +4,7 @@ import { landSystem, landUserMessage } from "@/lib/prompts";
 import { LandRequestSchema, LandingSchema } from "@/lib/schema";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 export async function POST(req: Request) {
   let body: unknown;
