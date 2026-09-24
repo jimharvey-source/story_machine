@@ -40,6 +40,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# delivery bundles
-*.tgz
-*.bak
+# keep the example env file
+!.env.example

@@ -59,7 +59,12 @@ export async function generateStructured<T>(opts: {
 }): Promise<GenerateResult<T>> {
   const anthropic = getClient();
   const format = zodOutputFormat(opts.schema);
-  const maxTokens = opts.maxTokens ?? 8000;
+  // Thinking tokens count against max_tokens on current models. Give thinking a fixed
+  // budget and keep the ceiling well above it so the answer always has room.
+  // Short calls (single-line edits) skip thinking: it would cost more than the answer.
+  const wanted = opts.maxTokens ?? 8000;
+  const THINKING_BUDGET = wanted >= 4000 ? 4000 : 0;
+  const maxTokens = THINKING_BUDGET ? Math.max(wanted, THINKING_BUDGET + 12000) : wanted;
 
   async function call(messages: Anthropic.MessageParam[]): Promise<{ parsed: T; raw: string }> {
     let res;
@@ -69,6 +74,7 @@ export async function generateStructured<T>(opts: {
         max_tokens: maxTokens,
         system: opts.system,
         messages,
+        ...(THINKING_BUDGET ? { thinking: { type: "enabled" as const, budget_tokens: THINKING_BUDGET } } : {}),
         output_config: { format },
       });
     } catch (e) {
@@ -78,8 +84,10 @@ export async function generateStructured<T>(opts: {
       }
       throw e;
     }
+    const used = res.usage as { output_tokens?: number; output_tokens_details?: { thinking_tokens?: number } };
+    console.log(JSON.stringify({ tag: "usage", label: opts.label, output_tokens: used.output_tokens, thinking_tokens: used.output_tokens_details?.thinking_tokens, stop_reason: res.stop_reason }));
     if (res.stop_reason === "max_tokens") {
-      throw new Error(`The response was cut off before it finished (limit ${maxTokens} tokens)`);
+      throw new Error(`The response was cut off before it finished (limit ${maxTokens} tokens, of which up to ${THINKING_BUDGET} for thinking)`);
     }
     const block = res.content.find((b) => b.type === "text");
     const raw = block && block.type === "text" ? block.text : "";

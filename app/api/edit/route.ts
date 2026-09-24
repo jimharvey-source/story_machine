@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { currentProfile, logGeneration, signInRequired } from "@/lib/access";
 import { generateStructured } from "@/lib/anthropic";
 import { EDIT_ACTIONS, editSystem, editUserMessage } from "@/lib/prompts";
 import { EditListSchema, EditRequestSchema, EditTextSchema } from "@/lib/schema";
@@ -7,6 +8,9 @@ export const runtime = "nodejs";
 export const maxDuration = 300;
 
 export async function POST(req: Request) {
+  const profile = await currentProfile();
+  if (!profile) return signInRequired();
+  await logGeneration(profile.id, "edit");
   let body: unknown;
   try {
     body = await req.json();

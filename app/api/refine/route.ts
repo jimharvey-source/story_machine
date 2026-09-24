@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { currentProfile, logGeneration, signInRequired } from "@/lib/access";
 import type Anthropic from "@anthropic-ai/sdk";
 import { generateStructured } from "@/lib/anthropic";
 import { refineSystem, refineUserContext } from "@/lib/prompts";
@@ -8,6 +9,9 @@ export const runtime = "nodejs";
 export const maxDuration = 300;
 
 export async function POST(req: Request) {
+  const profile = await currentProfile();
+  if (!profile) return signInRequired();
+  await logGeneration(profile.id, "refine");
   let body: unknown;
   try {
     body = await req.json();

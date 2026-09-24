@@ -103,6 +103,8 @@ export const StoryRequestSchema = z.object({
   audience: z.string().max(400).optional().default(""),
   intent: z.string().max(400).optional().default(""),
   register: RegisterSchema,
+  /** Rework an existing story rather than start a new one. */
+  storyId: z.string().uuid().optional(),
 });
 
 export const LandRequestSchema = z.object({

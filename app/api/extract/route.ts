@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { currentProfile, logGeneration, signInRequired } from "@/lib/access";
 import JSZip from "jszip";
 
 export const runtime = "nodejs";
@@ -60,6 +61,9 @@ function decodeEntities(s: string): string {
 }
 
 export async function POST(req: Request) {
+  const profile = await currentProfile();
+  if (!profile) return signInRequired();
+  await logGeneration(profile.id, "extract");
   let form: FormData;
   try {
     form = await req.formData();
