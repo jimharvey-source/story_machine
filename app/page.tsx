@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Landing, Story } from "@/lib/schema";
 import { Editable, EditableList } from "@/components/Editable";
 import { Refine, type ChatMessage } from "@/components/Refine";
-import { AccountBar, Paywall, SignIn, type Me } from "@/components/Account";
+import { AccountBar, Paywall, PRICES, SignIn, type Me } from "@/components/Account";
 import { StoriesPanel } from "@/components/Stories";
 
 const DRAFT_KEY = "storymachine.draft";
@@ -47,41 +47,103 @@ function Why({ children }: { children: React.ReactNode }) {
   return <p className="mt-1 mb-2 text-xs leading-relaxed text-muted">{children}</p>;
 }
 
-const STEPS: Array<[string, string]> = [
-  ["Understand the audience", "Who is listening, what they need to hear, and what to leave out."],
-  ["State your intent", "After my presentation, the audience will... one sentence."],
-  ["Clarify the argument", "Your case in a sentence a sceptic could test, and the Big Idea they will repeat."],
-  ["Build a three-act story", "Why: the problem. How: the answer. What: the ask. A headline and a soundbite for each."],
-  ["Make it land", "A Prologue that earns the first minute, a signpost into each act, one slide per act."],
-  ["End with certainty", "Audiences need certainty. Recap your headlines and the actions from here, and send them away with the message ringing in their ears."],
-  ["Then the slides, last", "Speech notes, a slide brief, and a prompt for your own AI tool. Slides come after the story, so every one has a job."],
+const GET: Array<[string, string]> = [
+  ["A story built for the audience in front of you", "Who they are, what they need to hear, and what to leave out. A message for everyone lands with no one."],
+  ["Your argument in one sentence", "And a Big Idea they will repeat to each other afterwards."],
+  ["Three acts that make the case", "Why, How, What. Each with a headline that says something, a soundbite worth quoting, and only the evidence that carries it."],
+  ["A strong start", "The Prologue: your first minute, written to be spoken, that earns the rest."],
+  ["A certain finish", "The Epilogue that recaps your headlines and the actions from here, and sends them away with the message ringing in their ears."],
+  ["Ways to make it more persuasive", "Signposts, one slide per act, and a strategist you can argue with until every line is yours."],
+  ["Speaker notes", "Cues to hold in the room. Never a script."],
+  ["Slides, without the slide-building", "A slide brief and a detailed prompt for the AI tool of your choice: simple, television-quality slides, one idea each."],
 ];
 
-function HowItWorks() {
+const HOW: Array<[string, string]> = [
+  ["Paste your notes, or upload what you have", "Rough thinking, a document, last year's deck. It does not need to be tidy."],
+  ["Answer two questions", "Who is the audience, and what will they do after you have spoken. Choose formal, business or conversational."],
+  ["Read your story as it appears", "Each part arrives with a line saying why it is there, so you learn the method while it works. Edit any line. Ask the strategist. Then make it land, and download the lot."],
+];
+
+// For visitors: the case, before the form.
+function Hero() {
   return (
-    <section className="mt-14 border-t border-rule pt-8">
-      <p className="eyebrow">How it works</p>
-      <h2 className="display mt-2 text-2xl sm:text-3xl">Most people start with the slides. Start with the story.</h2>
-      <p className="mt-3 max-w-xl text-ink-2">
-        Paste your notes and the Story Machine works through the method Jim Harvey has used with sales teams and
-        leaders for thirty years. It never invents: where your notes are silent, it asks. Every step appears on the
-        page as it is done, with a line saying why, so you learn the method while it works.
+    <div className="mb-10">
+      <h1 className="display mt-3 text-4xl leading-[1.05] sm:text-6xl">Stand out when you stand up.</h1>
+      <p className="mt-5 max-w-xl text-lg text-ink-2">
+        You have a big speech or presentation coming up, and you want it to go well. The Story Machine helps you build
+        a strong story, with simple visuals, for the audience in front of you.
       </p>
-      <ol className="mt-6 grid gap-x-8 gap-y-4 sm:grid-cols-2">
-        {STEPS.map(([name, text], i) => (
-          <li key={name} className="grid grid-cols-[1.75rem_1fr] gap-2">
-            <span className="font-mono text-[0.7rem] text-red pt-1">{String(i + 1).padStart(2, "0")}</span>
-            <span>
+      <p className="mt-3 max-w-xl text-ink-2">
+        Upload your slides and notes, answer a few simple questions, and in a couple of minutes you have a logical
+        story with a strong start and a certain finish, suggestions that make it more interesting and persuasive,
+        speaker notes, and a detailed prompt to build the slides in the application you already use. Your first story
+        is free.
+      </p>
+    </div>
+  );
+}
+
+function Landing() {
+  return (
+    <section className="mt-14 space-y-14 border-t border-rule pt-10">
+      <div>
+        <p className="eyebrow">What you get</p>
+        <h2 className="display mt-2 text-2xl sm:text-3xl">Everything between the blank page and the first slide.</h2>
+        <ol className="mt-6 grid gap-x-8 gap-y-5 sm:grid-cols-2">
+          {GET.map(([name, text]) => (
+            <li key={name}>
               <span className="block font-medium">{name}</span>
               <span className="block text-sm text-ink-2">{text}</span>
-            </span>
-          </li>
-        ))}
-      </ol>
-      <p className="mt-6 max-w-xl text-sm text-muted">
-        Your first story is free, the whole thing: both stages, edits, the strategist, document upload and the PDF.
-        After that, one story, a month, or lifetime. The story is yours. The method is ours, and you are welcome to it.
-      </p>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-6 max-w-xl text-sm text-muted">
+          All of it in one PDF: the story, speaker notes, the words in full for rehearsal, the slide brief, the prompt
+          for your slides, and a page on how it was made. Your stories are saved, so you can come back and change your mind.
+        </p>
+      </div>
+
+      <div>
+        <p className="eyebrow">How it works</p>
+        <h2 className="display mt-2 text-2xl sm:text-3xl">Most people start with the slides. Start with the story.</h2>
+        <ol className="mt-6 space-y-5">
+          {HOW.map(([name, text], i) => (
+            <li key={name} className="grid grid-cols-[2rem_1fr] gap-3">
+              <span className="pt-1 font-mono text-[0.7rem] text-red">{String(i + 1).padStart(2, "0")}</span>
+              <span>
+                <span className="block font-medium">{name}</span>
+                <span className="block text-sm text-ink-2">{text}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-6 max-w-xl text-sm text-muted">
+          The method is the one Jim Harvey has used for thirty years with leaders and sales teams at JP Morgan, Mercer,
+          Ford and Rolls-Royce. The Story Machine never invents. Where your notes are silent, it asks.
+        </p>
+      </div>
+
+      <div>
+        <p className="eyebrow">What it costs</p>
+        <h2 className="display mt-2 text-2xl sm:text-3xl">Your first story is free. All of it.</h2>
+        <p className="mt-4 max-w-xl text-ink-2">
+          Both stages, every edit, the strategist, document upload, the PDF. Sign in with your email and start. No card,
+          no password.
+        </p>
+        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          {(Object.keys(PRICES) as Array<keyof typeof PRICES>).map((k) => (
+            <div key={k} className={"rounded-md border p-4 " + (k === "lifetime" ? "border-ink" : "border-rule")}>
+              <span className="eyebrow">{PRICES[k].label}</span>
+              <span className="display mt-1 block text-3xl">{PRICES[k].price}</span>
+              <span className="mt-2 block text-sm text-muted">{PRICES[k].note}</span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 max-w-xl text-sm text-muted">
+          Launch offer: lifetime for $49 to the first five hundred. Code LAUNCH49 at checkout. On a programme with The
+          Message Business? Your programme code gives you twenty stories.
+        </p>
+      </div>
     </section>
   );
 }
@@ -526,11 +588,16 @@ export default function Home() {
             />
           </div>
         )}
+        {!story && me && !me.signedIn && <Hero />}
         {!story && (
           <>
-            <h1 className="display mt-3 text-4xl leading-[1.05] sm:text-6xl">
-              What are you trying to say?
-            </h1>
+            {me && !me.signedIn ? (
+              <h2 className="display mt-3 text-2xl sm:text-3xl">What are you trying to say?</h2>
+            ) : (
+              <h1 className="display mt-3 text-4xl leading-[1.05] sm:text-6xl">
+                What are you trying to say?
+              </h1>
+            )}
             <p className="mt-5 max-w-xl text-lg text-ink-2">
               Paste in your notes, presentation content, research, rough
               thinking or existing storyboard. It does not need to be polished.
@@ -656,7 +723,7 @@ export default function Home() {
           </div>
           {error && <p className="text-sm text-red">{error}</p>}
 
-          <HowItWorks />
+          <Landing />
         </section>
       )}
 
