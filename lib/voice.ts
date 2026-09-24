@@ -4,9 +4,11 @@ export type Violation = { path: string; rule: string; sample: string };
 
 const BANNED: Array<[RegExp, string]> = [
   [/—|–/g, "dash"],
-  [/\bnot (?:just |only |merely |simply |by |about |for |because )?[^.;:,!?]{1,70}\bbut\b/gi, "antithesis"],
+  // "not X, but Y" with or without the comma; "Not because A, but because B."
+  [/\bnot (?:just |only |merely |simply |by |about |for |because )?[^.;:!?]{1,70}\bbut\b/gi, "antithesis"],
   [/\b(?:isn't|aren't|wasn't|weren't|doesn't|don't|is not|are not|was not|were not|does not|do not|I'm not|I am not|we're not|we are not)\b[^.!?]{1,70}[.!?]\s+(?:It's|It is|They're|They are|We're|We are|You're|You are|That's|That is|This is|Instead|I'm|I am)\b/g, "antithesis-split"],
-  [/,\s*not\s+(?:a\s+|an\s+|the\s+)?\w+(?:\s+\w+)?[.!?]/g, "antithesis-tail"],
+  // "X, not Y." and "X, not because Y." up to five words in the tail
+  [/,\s*not\s+(?:a\s+|an\s+|the\s+|because\s+)?[\w']+(?:\s+[\w']+){0,4}[.!?]/g, "antithesis-tail"],
   [/\bNot (?:a|an|the)\s+\w+\.\s+(?:A|An|The)\s+\w+\./g, "antithesis-fragments"],
   [/\bleverag(e|es|ed|ing)\b/gi, "leverage"],
   [/\bdelv(e|es|ed|ing)\b/gi, "delve"],
@@ -107,11 +109,53 @@ function soundbiteViolations(value: unknown, path: string, out: Violation[]): vo
   for (const [k, v] of Object.entries(o)) soundbiteViolations(v, path ? `${path}.${k}` : k, out);
 }
 
-export type VoiceOptions = { contractionsInWritten?: boolean };
+export type VoiceOptions = {
+  contractionsInWritten?: boolean;
+  /** Names and terms the audience section said to leave out. None may appear in the landing text. */
+  avoid?: string[];
+};
+
+const COMMON = new Set(["The", "This", "That", "These", "Those", "There", "Who", "What", "When", "Where", "Why", "How", "It", "They", "We", "You", "Our", "Their", "Internal", "No", "Not", "Any", "All", "One", "Each", "Every", "Some", "For", "And", "But", "Or", "If", "In", "On", "At", "To", "Of", "With", "Without", "After", "Before", "Act", "Stage", "Big", "Idea", "Prologue", "Epilogue"]);
+
+/** Proper nouns in a "leave out" sentence: capitalised words that are not sentence-initial or common. */
+export function namesToAvoid(leaveOut: string): string[] {
+  const names = new Set<string>();
+  for (const sentence of leaveOut.split(/[.!?;:]/)) {
+    const words = sentence.trim().split(/\s+/);
+    words.forEach((w, i) => {
+      const clean = w.replace(/[^A-Za-z'-]/g, "");
+      if (i === 0 || clean.length < 3 || COMMON.has(clean)) return;
+      if (/^[A-Z][a-z]+$/.test(clean) || /^[A-Z]{2,}[A-Za-z]*$/.test(clean)) names.add(clean);
+    });
+  }
+  return [...names];
+}
+
+function avoidViolations(value: unknown, path: string, avoid: string[], out: Violation[]): void {
+  if (!avoid.length) return;
+  if (typeof value === "string") {
+    if (/(^|\.)(audience|gaps)(\.|\[|$)/.test(path)) return;
+    for (const name of avoid) {
+      const re = new RegExp(`\\b${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`);
+      const m = re.exec(value);
+      if (m) {
+        const start = Math.max(0, m.index - 30);
+        out.push({ path, rule: "leave-out", sample: `"${name}" is on the leave-out list: ` + value.slice(start, m.index + name.length + 30) });
+        break;
+      }
+    }
+    return;
+  }
+  if (Array.isArray(value)) value.forEach((v, i) => avoidViolations(v, `${path}[${i}]`, avoid, out));
+  else if (value && typeof value === "object") {
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) avoidViolations(v, path ? `${path}.${k}` : k, avoid, out);
+  }
+}
 
 export function voiceViolations(value: unknown, options: VoiceOptions = {}): Violation[] {
   const out: Violation[] = [];
   walk(value, "", out);
+  avoidViolations(value, "", options.avoid ?? [], out);
   soundbiteViolations(value, "", out);
   if (options.contractionsInWritten === false) contractionViolations(value, "", out);
   const texts: string[] = [];

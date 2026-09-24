@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { currentProfile, logGeneration, signInRequired } from "@/lib/access";
 import { describeKey, generateStructured } from "@/lib/anthropic";
 import { landSystem, landUserMessage } from "@/lib/prompts";
+import { namesToAvoid } from "@/lib/voice";
 import { LandRequestSchema, LandingSchema } from "@/lib/schema";
 
 export const runtime = "nodejs";
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
       schema: LandingSchema,
       maxTokens: 8000,
       label: "land",
-      voice: { contractionsInWritten: register === "conversational" },
+      voice: { contractionsInWritten: register === "conversational", avoid: namesToAvoid(story.audience.doNotNeedToHear) },
     });
     await logGeneration(profile.id, "land", { attempts: result.attempts, violationsBefore: result.violationsBefore, violationsAfter: result.violationsAfter });
     return NextResponse.json({

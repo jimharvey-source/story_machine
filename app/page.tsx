@@ -36,11 +36,55 @@ type Meta = {
   unresolved: string[];
 };
 type ActKey = "why" | "how" | "what";
-const ACTS: Array<{ key: ActKey; n: string; word: string; job: string }> = [
-  { key: "why", n: "Act 1", word: "Why", job: "the hook" },
-  { key: "how", n: "Act 2", word: "How", job: "the response" },
-  { key: "what", n: "Act 3", word: "What", job: "the ask" },
+const ACTS: Array<{ key: ActKey; n: string; word: string; job: string; why: string }> = [
+  { key: "why", n: "Act 1", word: "Why", job: "the hook", why: "The problem, and why it matters to this audience now. Until they feel the problem, the answer is noise." },
+  { key: "how", n: "Act 2", word: "How", job: "the response", why: "The insight or the answer. Only the evidence that carries the point; the rest goes in a handout." },
+  { key: "what", n: "Act 3", word: "What", job: "the ask", why: "What you want them to think, feel or do next. Say it plainly, once." },
 ];
+
+// The process explains itself as the story appears: one line under each part saying why it is there.
+function Why({ children }: { children: React.ReactNode }) {
+  return <p className="mt-1 mb-2 text-xs leading-relaxed text-muted">{children}</p>;
+}
+
+const STEPS: Array<[string, string]> = [
+  ["Understand the audience", "Who is listening, what they need to hear, and what to leave out."],
+  ["State your intent", "After my presentation, the audience will... one sentence."],
+  ["Clarify the argument", "Your case in a sentence a sceptic could test, and the Big Idea they will repeat."],
+  ["Build a three-act story", "Why: the problem. How: the answer. What: the ask. A headline and a soundbite for each."],
+  ["Make it land", "A Prologue that earns the first minute, a signpost into each act, one slide per act."],
+  ["End with certainty", "Audiences need certainty. Recap your headlines and the actions from here, and send them away with the message ringing in their ears."],
+  ["Then the slides, last", "Speech notes, a slide brief, and a prompt for your own AI tool. Slides come after the story, so every one has a job."],
+];
+
+function HowItWorks() {
+  return (
+    <section className="mt-14 border-t border-rule pt-8">
+      <p className="eyebrow">How it works</p>
+      <h2 className="display mt-2 text-2xl sm:text-3xl">Most people start with the slides. Start with the story.</h2>
+      <p className="mt-3 max-w-xl text-ink-2">
+        Paste your notes and the Story Machine works through the method Jim Harvey has used with sales teams and
+        leaders for thirty years. It never invents: where your notes are silent, it asks. Every step appears on the
+        page as it is done, with a line saying why, so you learn the method while it works.
+      </p>
+      <ol className="mt-6 grid gap-x-8 gap-y-4 sm:grid-cols-2">
+        {STEPS.map(([name, text], i) => (
+          <li key={name} className="grid grid-cols-[1.75rem_1fr] gap-2">
+            <span className="font-mono text-[0.7rem] text-red pt-1">{String(i + 1).padStart(2, "0")}</span>
+            <span>
+              <span className="block font-medium">{name}</span>
+              <span className="block text-sm text-ink-2">{text}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
+      <p className="mt-6 max-w-xl text-sm text-muted">
+        Your first story is free, the whole thing: both stages, edits, the strategist, document upload and the PDF.
+        After that, one story, a month, or lifetime. The story is yours. The method is ours, and you are welcome to it.
+      </p>
+    </section>
+  );
+}
 
 async function postJson<T>(url: string, body: unknown): Promise<T> {
   const res = await fetch(url, {
@@ -95,6 +139,7 @@ export default function Home() {
   >("idle");
   const [notice, setNotice] = useState<string | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
+  const [pdf, setPdf] = useState<{ url: string; name: string } | null>(null);
   const saveTimer = useRef<number | null>(null);
 
   const loadMe = useCallback(async () => {
@@ -263,6 +308,7 @@ export default function Home() {
   async function exportPdf() {
     if (!story) return;
     setBusy("export");
+    setError(null);
     try {
       const res = await fetch("/api/export", {
         method: "POST",
@@ -274,15 +320,21 @@ export default function Home() {
         throw new Error(j.error || "Could not make the PDF");
       }
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download =
+      const name =
         res.headers
           .get("Content-Disposition")
           ?.match(/filename="([^"]+)"/)?.[1] ?? "story.pdf";
+      // Keep the last file: browsers sometimes block a second automatic download,
+      // so the page also shows a real link the person can click.
+      if (pdf) URL.revokeObjectURL(pdf.url);
+      const url = URL.createObjectURL(blob);
+      setPdf({ url, name });
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
       a.click();
-      URL.revokeObjectURL(url);
+      a.remove();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not make the PDF");
     } finally {
@@ -603,6 +655,8 @@ export default function Home() {
             )}
           </div>
           {error && <p className="text-sm text-red">{error}</p>}
+
+          <HowItWorks />
         </section>
       )}
 
@@ -610,6 +664,7 @@ export default function Home() {
         <article className="rise space-y-14">
           <section>
             <p className="eyebrow">Big Idea</p>
+            <Why>The whole argument in one line people can repeat in the corridor. If they remember nothing else, they remember this.</Why>
             <Editable
               as="h2"
               value={story.bigIdea}
@@ -625,6 +680,7 @@ export default function Home() {
             <div className="space-y-4">
               <div>
                 <p className="eyebrow">Audience</p>
+                <Why>Every story starts with who is listening. A message for everyone lands with no one.</Why>
                 <Editable
                   value={story.audience.who}
                   onChange={(v) => applyPath("audience.who", v)}
@@ -651,6 +707,7 @@ export default function Home() {
             <div className="space-y-4">
               <div>
                 <p className="eyebrow">Statement of intent</p>
+                <Why>After my presentation, the audience will... If this sentence will not finish, the presentation is not ready.</Why>
                 <Editable
                   value={story.intent}
                   busy={busy === "intent"}
@@ -662,6 +719,7 @@ export default function Home() {
               </div>
               <div>
                 <p className="eyebrow">The argument</p>
+                <Why>Your case in one sentence a sceptic could test. Everything in the three acts has to serve it.</Why>
                 <Editable
                   value={story.argument}
                   busy={busy === "argument"}
@@ -679,6 +737,7 @@ export default function Home() {
               <p className="eyebrow">
                 Prologue &middot; spoken &middot; the golden minute
               </p>
+              <Why>The first minute earns the rest. It states the Big Idea, says why now, and tells the room what you need from them.</Why>
               <div className="mt-4">
                 <Editable
                   value={landing.prologue}
@@ -692,7 +751,7 @@ export default function Home() {
             </section>
           )}
 
-          {ACTS.map(({ key, n, word, job }) => {
+          {ACTS.map(({ key, n, word, job, why }) => {
             const act = story[key];
             const land = landing?.[key];
             return (
@@ -704,6 +763,7 @@ export default function Home() {
                   <p className="eyebrow">{n}</p>
                   <p className="display mt-1 text-3xl text-red">{word}</p>
                   <p className="mt-1 text-xs text-muted">{job}</p>
+                  <p className="mt-2 hidden text-xs leading-relaxed text-muted sm:block">{why}</p>
                 </div>
                 <div className="space-y-5">
                   <Editable
@@ -737,7 +797,7 @@ export default function Home() {
                         : "border-rule")
                     }
                   >
-                    <p className="eyebrow">
+                    <p className="eyebrow" title="A line worth quoting. From your notes when one is there; proposed when not, and marked so you find your own.">
                       Soundbite &middot;{" "}
                       {act.soundbite.source === "material" ? (
                         <span className="text-red">from your notes</span>
@@ -772,6 +832,7 @@ export default function Home() {
                     <div className="grid gap-5 rounded-md bg-paper-2 p-5 sm:grid-cols-2">
                       <div>
                         <p className="eyebrow">Signpost &middot; spoken</p>
+                        <Why>One spoken sentence that tells the room the important idea has arrived.</Why>
                         <div className="mt-2">
                           <Editable
                             value={land.signpost}
@@ -790,6 +851,7 @@ export default function Home() {
                       </div>
                       <div>
                         <p className="eyebrow">Slide idea</p>
+                        <Why>One slide, one idea. It illustrates; your words explain.</Why>
                         <Editable
                           value={land.visualIdea}
                           busy={busy === `landing.${key}.visualIdea`}
@@ -817,6 +879,7 @@ export default function Home() {
                 <p className="eyebrow">
                   Epilogue &middot; spoken &middot; end with certainty
                 </p>
+                <Why>Audiences need certainty. End by recapping your headlines and the actions from here. Send them away with the message ringing in their ears.</Why>
                 <div className="mt-4">
                   <Editable
                     value={landing.epilogue}
@@ -830,6 +893,7 @@ export default function Home() {
               </section>
               <section className="rounded-md border border-rule bg-paper-2 p-6 sm:p-8">
                 <p className="eyebrow">The story in five lines</p>
+                <Why>The whole talk in thirty seconds. If it works here, it works in the room.</Why>
                 <ol className="mt-4 space-y-3">
                   {(
                     ["prologue", "why", "how", "what", "epilogue"] as const
@@ -853,6 +917,7 @@ export default function Home() {
           {gaps.length > 0 && (
             <section className="border-t border-rule pt-8">
               <p className="eyebrow">What only you can add</p>
+              <Why>The machine never invents. Where the notes were silent, it asks.</Why>
               <ul className="mt-3 space-y-2 text-ink-2">
                 {gaps.map((g, i) => (
                   <li key={i} className="border-l-2 border-rule pl-4">
@@ -882,8 +947,17 @@ export default function Home() {
                 disabled={busy !== null}
                 className="rounded-md border border-ink bg-paper-2 px-5 py-3 text-base font-medium text-ink disabled:opacity-40"
               >
-                {busy === "export" ? "Making the PDF..." : "Download PDF"}
+                {busy === "export" ? "Making the PDF..." : landing ? "Download PDF (landed)" : "Download PDF"}
               </button>
+            )}
+            {pdf && busy !== "export" && (
+              <a
+                href={pdf.url}
+                download={pdf.name}
+                className="text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink"
+              >
+                Nothing downloaded? Save {pdf.name}
+              </a>
             )}
             {signedIn && saveState !== "idle" && (
               <span className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-muted">

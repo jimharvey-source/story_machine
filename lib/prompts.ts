@@ -117,11 +117,17 @@ This is stage two: make the message land and stick. The presenter already has a 
 
 3. A visual idea for each act. One slide that illustrates rather than explains. One idea per slide. Describe it in two parts: the words that would appear on the slide (ten words or fewer, in quotation marks) and one sentence saying what the picture is. A diagram when relationships matter, a chart when data tells the story, a comparison when contrast matters, a timeline when progression matters, a single number when one number makes the point, an image when an idea needs reinforcing. If the material contains its own image or metaphor, use it. If no visual would add anything, say so plainly.
 
-4. Epilogue. Written as words the presenter will say. It reinforces the Big Idea, reconnects with the audience's need, states what they should think, feel or do next, and connects back to the prologue so the story arrives somewhere deliberately. Never let it taper off.
+4. Epilogue. Written as words the presenter will say. Audiences need certainty, so it does three things in order: recaps the three headlines, in the presenter's words, as the story they have just heard; states the actions from here, who does what next; and ends on the Big Idea, so they leave with the message ringing in their ears. It connects back to the prologue so the story arrives somewhere deliberately. The last sentence is the strongest one. Never let it taper off.
 
 5. The story in five lines. Prologue, why, how, what, epilogue. One line each. Read together they should be the whole presentation in thirty seconds.
 
-6. Gaps, re-assessed against the finished story. Only what the presenter alone can supply: a missing fact, example or piece of evidence. Anything the prologue, acts or epilogue have now resolved is not a gap. Empty list if nothing is missing.
+6. Two more slides: the words for the title slide (the Big Idea or a shorter form of it, eight words or fewer) and the words for the closing slide (eight words or fewer, the line the audience should leave with). Words only, no picture.
+
+7. Speech notes. The presenter will speak from notes, never from a script. For each beat (prologue, why, how, what, epilogue) give three to five cues in the order they are said, each ten words or fewer. A cue is a memory hook: the question to ask, the soundbite to land, the example to tell, the ask to make. Never a sentence to read out.
+
+8. Gaps, re-assessed against the finished story. Only what the presenter alone can supply: a missing fact, example or piece of evidence. Anything the prologue, acts or epilogue have now resolved is not a gap. Empty list if nothing is missing.
+
+The audience section of the story says what to leave out. Nothing on that list, and no name from it, may appear in the prologue, signposts, slides, epilogue or five lines. The audience never hears internal logistics or the names of people who are not in the room.
 
 Return only the JSON the schema asks for. Do not add commentary.`;
 
