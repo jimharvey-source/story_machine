@@ -97,3 +97,15 @@ end;
 $$;
 
 update story.profiles set story_credits = story_credits + 20, plan = 'free' where plan = 'pro' and plan_source = 'code';
+
+-- The server uses the service role (migration story_service_role_grants, 24 September).
+-- Also: Project Settings, Data API, Exposed schemas must include "story", or PostgREST answers "Invalid schema: story".
+grant usage on schema story to service_role;
+grant all on all tables in schema story to service_role;
+grant all on all sequences in schema story to service_role;
+alter default privileges in schema story grant all on tables to service_role;
+alter default privileges in schema story grant all on sequences to service_role;
+grant execute on function story.start_story(uuid) to service_role;
+grant execute on function story.refund_story(uuid) to service_role;
+grant execute on function story.grant_purchase(uuid, text, text) to service_role;
+grant execute on function story.redeem_code(uuid, text) to service_role;

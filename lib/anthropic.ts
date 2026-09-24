@@ -61,10 +61,14 @@ export async function generateStructured<T>(opts: {
   const format = zodOutputFormat(opts.schema);
   // Thinking tokens count against max_tokens on current models. Give thinking a fixed
   // budget and keep the ceiling well above it so the answer always has room.
-  // Short calls (single-line edits) skip thinking: it would cost more than the answer.
+  // Sonnet 5 uses adaptive thinking, steered by output_config.effort; a fixed budget is rejected.
+  // Thinking still counts against max_tokens, so story-sized calls get a 16,000 ceiling.
+  // Short calls (single-line edits) run with thinking off: it would cost more than the answer.
   const wanted = opts.maxTokens ?? 8000;
-  const THINKING_BUDGET = wanted >= 4000 ? 4000 : 0;
-  const maxTokens = THINKING_BUDGET ? Math.max(wanted, THINKING_BUDGET + 12000) : wanted;
+  const big = wanted >= 4000;
+  const maxTokens = big ? Math.max(wanted, 16000) : wanted;
+  const thinking = big ? { type: "adaptive" as const, display: "omitted" as const } : { type: "disabled" as const };
+  const effort = big ? ("medium" as const) : ("low" as const);
 
   async function call(messages: Anthropic.MessageParam[]): Promise<{ parsed: T; raw: string }> {
     let res;
@@ -74,8 +78,8 @@ export async function generateStructured<T>(opts: {
         max_tokens: maxTokens,
         system: opts.system,
         messages,
-        ...(THINKING_BUDGET ? { thinking: { type: "enabled" as const, budget_tokens: THINKING_BUDGET } } : {}),
-        output_config: { format },
+        thinking,
+        output_config: { format, effort },
       });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -87,7 +91,7 @@ export async function generateStructured<T>(opts: {
     const used = res.usage as { output_tokens?: number; output_tokens_details?: { thinking_tokens?: number } };
     console.log(JSON.stringify({ tag: "usage", label: opts.label, output_tokens: used.output_tokens, thinking_tokens: used.output_tokens_details?.thinking_tokens, stop_reason: res.stop_reason }));
     if (res.stop_reason === "max_tokens") {
-      throw new Error(`The response was cut off before it finished (limit ${maxTokens} tokens, of which up to ${THINKING_BUDGET} for thinking)`);
+      throw new Error(`The response was cut off before it finished (limit ${maxTokens} tokens, thinking ${used.output_tokens_details?.thinking_tokens ?? "?"})`);
     }
     const block = res.content.find((b) => b.type === "text");
     const raw = block && block.type === "text" ? block.text : "";
