@@ -677,6 +677,12 @@ export default function Home() {
           </div>
 
           <fieldset className="text-sm">
+            <p className="mb-3 max-w-xl text-sm text-ink-2">
+              What is the tone of voice that you want for the presentation? Formal (senior executives, government
+              officials, court cases)? Business (internal and external presentations and speeches to professional
+              colleagues, clients, customers and stakeholders)? Conversational (presentations to friends, peers and
+              colleagues in a friendly manner)?
+            </p>
             <legend className="eyebrow">Tone</legend>
             <div className="mt-2 flex flex-wrap gap-2">
               {REGISTERS.map((r) => (
