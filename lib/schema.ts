@@ -13,7 +13,7 @@ export const SoundbiteSchema = z.object({
 });
 
 export const ActSchema = z.object({
-  headline: z.string().describe("One line a presenter could say aloud that captures this act"),
+  headline: z.string().describe("One line a presenter could say aloud that makes this act's point: a claim with a verb, never a product name, tagline or label"),
   soundbite: SoundbiteSchema.describe(
     "The phrase the audience could repeat afterwards. WHY: the problem in a phrase. HOW: the insight or solution in a phrase. WHAT: the closing image or headline."
   ),
