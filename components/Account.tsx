@@ -22,9 +22,11 @@ export const PRICES = {
   story: { label: "One story", price: "$2.99", note: "Everything, for this story, for as long as you keep it." },
   monthly: { label: "A month", price: "$15.99", note: "As many stories as you need. Cancel any time." },
   lifetime: { label: "Lifetime", price: "$99", note: "Every story you ever give. One payment." },
+  launch: "$49",
 } as const;
 
-export type PlanKey = keyof typeof PRICES;
+export type PlanKey = "story" | "monthly" | "lifetime";
+
 
 /** One line on where this person stands. */
 export function planLine(me: Me): string {
@@ -234,7 +236,7 @@ export function Paywall({ me, onChange }: { me: Me; onChange: () => void }) {
         come with every story.
       </p>
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
-        {(Object.keys(PRICES) as PlanKey[]).map((k) => {
+        {(["story", "monthly", "lifetime"] as PlanKey[]).map((k) => {
           const p = PRICES[k];
           const featured = k === "lifetime";
           return (

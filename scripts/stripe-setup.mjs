@@ -5,8 +5,11 @@
 // Reads STRIPE_SECRET_KEY from .env.local (never from the chat) and writes the resulting
 // ids back into .env.local. Prints ids only; the webhook signing secret goes to the file.
 //
-//   node scripts/stripe-setup.mjs            (uses the key in .env.local)
-//   SITE_URL=https://... node scripts/stripe-setup.mjs
+//   node scripts/stripe-setup.mjs            (uses the key in .env.local; prices in USD)
+//   CURRENCY=gbp node scripts/stripe-setup.mjs
+//
+// Running it again with a different currency makes new prices and moves the lookup keys to them;
+// the old prices stay in Stripe, inactive, so past payments still reconcile.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -24,6 +27,8 @@ if (!KEY) {
   process.exit(1);
 }
 const MODE = KEY.startsWith("sk_live") ? "live" : "test";
+const CURRENCY = (process.env.CURRENCY || "usd").toLowerCase();
+const SYMBOL = CURRENCY === "gbp" ? "£" : CURRENCY === "eur" ? "€" : "$";
 const SITE = (process.env.SITE_URL || envGet("NEXT_PUBLIC_SITE_URL") || "https://storymachine.themessagebusiness.com").replace(/\/$/, "");
 
 // Stripe takes form-encoded bodies, nested as a[b][c]=v.
@@ -64,13 +69,13 @@ const PRICES = [
   { key: "story_machine_monthly", env: "STRIPE_PRICE_MONTHLY", nickname: "A month", unit_amount: 1599, recurring: { interval: "month" } },
   { key: "story_machine_lifetime", env: "STRIPE_PRICE_LIFETIME", nickname: "Lifetime", unit_amount: 9900 },
 ];
-const COUPON_ID = "story-machine-launch-49";
+const COUPON_ID = CURRENCY === "usd" ? "story-machine-launch-49" : `story-machine-launch-49-${CURRENCY}`;
 const PROMO_CODE = "LAUNCH49";
 const WEBHOOK_URL = `${SITE}/api/stripe/webhook`;
 const WEBHOOK_EVENTS = ["checkout.session.completed", "customer.subscription.created", "customer.subscription.updated", "customer.subscription.deleted"];
 
 const out = {};
-console.log(`Stripe ${MODE} mode, site ${SITE}`);
+console.log(`Stripe ${MODE} mode, ${CURRENCY.toUpperCase()}, site ${SITE}`);
 
 // 1. Product
 let product = (await stripe("GET", "products", { active: true, limit: 100 })).data.find((p) => p.metadata?.app === "story-machine");
@@ -84,16 +89,22 @@ if (!product) {
   console.log("created product", product.id);
 } else console.log("product exists", product.id);
 
-// 2. Prices, found by lookup key
+// 2. Prices, found by lookup key. A price in another currency is retired and replaced.
 for (const p of PRICES) {
   let price = (await stripe("GET", "prices", { lookup_keys: [p.key], limit: 1 })).data[0];
+  if (price && price.currency !== CURRENCY) {
+    console.log(`price ${p.nickname} exists in ${price.currency.toUpperCase()}; making a ${CURRENCY.toUpperCase()} one`);
+    await stripe("POST", `prices/${price.id}`, { active: false });
+    price = undefined;
+  }
   if (!price) {
     price = await stripe("POST", "prices", {
       product: product.id,
-      currency: "usd",
+      currency: CURRENCY,
       unit_amount: p.unit_amount,
-      nickname: p.nickname,
+      nickname: `${p.nickname} ${SYMBOL}${(p.unit_amount / 100).toFixed(2)}`,
       lookup_key: p.key,
+      transfer_lookup_key: true,
       recurring: p.recurring,
       metadata: { app: "story-machine" },
     });
@@ -110,9 +121,9 @@ try {
 } catch {
   coupon = await stripe("POST", "coupons", {
     id: COUPON_ID,
-    name: "Launch offer: lifetime for $49",
+    name: `Launch offer: lifetime for ${SYMBOL}49`,
     amount_off: 5000,
-    currency: "usd",
+    currency: CURRENCY,
     duration: "once",
     max_redemptions: 500,
     applies_to: { products: [product.id] },
@@ -120,6 +131,12 @@ try {
   console.log("created coupon", coupon.id);
 }
 let promo = (await stripe("GET", "promotion_codes", { code: PROMO_CODE, limit: 1 })).data[0];
+if (promo && (promo.coupon?.id ?? promo.promotion?.coupon) !== coupon.id) {
+  // The code points at a coupon in the old currency. Retire it so the code can be reissued.
+  await stripe("POST", `promotion_codes/${promo.id}`, { active: false });
+  console.log("retired promotion code on the old coupon");
+  promo = undefined;
+}
 if (!promo) {
   // Newer API versions take promotion[coupon]; older ones take coupon. Try the new shape first.
   try {

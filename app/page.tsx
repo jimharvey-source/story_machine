@@ -47,37 +47,39 @@ function Why({ children }: { children: React.ReactNode }) {
   return <p className="mt-1 mb-2 text-xs leading-relaxed text-muted">{children}</p>;
 }
 
-const GET: Array<[string, string]> = [
-  ["A story built for the audience in front of you", "Who they are, what they need to hear, and what to leave out. A message for everyone lands with no one."],
-  ["Your argument in one sentence", "And a Big Idea they will repeat to each other afterwards."],
-  ["Three acts that make the case", "Why, How, What. Each with a headline that says something, a soundbite worth quoting, and only the evidence that carries it."],
-  ["A strong start", "The Prologue: your first minute, written to be spoken, that earns the rest."],
-  ["A certain finish", "The Epilogue that recaps your headlines and the actions from here, and sends them away with the message ringing in their ears."],
-  ["Ways to make it more persuasive", "Signposts, one slide per act, and a strategist you can argue with until every line is yours."],
-  ["Speaker notes", "Cues to hold in the room. Never a script."],
-  ["Slides, without the slide-building", "A slide brief and a detailed prompt for the AI tool of your choice: simple, television-quality slides, one idea each."],
+const GET: string[] = [
+  "A strong start that grabs their attention",
+  "A logical argument or case",
+  "Headlines, soundbites and signposts that will stick in their minds",
+  "A confident ending with an ask",
+  "Speaker notes",
+  "A design brief and an AI prompt, so you can make the slides in the tool you already use",
 ];
 
-const HOW: Array<[string, string]> = [
-  ["Paste your notes, or upload what you have", "Rough thinking, a document, last year's deck. It does not need to be tidy."],
-  ["Answer two questions", "Who is the audience, and what will they do after you have spoken. Choose formal, business or conversational."],
-  ["Read your story as it appears", "Each part arrives with a line saying why it is there, so you learn the method while it works. Edit any line. Ask the strategist. Then make it land, and download the lot."],
-];
-
-// For visitors: the case, before the form.
+// For visitors: the case, before the form. Jim's words.
 function Hero() {
   return (
     <div className="mb-10">
-      <h1 className="display mt-3 text-4xl leading-[1.05] sm:text-6xl">Stand out when you stand up.</h1>
+      <h1 className="display mt-3 text-4xl leading-[1.05] sm:text-6xl">Start with the story, not the slides.</h1>
       <p className="mt-5 max-w-xl text-lg text-ink-2">
-        You have a big speech or presentation coming up, and you want it to go well. The Story Machine helps you build
-        a strong story, with simple visuals, for the audience in front of you.
+        You have an important presentation coming up. It is complicated: the room is challenging, and the subject
+        matters. You have to get it right. My best advice to you after thirty years of doing this: start with the
+        story, not the slides.
       </p>
       <p className="mt-3 max-w-xl text-ink-2">
-        Upload your slides and notes, answer a few simple questions, and in a couple of minutes you have a logical
-        story with a strong start and a certain finish, suggestions that make it more interesting and persuasive,
-        speaker notes, and a detailed prompt to build the slides in the application you already use. Your first story
-        is free.
+        You need the people to understand you, and to do something after you sit down. The Story Machine takes
+        whatever notes, thoughts and materials you have and turns them into a relevant and powerful story made for
+        the people in front of you. You get:
+      </p>
+      <ul className="mt-3 max-w-xl space-y-1 text-ink-2">
+        {GET.map((g) => (
+          <li key={g} className="border-l-2 border-rule pl-3">
+            {g}
+          </li>
+        ))}
+      </ul>
+      <p className="mt-4 max-w-xl text-ink-2">
+        Your first story is free. Try it out and save hours of frustration trying to get there on your own.
       </p>
     </div>
   );
@@ -87,51 +89,35 @@ function Landing() {
   return (
     <section className="mt-14 space-y-14 border-t border-rule pt-10">
       <div>
-        <p className="eyebrow">What you get</p>
-        <h2 className="display mt-2 text-2xl sm:text-3xl">Everything between the blank page and the first slide.</h2>
-        <ol className="mt-6 grid gap-x-8 gap-y-5 sm:grid-cols-2">
-          {GET.map(([name, text]) => (
-            <li key={name}>
-              <span className="block font-medium">{name}</span>
-              <span className="block text-sm text-ink-2">{text}</span>
-            </li>
-          ))}
-        </ol>
-        <p className="mt-6 max-w-xl text-sm text-muted">
-          All of it in one PDF: the story, speaker notes, the words in full for rehearsal, the slide brief, the prompt
-          for your slides, and a page on how it was made. Your stories are saved, so you can come back and change your mind.
+        <p className="eyebrow">What do you get when we&apos;re through?</p>
+        <h2 className="display mt-2 text-2xl sm:text-3xl">A complete presentation pack you can use immediately.</h2>
+        <p className="mt-3 max-w-xl text-ink-2">
+          The story, straight and landed. Speaker notes. The spoken parts in full for rehearsal. A slide brief and
+          an AI prompt for your slides. All of it in one PDF, and saved here, so you can come back and change your
+          mind.
         </p>
       </div>
 
       <div>
         <p className="eyebrow">How it works</p>
-        <h2 className="display mt-2 text-2xl sm:text-3xl">Most people start with the slides. Start with the story.</h2>
-        <ol className="mt-6 space-y-5">
-          {HOW.map(([name, text], i) => (
-            <li key={name} className="grid grid-cols-[2rem_1fr] gap-3">
-              <span className="pt-1 font-mono text-[0.7rem] text-red">{String(i + 1).padStart(2, "0")}</span>
-              <span>
-                <span className="block font-medium">{name}</span>
-                <span className="block text-sm text-ink-2">{text}</span>
-              </span>
-            </li>
-          ))}
-        </ol>
-        <p className="mt-6 max-w-xl text-sm text-muted">
-          The method is the one Jim Harvey has used for thirty years with leaders and sales teams at JP Morgan, Mercer,
-          Ford and Rolls-Royce. The Story Machine never invents. Where your notes are silent, it asks.
+        <h2 className="display mt-2 text-2xl sm:text-3xl">Most people start with the slides. The best communicators start with the story.</h2>
+        <p className="mt-3 max-w-xl text-ink-2">
+          The method is what Jim Harvey has developed over thirty years working with businesses like JP Morgan,
+          Mercer, Ford, Rolls-Royce, Givaudan, Puig, Grifols, AstraZeneca, Mott MacDonald and many more. Each part of
+          your story arrives with a line saying why it is there, so you learn the method while it works. The Story
+          Machine never invents. Where your notes are silent, it asks.
         </p>
       </div>
 
       <div>
         <p className="eyebrow">What it costs</p>
-        <h2 className="display mt-2 text-2xl sm:text-3xl">Your first story is free. All of it.</h2>
+        <h2 className="display mt-2 text-2xl sm:text-3xl">Your first story is free.</h2>
         <p className="mt-4 max-w-xl text-ink-2">
-          Both stages, every edit, the strategist, document upload, the PDF. Sign in with your email and start. No card,
-          no password.
+          Both stages, every edit, the questions, the upload, the PDF. Sign in with your email and start. No card. No
+          password.
         </p>
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          {(Object.keys(PRICES) as Array<keyof typeof PRICES>).map((k) => (
+          {(["story", "monthly", "lifetime"] as const).map((k) => (
             <div key={k} className={"rounded-md border p-4 " + (k === "lifetime" ? "border-ink" : "border-rule")}>
               <span className="eyebrow">{PRICES[k].label}</span>
               <span className="display mt-1 block text-3xl">{PRICES[k].price}</span>
@@ -140,8 +126,18 @@ function Landing() {
           ))}
         </div>
         <p className="mt-4 max-w-xl text-sm text-muted">
-          Launch offer: lifetime for $49 to the first five hundred. Code LAUNCH49 at checkout. On a programme with The
-          Message Business? Your programme code gives you twenty stories.
+          Launch offer: lifetime for {PRICES.launch} to the first five hundred. Code LAUNCH49 at checkout.
+        </p>
+        <p className="mt-2 max-w-xl text-sm text-muted">
+          On a training programme with The Message Business? Your programme code gives you twenty stories for no
+          charge.
+        </p>
+        <p className="mt-6 max-w-xl text-sm text-ink-2">
+          For more information on our approach, or training for yourself or your team, contact{" "}
+          <a href="mailto:jim.harvey@themessagebusiness.com" className="underline decoration-rule underline-offset-4 hover:text-ink">
+            jim.harvey@themessagebusiness.com
+          </a>
+          .
         </p>
       </div>
     </section>
@@ -592,15 +588,14 @@ export default function Home() {
         {!story && (
           <>
             {me && !me.signedIn ? (
-              <h2 className="display mt-3 text-2xl sm:text-3xl">What are you trying to say?</h2>
+              <h2 className="display mt-3 text-2xl sm:text-3xl">What do you want to say?</h2>
             ) : (
               <h1 className="display mt-3 text-4xl leading-[1.05] sm:text-6xl">
-                What are you trying to say?
+                What do you want to say?
               </h1>
             )}
             <p className="mt-5 max-w-xl text-lg text-ink-2">
-              Paste in your notes, presentation content, research, rough
-              thinking or existing storyboard. It does not need to be polished.
+              Paste your notes, a slide deck, a paper or your rough thinking here. It does not need to be tidy.
             </p>
           </>
         )}
@@ -613,7 +608,7 @@ export default function Home() {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={14}
-              placeholder="Your notes go here."
+              placeholder="Your notes, or the rough thinking, go here."
               className="w-full rounded-md border border-rule bg-paper-2 p-4 text-base leading-relaxed outline-none focus:border-ink"
             />
             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
@@ -625,7 +620,7 @@ export default function Home() {
               >
                 {busy === "upload"
                   ? "Reading the file..."
-                  : "Or upload a document (PDF, Word, PowerPoint)"}
+                  : "Or upload a file (PDF, Word, PowerPoint)"}
               </button>
               <input
                 ref={fileRef}
@@ -644,7 +639,7 @@ export default function Home() {
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block text-sm">
               <span className="text-muted">
-                Who is the audience? (optional)
+                Who is in the audience, and what matters to them? (optional)
               </span>
               <input
                 value={audience}
@@ -655,7 +650,7 @@ export default function Home() {
             </label>
             <label className="block text-sm">
               <span className="text-muted">
-                After my presentation, the audience will... (optional)
+                After I sit down, I want them to know, understand, do... (optional)
               </span>
               <input
                 value={intent}
@@ -667,7 +662,7 @@ export default function Home() {
           </div>
 
           <fieldset className="text-sm">
-            <legend className="eyebrow">Register</legend>
+            <legend className="eyebrow">What kind of tone do you want?</legend>
             <div className="mt-2 flex flex-wrap gap-2">
               {REGISTERS.map((r) => (
                 <button
@@ -713,7 +708,7 @@ export default function Home() {
               disabled={busy !== null || notes.trim().length < 40 || (mustBuy && !storyId)}
               className="rounded-md bg-ink px-6 py-3 text-base font-medium text-paper disabled:opacity-40"
             >
-              {busy === "story" ? "Finding your story..." : storyId ? "Find My Story Again" : "Find My Story"}
+              {busy === "story" ? "Finding your story..." : storyId ? "Find my story again" : "Find my story"}
             </button>
             {busy === "story" && (
               <span className="text-sm text-muted">
