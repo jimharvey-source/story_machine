@@ -3,6 +3,7 @@ import PDFDocument from "pdfkit";
 import { z } from "zod";
 import { currentProfile, signInRequired } from "@/lib/access";
 import { LandingInputSchema, StorySchema } from "@/lib/schema";
+import { slideList, slidePrompt } from "@/lib/slides";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -33,7 +34,7 @@ export async function POST(req: Request) {
 
   const buf = await render(title, story, landing);
   const safe = title.replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-").slice(0, 60) || "story";
-  const name = `${safe}-story${landing ? "-landed" : ""}.pdf`;
+  const name = `${safe}-${landing ? "stage-2-interest-and-impact" : "stage-1-story-straight"}.pdf`;
   console.log(JSON.stringify({ tag: "export", landed: Boolean(landing), bytes: buf.length, name }));
   return new NextResponse(new Uint8Array(buf), {
     headers: {
@@ -53,7 +54,7 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
       size: "A4",
       margins: { top: 64, bottom: 64, left: 60, right: 60 },
       bufferPages: true,
-      info: { Title: title, Author: "Jim's Three Act Story Machine", Subject: landing ? "Presentation story, landed" : "Presentation story, straight" },
+      info: { Title: title, Author: "Jim's Three Act Story Machine", Subject: landing ? "Stage 2: Add interest and impact" : "Stage 1: Get your story straight" },
     });
     const chunks: Buffer[] = [];
     doc.on("data", (c: Buffer) => chunks.push(c));
@@ -126,7 +127,7 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
     // 1. The story
     eyebrow("Jim's Three Act Story Machine");
     doc.font("Helvetica").fontSize(9).fillColor(MUTED).text(
-      `${landing ? "The story, landed" : "The story, straight"}  ·  ${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}`,
+      `${landing ? "Stage 2: Add interest and impact" : "Stage 1: Get your story straight"}  ·  ${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}`,
       L,
       doc.y,
       { width: W }
@@ -279,11 +280,7 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
         "One idea per slide. The words carry the story; the slide reinforces it.",
         "Build the deck from this list, in this order. Each line gives the words on the slide, the picture, and the act it serves. Nothing else goes on the slide."
       );
-      const slides: Array<[string, string, string]> = [
-        ["Title", `Words: "${landing.titleSlide || story.bigIdea}" Picture: none, or one image that carries the Big Idea.`, "Prologue"],
-        ...acts.map(([key, label]): [string, string, string] => [label.split(",")[0], landing[key].visualIdea, label]),
-        ["Close", `Words: "${landing.closingSlide || story.bigIdea}" Picture: the title slide again, or nothing.`, "Epilogue"],
-      ];
+      const slides = slideList(story, landing);
       slides.forEach(([name, text, serves], i) => {
         keep(60);
         rule();
@@ -364,33 +361,4 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
     }
     doc.end();
   });
-}
-
-/** The prompt a presenter pastes into their own AI slide tool. Our rules for slides, then their brief. */
-function slidePrompt(story: Story, landing: Landing, slides: Array<[string, string, string]>): string {
-  const rules = [
-    "Make a slide deck of exactly the slides listed below, in that order, 16:9.",
-    "One idea per slide. If a slide needs two ideas, it is two slides.",
-    "The three-second rule: everything on a slide must be understood in three seconds. If it needs reading, it needs cutting.",
-    "The words on each slide are given. Use them exactly, and nothing else. No subtitles, no bullet lists, no logos, no slide numbers, no footers.",
-    "Words large: the main line fills the width at 60 to 90 points. One typeface, two weights at most.",
-    "One picture per slide at most, described below, full-bleed or as the single object on the slide. A picture illustrates; it never decorates.",
-    "One item at a time: where a slide shows several elements (a list of stages, a comparison), each must be able to appear one at a time, so it can be built with simple animation later.",
-    "A quiet palette: one dark, one light, one accent. Plenty of empty space. Television quality: a viewer across the room reads it at a glance.",
-    "No transitions, no clip art, no gradients, no stock-photo people shaking hands.",
-  ];
-  const list = slides.map(([name, text, serves], i) => `Slide ${i + 1} (${name}, serves ${serves}): ${text}`).join("\n");
-  return [
-    "You are a slide designer. Build the deck for a spoken presentation whose Big Idea is:",
-    `"${story.bigIdea}"`,
-    "",
-    "Rules:",
-    ...rules.map((r, i) => `${i + 1}. ${r}`),
-    "",
-    "The slides:",
-    list,
-    "",
-    `The presentation is for: ${story.audience.who}`,
-    "Return the deck, then one line per slide saying what job it does for the audience. If a slide has no job, leave it out and say so.",
-  ].join("\n");
 }

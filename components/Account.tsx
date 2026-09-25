@@ -231,9 +231,9 @@ export function Paywall({ me, onChange }: { me: Me; onChange: () => void }) {
       <p className="eyebrow">{started > 0 ? "Your free story is used" : "Ready for the next one"}</p>
       <h2 className="display mt-2 text-2xl sm:text-3xl">Every story after the first is a paid story.</h2>
       <p className="mt-3 max-w-xl text-ink-2">
-        The same machine each time: audience, argument, Big Idea, three acts, then the Prologue, signposts, slides,
-        Epilogue and the story in five lines. Edits, the strategist, document upload, saved stories and the PDF brief
-        come with every story.
+        The same machine each time. Stage 1: get your story straight. Stage 2: add interest and impact, with
+        speaker notes, a slide brief and a prompt for your slides. Edits, the strategist, document upload, saved
+        stories and the PDF come with every story.
       </p>
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
         {(["story", "monthly", "lifetime"] as PlanKey[]).map((k) => {

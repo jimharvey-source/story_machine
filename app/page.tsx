@@ -6,6 +6,7 @@ import { Editable, EditableList } from "@/components/Editable";
 import { Refine, type ChatMessage } from "@/components/Refine";
 import { AccountBar, Paywall, PRICES, SignIn, type Me } from "@/components/Account";
 import { StoriesPanel } from "@/components/Stories";
+import { Pack } from "@/components/Pack";
 
 const DRAFT_KEY = "storymachine.draft";
 
@@ -738,6 +739,14 @@ export default function Home() {
 
       {story && (
         <article className="panel rise space-y-14">
+          <ol className="flex flex-wrap gap-x-6 gap-y-1 font-mono text-[0.7rem] uppercase tracking-[0.12em]">
+            <li className="text-ink">
+              <span className="text-red">1</span> Get your story straight <span className="text-red">&#10003;</span>
+            </li>
+            <li className={landing ? "text-ink" : "text-muted"}>
+              <span className="text-red">2</span> Add interest and impact {landing && <span className="text-red">&#10003;</span>}
+            </li>
+          </ol>
           <section>
             <p className="eyebrow">Big Idea</p>
             <Why>The whole argument in one line people can repeat in the corridor. If they remember nothing else, they remember this.</Why>
@@ -987,6 +996,7 @@ export default function Home() {
                   ))}
                 </ol>
               </section>
+              <Pack story={story} landing={landing} />
             </>
           )}
 
@@ -1012,8 +1022,8 @@ export default function Home() {
                 className="rounded-md bg-ink px-6 py-3 text-base font-medium text-paper disabled:opacity-40"
               >
                 {busy === "land"
-                  ? "Making it land..."
-                  : "Your story is straight. Now make it land."}
+                  ? "Adding interest and impact..."
+                  : "Stage 2: add interest and impact"}
               </button>
             )}
             {signedIn && (
@@ -1023,7 +1033,7 @@ export default function Home() {
                 disabled={busy !== null}
                 className="rounded-md border border-ink bg-paper-2 px-5 py-3 text-base font-medium text-ink disabled:opacity-40"
               >
-                {busy === "export" ? "Making the PDF..." : landing ? "Download PDF (landed)" : "Download PDF"}
+                {busy === "export" ? "Making the PDF..." : landing ? "Download the PDF (stages 1 and 2)" : "Download the PDF (stage 1)"}
               </button>
             )}
             {pdf && busy !== "export" && (

@@ -37,7 +37,7 @@ export function StoriesPanel({ onOpen, onClose, currentId }: { onOpen: (id: stri
               <button type="button" onClick={() => onOpen(s.id)} className={"text-left hover:underline " + (s.id === currentId ? "font-medium" : "")}>
                 {s.title}
                 <span className="ml-2 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-muted">
-                  {s.landed ? "landed" : "straight"} · {new Date(s.updatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                  {s.landed ? "stages 1 and 2" : "stage 1"} · {new Date(s.updatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                 </span>
               </button>
               <button type="button" onClick={() => remove(s.id)} className="text-xs text-muted hover:text-red">
