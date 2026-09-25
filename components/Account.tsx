@@ -19,9 +19,9 @@ export type Me = {
 };
 
 export const PRICES = {
-  story: { label: "One story", price: "$2.99", note: "Everything, for this story, for as long as you keep it." },
-  monthly: { label: "A month", price: "$15.99", note: "As many stories as you need. Cancel any time." },
-  lifetime: { label: "Lifetime", price: "$99", note: "Every story you ever give. One payment." },
+  story: { label: "One story", price: "$2.99", note: "This story, for as long as you keep it." },
+  monthly: { label: "A month", price: "$15.99", note: "As many as you need. Cancel any time." },
+  lifetime: { label: "Lifetime", price: "$99", note: "Every story you ever tell. One payment." },
   launch: "$49",
 } as const;
 

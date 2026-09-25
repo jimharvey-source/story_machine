@@ -48,28 +48,26 @@ function Why({ children }: { children: React.ReactNode }) {
 }
 
 const GET: string[] = [
-  "A strong start that grabs their attention",
-  "A logical argument or case",
-  "Headlines, soundbites and signposts that will stick in their minds",
-  "A confident ending with an ask",
+  "A first minute that grabs their attention",
+  "A rational case they can follow",
+  "Headlines, soundbites and signposts they will remember",
+  "An ending with a clear action",
   "Speaker notes",
-  "A design brief and an AI prompt, so you can make the slides in the tool you already use",
+  "A design brief and a prompt, so you can make the slides in the tool you already use",
 ];
 
-// For visitors: the case, before the form. Jim's words.
+// For visitors: the case, before the form. Jim's words, final.
 function Hero() {
   return (
     <div className="mb-10">
-      <h1 className="display mt-3 text-4xl leading-[1.05] sm:text-6xl">Start with the story, not the slides.</h1>
+      <h1 className="display mt-3 text-4xl leading-[1.05] sm:text-6xl">Start with the story, not with the slides.</h1>
       <p className="mt-5 max-w-xl text-lg text-ink-2">
-        You have an important presentation coming up. It is complicated: the room is challenging, and the subject
-        matters. You have to get it right. My best advice to you after thirty years of doing this: start with the
-        story, not the slides.
+        You have a big presentation to make. The audience is tough, and the subject is complex. After thirty years
+        of this, my advice is this: start with the story, not the slides.
       </p>
       <p className="mt-3 max-w-xl text-ink-2">
-        You need the people to understand you, and to do something after you sit down. The Story Machine takes
-        whatever notes, thoughts and materials you have and turns them into a relevant and powerful story made for
-        the people in front of you. You get:
+        The Story Machine takes the notes, slides and rough thinking you already have and builds your story for the
+        people in front of you. You get:
       </p>
       <ul className="mt-3 max-w-xl space-y-1 text-ink-2">
         {GET.map((g) => (
@@ -78,9 +76,7 @@ function Hero() {
           </li>
         ))}
       </ul>
-      <p className="mt-4 max-w-xl text-ink-2">
-        Your first story is free. Try it out and save hours of frustration trying to get there on your own.
-      </p>
+      <p className="mt-4 max-w-xl text-ink-2">Your first story is free.</p>
     </div>
   );
 }
@@ -89,23 +85,23 @@ function Landing() {
   return (
     <section className="mt-14 space-y-14 border-t border-rule pt-10">
       <div>
-        <p className="eyebrow">What do you get when we&apos;re through?</p>
-        <h2 className="display mt-2 text-2xl sm:text-3xl">A complete presentation pack you can use immediately.</h2>
+        <p className="eyebrow">What you get</p>
+        <h2 className="display mt-2 text-2xl sm:text-3xl">One PDF you can use at once.</h2>
         <p className="mt-3 max-w-xl text-ink-2">
-          The story, straight and landed. Speaker notes. The spoken parts in full for rehearsal. A slide brief and
-          an AI prompt for your slides. All of it in one PDF, and saved here, so you can come back and change your
-          mind.
+          The story. Speaker notes. The words in full for rehearsal. A slide brief and a prompt for your slides.
+          Saved here, so you can come back and change your mind.
         </p>
       </div>
 
       <div>
         <p className="eyebrow">How it works</p>
-        <h2 className="display mt-2 text-2xl sm:text-3xl">Most people start with the slides. The best communicators start with the story.</h2>
+        <h2 className="display mt-2 text-2xl sm:text-3xl">Paste what you have. Answer two questions. Read the story as it arrives.</h2>
         <p className="mt-3 max-w-xl text-ink-2">
-          The method is what Jim Harvey has developed over thirty years working with businesses like JP Morgan,
-          Mercer, Ford, Rolls-Royce, Givaudan, Puig, Grifols, AstraZeneca, Mott MacDonald and many more. Each part of
-          your story arrives with a line saying why it is there, so you learn the method while it works. The Story
-          Machine never invents. Where your notes are silent, it asks.
+          Each part explains why it is there, so you see the method in action. Edit any line. Then download the lot.
+        </p>
+        <p className="mt-3 max-w-xl text-ink-2">
+          Jim Harvey has used this method for thirty years with teams at JP Morgan, Mercer, Ford, Rolls-Royce,
+          Givaudan, Puig, Grifols, AstraZeneca, Mott MacDonald and others.
         </p>
       </div>
 
@@ -113,8 +109,7 @@ function Landing() {
         <p className="eyebrow">What it costs</p>
         <h2 className="display mt-2 text-2xl sm:text-3xl">Your first story is free.</h2>
         <p className="mt-4 max-w-xl text-ink-2">
-          Both stages, every edit, the questions, the upload, the PDF. Sign in with your email and start. No card. No
-          password.
+          Both stages, every edit, the questions, the upload, the PDF. Sign in with your email. No card. No password.
         </p>
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
           {(["story", "monthly", "lifetime"] as const).map((k) => (
@@ -125,19 +120,15 @@ function Landing() {
             </div>
           ))}
         </div>
-        <p className="mt-4 max-w-xl text-sm text-muted">
-          Launch offer: lifetime for {PRICES.launch} to the first five hundred. Code LAUNCH49 at checkout.
-        </p>
+        <p className="mt-4 max-w-xl text-sm text-muted">Launch: lifetime {PRICES.launch} for the first five hundred. Code LAUNCH49.</p>
         <p className="mt-2 max-w-xl text-sm text-muted">
-          On a training programme with The Message Business? Your programme code gives you twenty stories for no
-          charge.
+          On a Message Business training programme? Your code gives you twenty stories at no charge.
         </p>
         <p className="mt-6 max-w-xl text-sm text-ink-2">
-          For more information on our approach, or training for yourself or your team, contact{" "}
+          For the method or training for you or your team:{" "}
           <a href="mailto:jim.harvey@themessagebusiness.com" className="underline decoration-rule underline-offset-4 hover:text-ink">
             jim.harvey@themessagebusiness.com
           </a>
-          .
         </p>
       </div>
     </section>
@@ -595,7 +586,7 @@ export default function Home() {
               </h1>
             )}
             <p className="mt-5 max-w-xl text-lg text-ink-2">
-              Paste your notes, a slide deck, a paper or your rough thinking here. It does not need to be tidy.
+              Paste your notes, a deck, a paper or the rough thinking. It does not need to be neat.
             </p>
           </>
         )}
@@ -650,7 +641,7 @@ export default function Home() {
             </label>
             <label className="block text-sm">
               <span className="text-muted">
-                After I sit down, I want them to know, understand, do... (optional)
+                After I sit down, I want them to know, understand, do… (optional)
               </span>
               <input
                 value={intent}
@@ -662,7 +653,7 @@ export default function Home() {
           </div>
 
           <fieldset className="text-sm">
-            <legend className="eyebrow">What kind of tone do you want?</legend>
+            <legend className="eyebrow">Tone</legend>
             <div className="mt-2 flex flex-wrap gap-2">
               {REGISTERS.map((r) => (
                 <button
