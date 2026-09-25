@@ -9,6 +9,7 @@
   --rule: #e6e2d8;
   --red: #b3261e;
   --red-soft: #f6e4e2;
+  --panel: #f3efe6;
   --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
   --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
@@ -23,6 +24,7 @@
   --color-rule: var(--rule);
   --color-red: var(--red);
   --color-red-soft: var(--red-soft);
+  --color-panel: var(--panel);
   --font-display: var(--font-display);
   --font-body: var(--font-body);
   --font-mono: var(--font-mono);
@@ -141,4 +143,23 @@ textarea:focus-visible,
 input:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
+}
+
+/* The working area: the tool itself sits in a panel, so it reads as an app inside the page. */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 0 rgba(22, 20, 15, 0.04), 0 12px 32px -20px rgba(22, 20, 15, 0.25);
+}
+@media (min-width: 640px) {
+  .panel {
+    padding: 2.25rem;
+  }
+}
+.panel textarea,
+.panel input[type="email"],
+.panel input:not([type]) {
+  background: var(--paper-2);
 }

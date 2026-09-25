@@ -572,7 +572,7 @@ export default function Home() {
 
   return (
     <main className="mx-auto w-full max-w-3xl px-5 pb-24 pt-10 sm:pt-16">
-      <header className="mb-10">
+      <header className={story ? "mb-10" : "mb-6"}>
         <p className="eyebrow">Jim&apos;s Three Act Story Machine</p>
         {me && (
           <div className="mt-4">
@@ -598,24 +598,17 @@ export default function Home() {
           </div>
         )}
         {!story && me && !me.signedIn && <Intro />}
-        {!story && (
-          <>
-            {me && !me.signedIn ? (
-              <h2 className="display mt-3 text-2xl sm:text-3xl">What do you want to say?</h2>
-            ) : (
-              <h1 className="display mt-3 text-4xl leading-[1.05] sm:text-6xl">
-                What do you want to say?
-              </h1>
-            )}
-            <p className="mt-5 max-w-xl text-lg text-ink-2">
-              Paste your notes, a deck, a paper or the rough thinking. It does not need to be neat.
-            </p>
-          </>
-        )}
       </header>
 
       {!story && (
-        <section className="space-y-6">
+        <section className="panel space-y-6">
+          <div>
+            <p className="eyebrow">The Story Machine</p>
+            <h1 className="display mt-2 text-3xl leading-[1.05] sm:text-4xl">What do you want to say?</h1>
+            <p className="mt-3 max-w-xl text-ink-2">
+              Paste your notes, a deck, a paper or the rough thinking. It does not need to be neat.
+            </p>
+          </div>
           <div>
             <textarea
               value={notes}
@@ -657,7 +650,7 @@ export default function Home() {
               <textarea
                 value={audience}
                 onChange={(e) => setAudience(e.target.value)}
-                rows={4}
+                rows={6}
                 placeholder="Who they are, how many, what they already think, and what they care about. For example: the executive committee, eight people, sceptical about cost, who care most about the pipeline number."
                 className="mt-1 w-full rounded-md border border-rule bg-paper-2 p-3 text-base leading-relaxed outline-none focus:border-ink"
               />
@@ -669,7 +662,7 @@ export default function Home() {
               <textarea
                 value={intent}
                 onChange={(e) => setIntent(e.target.value)}
-                rows={4}
+                rows={6}
                 placeholder="What they should know, understand or do when you have finished. For example: understand why the process needs more structure, and approve the pilot budget."
                 className="mt-1 w-full rounded-md border border-rule bg-paper-2 p-3 text-base leading-relaxed outline-none focus:border-ink"
               />
@@ -738,13 +731,13 @@ export default function Home() {
             )}
           </div>
           {error && <p className="text-sm text-red">{error}</p>}
-
-          <Prices />
         </section>
       )}
 
+      {!story && <Prices />}
+
       {story && (
-        <article className="rise space-y-14">
+        <article className="panel rise space-y-14">
           <section>
             <p className="eyebrow">Big Idea</p>
             <Why>The whole argument in one line people can repeat in the corridor. If they remember nothing else, they remember this.</Why>
