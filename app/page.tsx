@@ -56,81 +56,103 @@ const GET: string[] = [
   "A design brief and a prompt, so you can make the slides in the tool you already use",
 ];
 
-// For visitors: the case, before the form. Jim's words, final.
-function Hero() {
-  return (
-    <div className="mb-10">
-      <h1 className="display mt-3 text-4xl leading-[1.05] sm:text-6xl">Start with the story, not with the slides.</h1>
-      <p className="mt-5 max-w-xl text-lg text-ink-2">
-        You have a big presentation to make. The audience is tough, and the subject is complex. After thirty years
-        of this, my advice is this: start with the story, not the slides.
-      </p>
-      <p className="mt-3 max-w-xl text-ink-2">
-        The Story Machine takes the notes, slides and rough thinking you already have and builds your story for the
-        people in front of you. You get:
-      </p>
-      <ul className="mt-3 max-w-xl space-y-1 text-ink-2">
-        {GET.map((g) => (
-          <li key={g} className="border-l-2 border-rule pl-3">
-            {g}
-          </li>
-        ))}
-      </ul>
-      <p className="mt-4 max-w-xl text-ink-2">Your first story is free.</p>
-    </div>
-  );
-}
+const PACK: string[] = [
+  "The story.",
+  "Speaker notes.",
+  "The words in full for rehearsal.",
+  "A slide design brief.",
+  "And a prompt for your slides if you want to use an AI tool.",
+];
 
-function Landing() {
+// For visitors, before the form: the case, what you get, how it works, what it costs. Jim's words, final.
+function Intro() {
   return (
-    <section className="mt-14 space-y-14 border-t border-rule pt-10">
+    <div className="mb-12 space-y-12">
+      <div>
+        <h1 className="display mt-3 text-4xl leading-[1.05] sm:text-6xl">Start with the story, not with the slides.</h1>
+        <p className="mt-5 max-w-xl text-lg text-ink-2">
+          You have a big presentation to make. The audience is tough, and the subject is complex. After thirty years
+          of helping the biggest businesses do this, my advice is: start with the story, not the slides.
+        </p>
+        <p className="mt-3 max-w-xl text-ink-2">
+          The Story Machine<sup className="text-[0.6em]">TM</sup> takes the notes, slides and rough thinking you
+          already have and builds your story for the people in front of you. You get:
+        </p>
+        <ul className="mt-3 max-w-xl space-y-1 text-ink-2">
+          {GET.map((g) => (
+            <li key={g} className="border-l-2 border-rule pl-3">
+              {g}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 max-w-xl text-lg font-medium text-ink">Your first story is FREE.</p>
+      </div>
+
       <div>
         <p className="eyebrow">What you get</p>
-        <h2 className="display mt-2 text-2xl sm:text-3xl">One PDF you can use at once.</h2>
+        <h2 className="display mt-2 text-2xl sm:text-3xl">A detailed PDF you can use at once.</h2>
+        <ul className="mt-3 max-w-xl space-y-1 text-ink-2">
+          {PACK.map((g) => (
+            <li key={g}>{g}</li>
+          ))}
+        </ul>
         <p className="mt-3 max-w-xl text-ink-2">
-          The story. Speaker notes. The words in full for rehearsal. A slide brief and a prompt for your slides.
-          Saved here, so you can come back and change your mind.
+          All your work is saved here, so you can come back and re-edit if you change your mind.
         </p>
       </div>
 
       <div>
         <p className="eyebrow">How it works</p>
-        <h2 className="display mt-2 text-2xl sm:text-3xl">Paste what you have. Answer two questions. Read the story as it arrives.</h2>
+        <h2 className="display mt-2 text-2xl sm:text-3xl">
+          Paste what you have. Answer two questions. Read the story as it arrives. Get suggestions to strengthen your
+          outline.
+        </h2>
         <p className="mt-3 max-w-xl text-ink-2">
-          Each part explains why it is there, so you see the method in action. Edit any line. Then download the lot.
+          Each part of the speech explains what we did and why, so you see the method in action. Edit any line. Rerun
+          the tool as many times as you like. Then download the lot in a single PDF.
         </p>
         <p className="mt-3 max-w-xl text-ink-2">
-          Jim Harvey has used this method for thirty years with teams at JP Morgan, Mercer, Ford, Rolls-Royce,
-          Givaudan, Puig, Grifols, AstraZeneca, Mott MacDonald and others.
+          We have used this method for thirty years with teams at JP Morgan, Mercer, Ford, Rolls-Royce, Givaudan,
+          Puig, Grifols, AstraZeneca, Mott MacDonald and many others.
         </p>
       </div>
 
       <div>
         <p className="eyebrow">What it costs</p>
         <h2 className="display mt-2 text-2xl sm:text-3xl">Your first story is free.</h2>
-        <p className="mt-4 max-w-xl text-ink-2">
-          Both stages, every edit, the questions, the upload, the PDF. Sign in with your email. No card. No password.
-        </p>
-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          {(["story", "monthly", "lifetime"] as const).map((k) => (
-            <div key={k} className={"rounded-md border p-4 " + (k === "lifetime" ? "border-ink" : "border-rule")}>
-              <span className="eyebrow">{PRICES[k].label}</span>
-              <span className="display mt-1 block text-3xl">{PRICES[k].price}</span>
-              <span className="mt-2 block text-sm text-muted">{PRICES[k].note}</span>
-            </div>
-          ))}
-        </div>
-        <p className="mt-4 max-w-xl text-sm text-muted">Launch: lifetime {PRICES.launch} for the first five hundred. Code LAUNCH49.</p>
-        <p className="mt-2 max-w-xl text-sm text-muted">
-          On a Message Business training programme? Your code gives you twenty stories at no charge.
-        </p>
-        <p className="mt-6 max-w-xl text-sm text-ink-2">
-          For the method or training for you or your team:{" "}
-          <a href="mailto:jim.harvey@themessagebusiness.com" className="underline decoration-rule underline-offset-4 hover:text-ink">
-            jim.harvey@themessagebusiness.com
-          </a>
+        <p className="mt-3 max-w-xl text-ink-2">
+          Both stages, every edit, the questions, the upload, the PDF to download. Sign in with your email. No card.
+          No password.
         </p>
       </div>
+    </div>
+  );
+}
+
+// After the form: the prices.
+function Prices() {
+  return (
+    <section className="mt-14 border-t border-rule pt-10">
+      <p className="eyebrow">To continue using the tool</p>
+      <div className="mt-4 grid gap-4 sm:grid-cols-3">
+        {(["story", "monthly", "lifetime"] as const).map((k) => (
+          <div key={k} className={"rounded-md border p-4 " + (k === "lifetime" ? "border-ink" : "border-rule")}>
+            <span className="eyebrow">{PRICES[k].label}</span>
+            <span className="display mt-1 block text-3xl">{PRICES[k].price}</span>
+            <span className="mt-2 block text-sm text-muted">{PRICES[k].note}</span>
+          </div>
+        ))}
+      </div>
+      <p className="mt-4 max-w-xl text-sm text-muted">Launch: lifetime {PRICES.launch} for the first five hundred. Code LAUNCH49.</p>
+      <p className="mt-2 max-w-xl text-sm text-muted">
+        On a Message Business training programme? Your code gives you twenty stories at no charge.
+      </p>
+      <p className="mt-6 max-w-xl text-sm text-ink-2">
+        For the method or training for you or your team:{" "}
+        <a href="mailto:jim.harvey@themessagebusiness.com" className="underline decoration-rule underline-offset-4 hover:text-ink">
+          jim.harvey@themessagebusiness.com
+        </a>
+      </p>
     </section>
   );
 }
@@ -575,7 +597,7 @@ export default function Home() {
             />
           </div>
         )}
-        {!story && me && !me.signedIn && <Hero />}
+        {!story && me && !me.signedIn && <Intro />}
         {!story && (
           <>
             {me && !me.signedIn ? (
@@ -632,22 +654,24 @@ export default function Home() {
               <span className="text-muted">
                 Who is in the audience, and what matters to them? (optional)
               </span>
-              <input
+              <textarea
                 value={audience}
                 onChange={(e) => setAudience(e.target.value)}
-                placeholder="The executive committee, eight people, sceptical about cost"
-                className="mt-1 w-full rounded-md border border-rule bg-paper-2 p-3 text-base outline-none focus:border-ink"
+                rows={4}
+                placeholder="Who they are, how many, what they already think, and what they care about. For example: the executive committee, eight people, sceptical about cost, who care most about the pipeline number."
+                className="mt-1 w-full rounded-md border border-rule bg-paper-2 p-3 text-base leading-relaxed outline-none focus:border-ink"
               />
             </label>
             <label className="block text-sm">
               <span className="text-muted">
                 After I sit down, I want them to know, understand, do… (optional)
               </span>
-              <input
+              <textarea
                 value={intent}
                 onChange={(e) => setIntent(e.target.value)}
-                placeholder="approve the pilot budget"
-                className="mt-1 w-full rounded-md border border-rule bg-paper-2 p-3 text-base outline-none focus:border-ink"
+                rows={4}
+                placeholder="What they should know, understand or do when you have finished. For example: understand why the process needs more structure, and approve the pilot budget."
+                className="mt-1 w-full rounded-md border border-rule bg-paper-2 p-3 text-base leading-relaxed outline-none focus:border-ink"
               />
             </label>
           </div>
@@ -709,7 +733,7 @@ export default function Home() {
           </div>
           {error && <p className="text-sm text-red">{error}</p>}
 
-          <Landing />
+          <Prices />
         </section>
       )}
 
