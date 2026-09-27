@@ -5,7 +5,8 @@ import JSZip from "jszip";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const MAX_BYTES = 15 * 1024 * 1024;
+// Vercel functions accept request bodies up to 4.5 MB; the page checks this before sending.
+const MAX_BYTES = 4 * 1024 * 1024;
 const MAX_CHARS = 60000;
 
 // unpdf carries its own serverless build of pdf.js, so nothing here needs a browser (no DOMMatrix, no canvas).
@@ -62,21 +63,22 @@ function decodeEntities(s: string): string {
 }
 
 export async function POST(req: Request) {
-  const profile = await currentProfile();
-  if (!profile) return signInRequired();
-  await logGeneration(profile.id, "extract");
+  // Read the body before any early answer: replying while the upload is still arriving breaks the browser's fetch.
   let form: FormData;
   try {
     form = await req.formData();
   } catch {
     return NextResponse.json({ error: "Send the file as form data" }, { status: 400 });
   }
+  const profile = await currentProfile();
+  if (!profile) return signInRequired();
+  await logGeneration(profile.id, "extract");
   const file = form.get("file");
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "No file received" }, { status: 400 });
   }
   if (file.size > MAX_BYTES) {
-    return NextResponse.json({ error: "That file is over 15 MB. Trim it or paste the text." }, { status: 413 });
+    return NextResponse.json({ error: "That file is over 4 MB. Export it smaller, or paste the text." }, { status: 413 });
   }
   const name = file.name.toLowerCase();
   const buf = Buffer.from(await file.arrayBuffer());

@@ -189,6 +189,9 @@ function setIn<T>(obj: T, path: string[], value: unknown): T {
   return { ...o, [k]: setIn(o[k], rest, value) } as unknown as T;
 }
 
+// Vercel functions accept request bodies up to 4.5 MB.
+const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
+
 export default function Home() {
   const [notes, setNotes] = useState("");
   const [audience, setAudience] = useState("");
@@ -470,9 +473,20 @@ export default function Home() {
   }
 
   async function upload(file: File) {
-    setBusy("upload");
     setError(null);
     setUploadNote(null);
+    // Ask for sign-in before sending the file: answering 401 mid-upload makes the browser report "Failed to fetch".
+    if (me && !me.signedIn) {
+      setNeedSignIn(true);
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setError("That file is over 4 MB, the most the upload can take. Export it smaller, or paste the text.");
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
+    setBusy("upload");
     try {
       const fd = new FormData();
       fd.append("file", file);
