@@ -8,11 +8,12 @@ export const maxDuration = 60;
 const MAX_BYTES = 15 * 1024 * 1024;
 const MAX_CHARS = 60000;
 
+// unpdf carries its own serverless build of pdf.js, so nothing here needs a browser (no DOMMatrix, no canvas).
 async function extractPdf(buf: Buffer): Promise<string> {
-  const { PDFParse } = await import("pdf-parse");
-  const parser = new PDFParse({ data: new Uint8Array(buf) });
-  const result = await parser.getText();
-  return result.text ?? "";
+  const { extractText, getDocumentProxy } = await import("unpdf");
+  const pdf = await getDocumentProxy(new Uint8Array(buf));
+  const { text } = await extractText(pdf, { mergePages: true });
+  return text ?? "";
 }
 
 async function extractDocx(buf: Buffer): Promise<string> {

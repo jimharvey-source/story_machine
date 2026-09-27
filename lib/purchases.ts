@@ -1,6 +1,7 @@
 import type Stripe from "stripe";
 import { stripe } from "./stripe";
 import { supabaseAdmin } from "./supabase/server";
+import { tagPurchase } from "./mailchimp";
 
 // Shared by the return-from-Stripe check and the webhook, so both apply a purchase the same way
 // and neither can apply it twice.
@@ -12,7 +13,7 @@ export async function applySubscription(sub: Stripe.Subscription) {
   const item = sub.items.data[0];
   const periodEnd = item?.current_period_end ? new Date(item.current_period_end * 1000).toISOString() : null;
   const active = sub.status === "active" || sub.status === "trialing" || sub.status === "past_due";
-  const { data: profile } = await admin.from("profiles").select("id, plan, plan_source").eq("stripe_customer_id", customer).maybeSingle();
+  const { data: profile } = await admin.from("profiles").select("id, plan, plan_source, email").eq("stripe_customer_id", customer).maybeSingle();
   if (!profile) {
     console.warn("[stripe] no profile for customer", customer);
     return;
@@ -32,6 +33,7 @@ export async function applySubscription(sub: Stripe.Subscription) {
     update.plan = "free";
   }
   await admin.from("profiles").update(update).eq("id", profile.id);
+  if (active && profile.plan !== "pro" && profile.email) tagPurchase(profile.email, "monthly").catch(() => {});
 }
 
 /**
@@ -57,8 +59,12 @@ export async function applyCheckoutSession(session: Stripe.Checkout.Session): Pr
       console.warn("[stripe] paid session with unknown kind", session.id, kind);
       return false;
     }
-    const { error } = await supabaseAdmin().rpc("grant_purchase", { p_user: userId, p_session: session.id, p_kind: kind });
+    const { data: applied, error } = await supabaseAdmin().rpc("grant_purchase", { p_user: userId, p_session: session.id, p_kind: kind });
     if (error) throw new Error(`grant_purchase failed: ${error.message}`);
+    if (applied) {
+      const email = session.customer_details?.email ?? session.customer_email;
+      if (email) tagPurchase(email, kind).catch(() => {});
+    }
     return true;
   }
   return false;
