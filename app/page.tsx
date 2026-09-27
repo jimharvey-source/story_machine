@@ -357,11 +357,13 @@ export default function Home() {
       } else {
         loadMe();
       }
+      // Back from a sign-in link: the story id is in the address, so this works in any browser. Otherwise the last one here.
+      const fromLink = params.get("story");
       try {
-        const current = localStorage.getItem(CURRENT_KEY);
+        const current = fromLink ?? localStorage.getItem(CURRENT_KEY);
         if (current) openStory(current, true);
       } catch {
-        // ignore
+        if (fromLink) openStory(fromLink, true);
       }
       if (params.toString())
         window.history.replaceState({}, "", window.location.pathname);
@@ -1109,6 +1111,7 @@ export default function Home() {
           {!signedIn && (
             <section className="border-t border-rule pt-8">
               <SignIn
+                next={`/?${new URLSearchParams({ ...(me?.guestId ? { claim: me.guestId } : {}), ...(storyId ? { story: storyId } : {}) }).toString()}`}
                 title={landing ? "Sign in to download the PDF" : "Stage 2 and the PDF are free with your first story"}
                 body="Stage 2 adds interest and impact: the first minute, signposts, slide ideas, the ending, speaker notes and a slide brief. Then the whole thing as a PDF. Sign in with your email and we send you a link. No card. No password. Your story is waiting when you come back."
               />

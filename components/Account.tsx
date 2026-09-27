@@ -16,6 +16,8 @@ export type Me = {
   cohortCode?: string | null;
   stripeCustomer?: boolean;
   subscribed?: boolean;
+  /** The guest cookie id, for a visitor who has not signed in. Travels in the sign-in link so their story is claimed. */
+  guestId?: string | null;
 };
 
 export const PRICES = {
@@ -38,7 +40,7 @@ export function planLine(me: Me): string {
   return `${left} ${left === 1 ? "story" : "stories"} left`;
 }
 
-export function SignIn({ compact, title, body }: { compact?: boolean; title?: string; body?: string }) {
+export function SignIn({ compact, title, body, next }: { compact?: boolean; title?: string; body?: string; next?: string }) {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -54,7 +56,7 @@ export function SignIn({ compact, title, body }: { compact?: boolean; title?: st
       const sb = supabaseBrowser();
       const { error } = await sb.auth.signInWithOtp({
         email: v,
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next ?? "/")}` },
       });
       if (error) throw error;
       setSent(true);
@@ -73,7 +75,7 @@ export function SignIn({ compact, title, body }: { compact?: boolean; title?: st
           A sign-in link is on its way to <span className="font-medium">{email}</span>. Open it on this device and you
           come straight back here.
         </p>
-        <p className="mt-2 text-sm text-muted">Nothing arrived after a minute? Look in spam, or send it again.</p>
+        <p className="mt-2 text-sm text-muted">Open the link on any device: your story comes with you. Nothing arrived after a minute? Look in spam, or send it again.</p>
         <button type="button" onClick={() => setSent(false)} className="mt-3 text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink">
           Send it again
         </button>
