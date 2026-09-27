@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { currentProfile, logGeneration, purchaseRequired, refundStory, signInRequired, startStory } from "@/lib/access";
+import { currentProfile, isUnlimited, logGeneration } from "@/lib/access";
 import { describeKey, generateStructured } from "@/lib/anthropic";
+import { allowRun, guestIdOrNew, setGuestCookie, tooManyRuns } from "@/lib/guest";
 import { storySystem, storyUserMessage } from "@/lib/prompts";
 import { StoryRequestSchema, StorySchema } from "@/lib/schema";
 import { supabaseAdmin } from "@/lib/supabase/server";
@@ -8,10 +9,11 @@ import { supabaseAdmin } from "@/lib/supabase/server";
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
-// A new story spends the free story or a credit. Reworking an existing story (storyId given) is free.
+// Stage 1 is free and needs no sign-in. Guests are known by a cookie; their stories are claimed when they sign in.
+// Stage 2 and the PDF are where the free story, a credit, a month or lifetime come in (see /api/land and /api/export).
 export async function POST(req: Request) {
   const profile = await currentProfile();
-  if (!profile) return signInRequired();
+  const guest = profile ? null : await guestIdOrNew();
   let body: unknown;
   try {
     body = await req.json();
@@ -28,15 +30,15 @@ export async function POST(req: Request) {
   const { notes, audience, intent, register, storyId } = parsed.data;
   const admin = supabaseAdmin();
 
+  // Reworking a story you own (signed in, or the guest who made it) keeps its id and its unlocked state.
   let existingId: string | null = null;
   if (storyId) {
-    const { data } = await admin.from("stories").select("id").eq("id", storyId).eq("user_id", profile.id).maybeSingle();
+    const q = admin.from("stories").select("id").eq("id", storyId);
+    const { data } = await (profile ? q.eq("user_id", profile.id) : q.eq("guest_id", guest!.id)).maybeSingle();
     existingId = data?.id ?? null;
   }
-  if (!existingId) {
-    const allowed = await startStory(profile);
-    if (!allowed) return purchaseRequired();
-  }
+  const gate = await allowRun(profile, isUnlimited(profile), guest?.id ?? null);
+  if (!gate.ok) return tooManyRuns();
 
   try {
     const result = await generateStructured({
@@ -47,11 +49,12 @@ export async function POST(req: Request) {
       label: "story",
       voice: { contractionsInWritten: register === "conversational" },
     });
-    await logGeneration(profile.id, "story", { attempts: result.attempts, violationsBefore: result.violationsBefore, violationsAfter: result.violationsAfter });
+    if (profile) await logGeneration(profile.id, "story", { attempts: result.attempts, violationsBefore: result.violationsBefore, violationsAfter: result.violationsAfter });
 
     // Every story is saved, so the person can come back to it and its edits stay free.
     const row = {
-      user_id: profile.id,
+      user_id: profile?.id ?? null,
+      guest_id: profile ? null : guest!.id,
       title: result.data.bigIdea.slice(0, 160),
       notes,
       audience,
@@ -70,7 +73,7 @@ export async function POST(req: Request) {
       id = data?.id ?? null;
     }
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       id,
       story: result.data,
       meta: {
@@ -81,11 +84,12 @@ export async function POST(req: Request) {
         unresolved: result.unresolved,
       },
     });
+    if (guest?.fresh) setGuestCookie(res, guest.id);
+    return res;
   } catch (e) {
     const message = e instanceof Error ? e.message : "Unknown error";
     const hint = /authentication|api-key|api_key/i.test(message) ? ` (${describeKey()})` : "";
     console.error("[api/story]", message);
-    if (!existingId) await refundStory(profile);
     return NextResponse.json(
       { error: "The Story Machine could not build a story from that. " + message + hint },
       { status: 502 }

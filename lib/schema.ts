@@ -132,6 +132,8 @@ export const LandRequestSchema = z.object({
   notes: z.string().min(40).max(60000),
   story: StorySchema,
   register: RegisterSchema,
+  /** The saved story to unlock for stage 2. */
+  storyId: z.string().uuid().optional(),
 });
 
 // Contextual edit

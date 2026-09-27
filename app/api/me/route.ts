@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { currentProfile, isUnlimited, storiesLeft } from "@/lib/access";
 import { supabaseServer } from "@/lib/supabase/server";
+import { claimGuestStories } from "@/lib/guest";
 
 export const runtime = "nodejs";
 
@@ -8,6 +9,7 @@ export async function GET() {
   try {
     const p = await currentProfile();
     if (!p) return NextResponse.json({ signedIn: false });
+    await claimGuestStories(p);
     const unlimited = isUnlimited(p);
     return NextResponse.json({
       signedIn: true,

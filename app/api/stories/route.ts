@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { currentProfile, signInRequired } from "@/lib/access";
+import { guestId } from "@/lib/guest";
 import { supabaseAdmin } from "@/lib/supabase/server";
-import { LandingSchema, RegisterSchema, StorySchema } from "@/lib/schema";
+import { LandingInputSchema, RegisterSchema, StorySchema } from "@/lib/schema";
 
 export const runtime = "nodejs";
 
@@ -14,7 +15,7 @@ const SaveSchema = z.object({
   intent: z.string().max(400).default(""),
   register: RegisterSchema,
   story: StorySchema,
-  landing: LandingSchema.nullable().default(null),
+  landing: LandingInputSchema.nullable().default(null),
 });
 
 export async function GET() {
@@ -34,7 +35,8 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const p = await currentProfile();
-  if (!p) return signInRequired();
+  const guest = p ? null : await guestId();
+  if (!p && !guest) return signInRequired();
   let body: unknown;
   try {
     body = await req.json();
@@ -45,12 +47,16 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid" }, { status: 400 });
   const { id, ...fields } = parsed.data;
   const admin = supabaseAdmin();
-  const row = { ...fields, user_id: p.id, updated_at: new Date().toISOString() };
+  const updated_at = new Date().toISOString();
   if (id) {
-    const { data, error } = await admin.from("stories").update(row).eq("id", id).eq("user_id", p.id).select("id").single();
+    // Edits to a story you own, signed in or as the guest who made it.
+    const q = admin.from("stories").update({ ...fields, updated_at }).eq("id", id);
+    const { data, error } = await (p ? q.eq("user_id", p.id) : q.eq("guest_id", guest!)).select("id").single();
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ id: data.id });
   }
+  if (!p) return signInRequired();
+  const row = { ...fields, user_id: p.id, updated_at };
   const { data, error } = await admin.from("stories").insert(row).select("id").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ id: data.id });

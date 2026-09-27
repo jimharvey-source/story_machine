@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import PDFDocument from "pdfkit";
 import { z } from "zod";
-import { currentProfile, signInRequired } from "@/lib/access";
+import { currentProfile, purchaseRequired, signInRequired, startStory } from "@/lib/access";
+import { unlockStory } from "@/lib/guest";
 import { LandingInputSchema, StorySchema } from "@/lib/schema";
 import { slideList, slidePrompt } from "@/lib/slides";
 
@@ -12,6 +13,8 @@ const ExportSchema = z.object({
   title: z.string().max(160).default("My story"),
   story: StorySchema,
   landing: LandingInputSchema.nullable().default(null),
+  /** The saved story; the PDF unlocks it like stage 2 does. */
+  storyId: z.string().uuid().optional(),
 });
 
 const INK = "#16140f";
@@ -30,7 +33,11 @@ export async function POST(req: Request) {
   }
   const parsed = ExportSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid" }, { status: 400 });
-  const { title, story, landing } = parsed.data;
+  const { title, story, landing, storyId } = parsed.data;
+
+  // The PDF is part of what the free story, a credit, a month or lifetime buys. Same gate as stage 2.
+  const allowed = storyId ? await unlockStory(p, storyId) : await startStory(p);
+  if (!allowed) return purchaseRequired();
 
   const buf = await render(title, story, landing);
   const safe = title.replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-").slice(0, 60) || "story";

@@ -9,6 +9,7 @@ import { StoriesPanel } from "@/components/Stories";
 import { Pack } from "@/components/Pack";
 
 const DRAFT_KEY = "storymachine.draft";
+const CURRENT_KEY = "storymachine.current";
 
 type Register = "formal" | "business" | "conversational";
 const REGISTERS: Array<{ value: Register; label: string; hint: string }> = [
@@ -66,6 +67,79 @@ const PACK: string[] = [
 ];
 
 // For visitors, before the form: the case, what you get, how it works, what it costs. Jim's words, final.
+// The method as a picture: two stages, what happens in each, and what is free against what needs a sign-in.
+const STAGES = [
+  {
+    n: "Stage 1",
+    name: "Get your story straight",
+    steps: [
+      ["Understand the audience", "Who is in the room, what they need to hear, what to leave out."],
+      ["Set clear goals", "After my presentation, the audience will..."],
+      ["Build a three-act story", "Beginning, middle and end. Why, how, what."],
+    ],
+    access: "Free. No sign-in.",
+    detail: "Paste, answer two questions, read the story on screen. Edit any line. Three stories a day.",
+    tone: "free" as const,
+  },
+  {
+    n: "Stage 2",
+    name: "Add interest and impact",
+    steps: [
+      ["A confident start and a definite ending", "The first minute, and an ending with a clear action."],
+      ["Headlines and signposts", "The lines they will remember, and the sentences that tell them the point has arrived."],
+      ["A simple set of visuals", "One idea per slide, with a brief and a prompt for the tool you use."],
+      ["Rehearse it into life", "Speaker notes, and the words in full. Say it aloud before you build anything."],
+    ],
+    access: "Free with your first story. Sign in with your email.",
+    detail: "Then the whole thing as a PDF. After the first: this story $2.99, a month $15.99, lifetime $99.",
+    tone: "signin" as const,
+  },
+];
+
+function Method() {
+  return (
+    <div>
+      <p className="eyebrow">How it works</p>
+      <h2 className="display mt-2 text-2xl sm:text-3xl">Do not start with the slides.</h2>
+      <p className="mt-3 max-w-xl text-ink-2">
+        Two stages. The first is free to anyone, with nothing to sign. The second, and the PDF of the lot, come
+        with your first story when you sign in.
+      </p>
+      <ol className="mt-6 grid gap-4 sm:grid-cols-2">
+        {STAGES.map((st) => (
+          <li key={st.n} className="flex flex-col overflow-hidden rounded-md border border-rule bg-paper-2">
+            <div className="flex-1 p-5">
+              <p className="font-mono text-[0.7rem] uppercase tracking-[0.12em] text-red">{st.n}</p>
+              <p className="display mt-1 text-xl">{st.name}</p>
+              <ol className="mt-4 space-y-3">
+                {st.steps.map(([head, sub], i) => (
+                  <li key={head} className="grid grid-cols-[1.5rem_1fr] gap-2">
+                    <span className="font-mono text-[0.7rem] leading-6 text-muted">{i + 1}</span>
+                    <span>
+                      <span className="block font-medium text-ink">{head}</span>
+                      <span className="block text-sm text-ink-2">{sub}</span>
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+            <div className={"border-t p-4 " + (st.tone === "free" ? "border-rule bg-paper" : "border-ink bg-ink text-paper")}>
+              <p className={"font-mono text-[0.7rem] uppercase tracking-[0.12em] " + (st.tone === "free" ? "text-red" : "text-paper/70")}>
+                {st.tone === "free" ? "Free" : "Sign in"}
+              </p>
+              <p className="mt-1 font-medium">{st.access}</p>
+              <p className={"mt-1 text-sm " + (st.tone === "free" ? "text-muted" : "text-paper/80")}>{st.detail}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <p className="mt-4 max-w-xl text-sm text-muted">
+        Then, and only then, the slides. The PDF ends with the method on a page, so you can do it yourself next time.
+      </p>
+    </div>
+  );
+}
+
 function Intro() {
   return (
     <div className="mb-12 space-y-12">
@@ -86,7 +160,7 @@ function Intro() {
             </li>
           ))}
         </ul>
-        <p className="mt-4 max-w-xl text-lg font-medium text-ink">Your first story is FREE.</p>
+        <p className="mt-4 max-w-xl text-lg font-medium text-ink">Try it now. No sign-in, no card. Your first story is free.</p>
       </div>
 
       <div>
@@ -102,11 +176,12 @@ function Intro() {
         </p>
       </div>
 
+      <Method />
+
       <div>
-        <p className="eyebrow">How it works</p>
+        <p className="eyebrow">The method in action</p>
         <h2 className="display mt-2 text-2xl sm:text-3xl">
-          Paste what you have. Answer two questions. Read the story as it arrives. Get suggestions to strengthen your
-          outline.
+          Paste what you have. Answer two questions. Read the story as it arrives.
         </h2>
         <p className="mt-3 max-w-xl text-ink-2">
           Each part of the speech explains what we did and why, so you see the method in action. Edit any line. Rerun
@@ -122,8 +197,9 @@ function Intro() {
         <p className="eyebrow">What it costs</p>
         <h2 className="display mt-2 text-2xl sm:text-3xl">Your first story is free.</h2>
         <p className="mt-3 max-w-xl text-ink-2">
-          Both stages, every edit, the questions, the upload, the PDF to download. Sign in with your email. No card.
-          No password.
+          Stage 1, get your story straight, needs no sign-in at all: paste, answer the questions, read the story on
+          screen. Stage 2, add interest and impact, and the PDF of the whole thing come free with your first story
+          when you sign in with your email. No card. No password.
         </p>
       </div>
     </div>
@@ -206,9 +282,9 @@ export default function Home() {
   const [uploadNote, setUploadNote] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [me, setMe] = useState<Me | null>(null);
-  const [needSignIn, setNeedSignIn] = useState(false);
   const [showStories, setShowStories] = useState(false);
   const [storyId, setStoryId] = useState<string | null>(null);
+  const [unlocked, setUnlocked] = useState(false);
   const [saveState, setSaveState] = useState<
     "idle" | "saving" | "saved" | "failed"
   >("idle");
@@ -222,7 +298,6 @@ export default function Home() {
       const res = await fetch("/api/me");
       const data = (await res.json()) as Me;
       setMe(data);
-      if (data.signedIn) setNeedSignIn(false);
     } catch {
       setMe({ signedIn: false });
     }
@@ -282,6 +357,12 @@ export default function Home() {
       } else {
         loadMe();
       }
+      try {
+        const current = localStorage.getItem(CURRENT_KEY);
+        if (current) openStory(current, true);
+      } catch {
+        // ignore
+      }
       if (params.toString())
         window.history.replaceState({}, "", window.location.pathname);
     }, 0);
@@ -299,12 +380,20 @@ export default function Home() {
     }
   }, [notes, audience, intent, register]);
 
-  const signedIn = Boolean(me?.signedIn);
-  const mustBuy = Boolean(me && me.signedIn && !me.unlimited && (me.storiesLeft ?? 0) === 0);
-
-  // Autosave, a moment after the last change. Every story is saved.
   useEffect(() => {
-    if (!signedIn || !story) return;
+    try {
+      if (storyId) localStorage.setItem(CURRENT_KEY, storyId);
+      else localStorage.removeItem(CURRENT_KEY);
+    } catch {
+      // ignore
+    }
+  }, [storyId]);
+
+  const signedIn = Boolean(me?.signedIn);
+
+  // Autosave, a moment after the last change. Every story is saved; a guest's story is saved under its id.
+  useEffect(() => {
+    if (!story || (!signedIn && !storyId)) return;
     if (saveTimer.current) window.clearTimeout(saveTimer.current);
     saveTimer.current = window.setTimeout(async () => {
       setSaveState("saving");
@@ -333,8 +422,7 @@ export default function Home() {
   function handleApiError(e: unknown, fallback: string) {
     const message = e instanceof Error ? e.message : fallback;
     if (/Sign in to use/.test(message)) {
-      setNeedSignIn(true);
-      setError(null);
+      setError("Sign in first: the box is below the story.");
       return;
     }
     if (/free story is used/.test(message)) {
@@ -346,7 +434,7 @@ export default function Home() {
     setError(message);
   }
 
-  async function openStory(id: string) {
+  async function openStory(id: string, quiet = false) {
     try {
       const d = await postJson<never>(`/api/stories/${id}`, undefined).catch(
         async () => {
@@ -364,6 +452,7 @@ export default function Home() {
         register: Register;
         story: Story;
         landing: Landing | null;
+        unlocked?: boolean;
       };
       setNotes(s.notes);
       setAudience(s.audience);
@@ -372,10 +461,19 @@ export default function Home() {
       setStory(s.story);
       setLanding(s.landing);
       setStoryId(s.id);
+      setUnlocked(Boolean(s.unlocked));
       setChat([]);
       setShowStories(false);
-      window.scrollTo({ top: 0 });
+      if (!quiet) window.scrollTo({ top: 0 });
     } catch (e) {
+      if (quiet) {
+        try {
+          localStorage.removeItem(CURRENT_KEY);
+        } catch {
+          // ignore
+        }
+        return;
+      }
       setError(e instanceof Error ? e.message : "Could not open that story");
     }
   }
@@ -388,12 +486,13 @@ export default function Home() {
       const res = await fetch("/api/export", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: story.bigIdea, story, landing }),
+        body: JSON.stringify({ title: story.bigIdea, story, landing, storyId: storyId ?? undefined }),
       });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
         throw new Error(j.error || "Could not make the PDF");
       }
+      setUnlocked(true);
       const blob = await res.blob();
       const name =
         res.headers
@@ -411,22 +510,14 @@ export default function Home() {
       a.click();
       a.remove();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not make the PDF");
+      handleApiError(e, "Could not make the PDF");
     } finally {
       setBusy(null);
     }
   }
 
+  // Stage 1 is free for everyone, signed in or not.
   async function findStory() {
-    if (me && !me.signedIn) {
-      setNeedSignIn(true);
-      return;
-    }
-    // A new story spends the free story or a credit. Reworking the notes of an existing story is free.
-    if (mustBuy && !storyId) {
-      setShowPaywall(true);
-      return;
-    }
     setBusy("story");
     setError(null);
     setStory(null);
@@ -442,6 +533,7 @@ export default function Home() {
         storyId: storyId ?? undefined,
       });
       if (data.id) setStoryId(data.id);
+      if (!storyId) setUnlocked(false);
       setStory(data.story);
       setShowPaywall(false);
       loadMe();
@@ -461,12 +553,14 @@ export default function Home() {
     try {
       const data = await postJson<{ landing: Landing; meta: Meta }>(
         "/api/land",
-        { notes, story, register },
+        { notes, story, register, storyId: storyId ?? undefined },
       );
+      setUnlocked(true);
       setLanding(data.landing);
       setMeta(data.meta);
+      loadMe();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong");
+      handleApiError(e, "Something went wrong");
     } finally {
       setBusy(null);
     }
@@ -702,12 +796,6 @@ export default function Home() {
             </div>
           </fieldset>
 
-          {needSignIn && <SignIn />}
-
-          {me && me.signedIn && !storyId && (showPaywall || mustBuy) && (
-            <Paywall me={me} onChange={() => { loadMe(); setShowPaywall(false); }} />
-          )}
-
           {storyId && (
             <p className="text-sm text-muted">
               Reworking the notes of a saved story. Finding it again is free.{" "}
@@ -724,7 +812,7 @@ export default function Home() {
           <div className="flex flex-wrap items-center gap-4">
             <button
               onClick={findStory}
-              disabled={busy !== null || notes.trim().length < 40 || (mustBuy && !storyId)}
+              disabled={busy !== null || notes.trim().length < 40}
               className="rounded-md bg-ink px-6 py-3 text-base font-medium text-paper disabled:opacity-40"
             >
               {busy === "story" ? "Finding your story..." : storyId ? "Find my story again" : "Find my story"}
@@ -1018,6 +1106,19 @@ export default function Home() {
             </section>
           )}
 
+          {!signedIn && (
+            <section className="border-t border-rule pt-8">
+              <SignIn
+                title={landing ? "Sign in to download the PDF" : "Stage 2 and the PDF are free with your first story"}
+                body="Stage 2 adds interest and impact: the first minute, signposts, slide ideas, the ending, speaker notes and a slide brief. Then the whole thing as a PDF. Sign in with your email and we send you a link. No card. No password. Your story is waiting when you come back."
+              />
+            </section>
+          )}
+
+          {signedIn && showPaywall && (
+            <Paywall me={me!} onChange={() => { loadMe(); setShowPaywall(false); }} />
+          )}
+
           <section className="flex flex-wrap items-center gap-4 border-t border-rule pt-8">
             {!landing && signedIn && (
               <button
@@ -1037,8 +1138,15 @@ export default function Home() {
                 disabled={busy !== null}
                 className="rounded-md border border-ink bg-paper-2 px-5 py-3 text-base font-medium text-ink disabled:opacity-40"
               >
-                {busy === "export" ? "Making the PDF..." : landing ? "Download the PDF (stages 1 and 2)" : "Download the PDF (stage 1)"}
+                {busy === "export" ? "Making the PDF..." : landing ? "Download the PDF (stages 1 and 2)" : "Download the PDF (stage 1 so far)"}
               </button>
+            )}
+            {signedIn && !unlocked && me && !me.unlimited && (
+              <span className="w-full text-sm text-muted">
+                {(me.storiesLeft ?? 0) > 0
+                  ? "Stage 2 and the PDF use your free story."
+                  : "Stage 2 and the PDF need a story, a month or lifetime."}
+              </span>
             )}
             {pdf && busy !== "export" && (
               <a
@@ -1049,7 +1157,7 @@ export default function Home() {
                 Nothing downloaded? Save {pdf.name}
               </a>
             )}
-            {signedIn && saveState !== "idle" && (
+            {saveState !== "idle" && (
               <span className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-muted">
                 {saveState === "saving"
                   ? "Saving"
@@ -1080,6 +1188,7 @@ export default function Home() {
                 setMeta(null);
                 setChat([]);
                 setStoryId(null);
+                setUnlocked(false);
                 setSaveState("idle");
                 setNotes("");
                 setAudience("");

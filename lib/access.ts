@@ -80,7 +80,7 @@ export function signInRequired() {
 
 export function purchaseRequired() {
   return NextResponse.json(
-    { error: "Your free story is used. Buy a single story, a month, or lifetime access to start another.", code: "buy" },
+    { error: "Your free story is used. Buy this story, a month, or lifetime access to carry on.", code: "buy" },
     { status: 402 }
   );
 }

@@ -38,7 +38,7 @@ export function planLine(me: Me): string {
   return `${left} ${left === 1 ? "story" : "stories"} left`;
 }
 
-export function SignIn({ compact }: { compact?: boolean }) {
+export function SignIn({ compact, title, body }: { compact?: boolean; title?: string; body?: string }) {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -85,9 +85,9 @@ export function SignIn({ compact }: { compact?: boolean }) {
     <form onSubmit={send} className={compact ? "flex flex-wrap items-end gap-2" : "rounded-md border border-rule bg-paper-2 p-5"}>
       {!compact && (
         <>
-          <p className="eyebrow">Sign in to find your story</p>
+          <p className="eyebrow">{title ?? "Sign in to find your story"}</p>
           <p className="mt-2 text-ink">
-            Your first story is free, the whole thing. Enter your email and we send you a link. No password to remember.
+            {body ?? "Your first story is free, the whole thing. Enter your email and we send you a link. No password to remember."}
           </p>
         </>
       )}
@@ -229,11 +229,11 @@ export function Paywall({ me, onChange }: { me: Me; onChange: () => void }) {
   return (
     <section className="rounded-md border border-ink bg-paper-2 p-6 sm:p-8">
       <p className="eyebrow">{started > 0 ? "Your free story is used" : "Ready for the next one"}</p>
-      <h2 className="display mt-2 text-2xl sm:text-3xl">Every story after the first is a paid story.</h2>
+      <h2 className="display mt-2 text-2xl sm:text-3xl">Stage 2 and the PDF, for every story after the first.</h2>
       <p className="mt-3 max-w-xl text-ink-2">
-        The same machine each time. Stage 1: get your story straight. Stage 2: add interest and impact, with
-        speaker notes, a slide brief and a prompt for your slides. Edits, the strategist, document upload, saved
-        stories and the PDF come with every story.
+        Stage 1 stays free. Stage 2 adds interest and impact: the first minute, signposts, slide ideas, the ending,
+        speaker notes, a slide brief and a prompt for your slides. The strategist, every edit and the PDF of the
+        whole thing come with it.
       </p>
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
         {(["story", "monthly", "lifetime"] as PlanKey[]).map((k) => {

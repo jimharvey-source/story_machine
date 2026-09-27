@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { currentProfile, logGeneration, signInRequired } from "@/lib/access";
+import { currentProfile, logGeneration, purchaseRequired, signInRequired, startStory } from "@/lib/access";
+import { unlockStory } from "@/lib/guest";
 import { describeKey, generateStructured } from "@/lib/anthropic";
 import { landSystem, landUserMessage } from "@/lib/prompts";
 import { namesToAvoid } from "@/lib/voice";
@@ -24,7 +25,11 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-  const { notes, story, register } = parsed.data;
+  const { notes, story, register, storyId } = parsed.data;
+
+  // Stage 2 is where the free story, a credit, a month or lifetime is spent. Once a story is unlocked, it stays unlocked.
+  const allowed = storyId ? await unlockStory(profile, storyId) : await startStory(profile);
+  if (!allowed) return purchaseRequired();
 
   try {
     const result = await generateStructured({
