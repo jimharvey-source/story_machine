@@ -475,12 +475,6 @@ export default function Home() {
   async function upload(file: File) {
     setError(null);
     setUploadNote(null);
-    // Ask for sign-in before sending the file: answering 401 mid-upload makes the browser report "Failed to fetch".
-    if (me && !me.signedIn) {
-      setNeedSignIn(true);
-      if (fileRef.current) fileRef.current.value = "";
-      return;
-    }
     if (file.size > MAX_UPLOAD_BYTES) {
       setError("That file is over 4 MB, the most the upload can take. Export it smaller, or paste the text.");
       if (fileRef.current) fileRef.current.value = "";
@@ -493,10 +487,6 @@ export default function Home() {
       const res = await fetch("/api/extract", { method: "POST", body: fd });
       const data = await res.json();
       if (!res.ok) {
-        if (res.status === 401) {
-          setNeedSignIn(true);
-          return;
-        }
         throw new Error(data.error || "Could not read that file");
       }
       setNotes(

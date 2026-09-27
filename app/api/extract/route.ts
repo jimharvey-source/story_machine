@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { currentProfile, logGeneration, signInRequired } from "@/lib/access";
+import { currentProfile, logGeneration } from "@/lib/access";
 import JSZip from "jszip";
 
 export const runtime = "nodejs";
@@ -70,9 +70,9 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: "Send the file as form data" }, { status: 400 });
   }
+  // Reading a file needs no sign-in: people upload and answer the questions before they sign in at "Find my story".
   const profile = await currentProfile();
-  if (!profile) return signInRequired();
-  await logGeneration(profile.id, "extract");
+  if (profile) await logGeneration(profile.id, "extract");
   const file = form.get("file");
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "No file received" }, { status: 400 });
