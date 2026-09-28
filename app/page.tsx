@@ -91,7 +91,7 @@ const STAGES = [
       ["Rehearse it into life", "Speaker notes, and the words in full. Say it aloud before you build anything."],
     ],
     access: "Free with your first story. Sign in with your email.",
-    detail: "Then the whole thing as a PDF. After the first: this story $2.99, a month $15.99, lifetime $99.",
+    detail: "Then the whole thing as a PDF. After the first: this story $4.99, a month $15.99, lifetime $99.",
     tone: "signin" as const,
   },
 ];

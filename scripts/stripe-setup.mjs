@@ -66,7 +66,7 @@ async function stripe(method, resource, params) {
 const PRODUCT_NAME = "Jim Harvey's StoryMachine";
 const PRODUCT_DESCRIPTION = "Jim Harvey's StoryMachine: turn rough notes into a presentation story that lands and sticks.";
 const PRICES = [
-  { key: "story_machine_story", env: "STRIPE_PRICE_STORY", nickname: "One story", unit_amount: 299 },
+  { key: "story_machine_story", env: "STRIPE_PRICE_STORY", nickname: "One story", unit_amount: 499 },
   { key: "story_machine_monthly", env: "STRIPE_PRICE_MONTHLY", nickname: "A month", unit_amount: 1599, recurring: { interval: "month" } },
   { key: "story_machine_lifetime", env: "STRIPE_PRICE_LIFETIME", nickname: "Lifetime", unit_amount: 9900 },
 ];
@@ -98,8 +98,8 @@ if (!product) {
 // 2. Prices, found by lookup key. A price in another currency is retired and replaced.
 for (const p of PRICES) {
   let price = (await stripe("GET", "prices", { lookup_keys: [p.key], limit: 1 })).data[0];
-  if (price && price.currency !== CURRENCY) {
-    console.log(`price ${p.nickname} exists in ${price.currency.toUpperCase()}; making a ${CURRENCY.toUpperCase()} one`);
+  if (price && (price.currency !== CURRENCY || price.unit_amount !== p.unit_amount)) {
+    console.log(`price ${p.nickname} is ${price.currency.toUpperCase()} ${price.unit_amount}; replacing with ${CURRENCY.toUpperCase()} ${p.unit_amount}`);
     await stripe("POST", `prices/${price.id}`, { active: false });
     price = undefined;
   }

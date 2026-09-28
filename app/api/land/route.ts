@@ -38,7 +38,7 @@ export async function POST(req: Request) {
       schema: LandingSchema,
       maxTokens: 8000,
       label: "land",
-      voice: { contractionsInWritten: register === "conversational", avoid: namesToAvoid(story.audience.doNotNeedToHear) },
+      voice: { contractionsInWritten: register === "conversational", avoid: namesToAvoid(story.audience.doNotNeedToHear), bigIdea: story.bigIdea },
     });
     await logGeneration(profile.id, "land", { attempts: result.attempts, violationsBefore: result.violationsBefore, violationsAfter: result.violationsAfter });
     return NextResponse.json({

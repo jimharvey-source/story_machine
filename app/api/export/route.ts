@@ -40,7 +40,14 @@ export async function POST(req: Request) {
   if (!allowed) return purchaseRequired();
 
   const buf = await render(title, story, landing);
-  const safe = title.replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-").slice(0, 60) || "story";
+  // Trim the title at a word boundary, so the file name never ends mid-word.
+  const words = title.replace(/[^\w\- ]+/g, "").trim().split(/\s+/).filter(Boolean);
+  let safe = "";
+  for (const w of words) {
+    if ((safe ? safe.length + 1 : 0) + w.length > 60) break;
+    safe = safe ? `${safe}-${w}` : w;
+  }
+  safe = safe || "story";
   const name = `${safe}-${landing ? "stage-2-interest-and-impact" : "stage-1-story-straight"}.pdf`;
   console.log(JSON.stringify({ tag: "export", landed: Boolean(landing), bytes: buf.length, name }));
   return new NextResponse(new Uint8Array(buf), {
@@ -120,6 +127,14 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
         doc.x = L;
         gap(between);
       }
+    };
+    // Figures come from the presenter's material. The tool never checks them, so it says so.
+    const hasFigures = /\d/.test(JSON.stringify([story.why, story.how, story.what]));
+    const sourceCheck = () => {
+      if (!hasFigures) return;
+      gap(2);
+      small("Every figure here comes from your material. Check each one against its source before you present.");
+      gap(2);
     };
     const pageTitle = (kicker: string, t: string, intro?: string) => {
       eyebrow(kicker);
@@ -223,6 +238,7 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
         eyebrow("Before you rehearse: what only you can add");
         bullets(landing.gaps);
       }
+      sourceCheck();
 
       // 2. Speech notes: what the presenter holds in the room
       const notes = landing.speechNotes;
@@ -321,6 +337,7 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
       eyebrow("What only you can add");
       bullets(story.gaps);
     }
+    if (!landing) sourceCheck();
 
     // 6. How this was made
     doc.addPage();

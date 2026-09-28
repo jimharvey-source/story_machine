@@ -36,27 +36,39 @@ const BANNED: Array<[RegExp, string]> = [
   [/\bin conclusion\b/gi, "filler"],
 ];
 
-function walk(value: unknown, path: string, out: Violation[]): void {
+// A contrast is allowed where a speaker needs it most: the Big Idea, soundbites, the title and closing slides.
+const CONTRAST_RULES = new Set(["antithesis", "antithesis-split", "antithesis-tail", "antithesis-fragments"]);
+const CONTRAST_PATHS = /(^|\.)(bigIdea|titleSlide|closingSlide)$|(^|\.)soundbite(\.|$)/;
+
+type WalkOpts = { contrastAllowed?: boolean; bigIdea?: string };
+
+function walk(value: unknown, path: string, out: Violation[], opts: WalkOpts = {}): void {
   if (typeof value === "string") {
+    const contrastOk = opts.contrastAllowed || CONTRAST_PATHS.test(path);
+    // The Big Idea may be quoted anywhere (the epilogue ends on it). Its contrast is allowed there too.
+    const big = opts.bigIdea?.trim();
+    const checked = big && big.length > 8 ? value.split(big).join(" ") : value;
     for (const [re, rule] of BANNED) {
+      if (contrastOk && CONTRAST_RULES.has(rule)) continue;
+      const target = CONTRAST_RULES.has(rule) ? checked : value;
       re.lastIndex = 0;
-      const m = re.exec(value);
+      const m = re.exec(target);
       if (m) {
         const start = Math.max(0, m.index - 30);
-        out.push({ path, rule, sample: value.slice(start, m.index + m[0].length + 30) });
+        out.push({ path, rule, sample: target.slice(start, m.index + m[0].length + 30) });
       }
     }
     return;
   }
   if (Array.isArray(value)) {
-    value.forEach((v, i) => walk(v, `${path}[${i}]`, out));
+    value.forEach((v, i) => walk(v, `${path}[${i}]`, out, opts));
     return;
   }
   if (value && typeof value === "object") {
     const o = value as Record<string, unknown>;
     // A soundbite quoted from the presenter's own material is theirs. The rules do not apply to it.
     if (o.source === "material" && typeof o.text === "string") return;
-    for (const [k, v] of Object.entries(o)) walk(v, path ? `${path}.${k}` : k, out);
+    for (const [k, v] of Object.entries(o)) walk(v, path ? `${path}.${k}` : k, out, opts);
   }
 }
 
@@ -113,6 +125,10 @@ export type VoiceOptions = {
   contractionsInWritten?: boolean;
   /** Names and terms the audience section said to leave out. None may appear in the landing text. */
   avoid?: string[];
+  /** The story's Big Idea. Its contrast is allowed wherever it is quoted. */
+  bigIdea?: string;
+  /** The whole value is a component where contrast is allowed (an edit to the Big Idea, a soundbite or a slide line). */
+  contrastAllowed?: boolean;
 };
 
 const COMMON = new Set(["The", "This", "That", "These", "Those", "There", "Who", "What", "When", "Where", "Why", "How", "It", "They", "We", "You", "Our", "Their", "Internal", "No", "Not", "Any", "All", "One", "Each", "Every", "Some", "For", "And", "But", "Or", "If", "In", "On", "At", "To", "Of", "With", "Without", "After", "Before", "Act", "Stage", "Big", "Idea", "Prologue", "Epilogue"]);
@@ -154,7 +170,9 @@ function avoidViolations(value: unknown, path: string, avoid: string[], out: Vio
 
 export function voiceViolations(value: unknown, options: VoiceOptions = {}): Violation[] {
   const out: Violation[] = [];
-  walk(value, "", out);
+  const o = (value && typeof value === "object" ? value : {}) as { bigIdea?: unknown; story?: { bigIdea?: unknown } };
+  const bigIdea = options.bigIdea ?? (typeof o.bigIdea === "string" ? o.bigIdea : typeof o.story?.bigIdea === "string" ? o.story.bigIdea : undefined);
+  walk(value, "", out, { contrastAllowed: options.contrastAllowed, bigIdea });
   avoidViolations(value, "", options.avoid ?? [], out);
   soundbiteViolations(value, "", out);
   if (options.contractionsInWritten === false) contractionViolations(value, "", out);

@@ -41,7 +41,8 @@ The prologue, signposts and epilogue are words a presenter will say aloud. Choos
 Writing rules, all of which are checked by code after you respond:
 Write in UK English.
 Never use an em dash or an en dash. Use a comma, a full stop or a colon.
-Never write an antithesis in any form: "not X but Y"; "not just X but Y"; "not by X but by Y"; the split form "X isn't A. It's B." or "I'm not asking A. I'm asking B."; the tail form "X, not Y."; the fragment form "Not a script. A habit." Say what it is and leave out what it is not.
+Never write an antithesis in any form: "not X but Y"; "not just X but Y"; "not by X but by Y"; the split form "X isn't A. It's B." or "I'm not asking A. I'm asking B."; the tail form "X, not Y."; the fragment form "Not a script. A habit." Say what it is and leave out what it is not. There are three exceptions, because a contrast is the oldest tool a speaker has: the Big Idea, a soundbite, and the words on the title and closing slides may use a contrast when it is the sharpest way to make the point ("Software is what you sell. Decision advantage is what they buy."). Use it only when it earns its place. Everywhere else the ban holds.
+Hold one point of view. Decide from the material and the audience whether the presenter is one of the audience, talking about "our" business, or an outsider talking to them about "your" business. Keep that stance in every spoken line and every headline. Never move between "you sell" and "we sell" in the same presentation. If the material does not make it clear, choose the more likely stance, keep it, and add a gap asking the presenter to confirm who they are to this audience.
 Never use these words or phrases: leverage, delve, delve into, game-changer, game changing, in today's fast-paced world, in today's world, at the end of the day, moving forward, going forward, synergy, paradigm, robust, seamless, cutting-edge, best-in-class, unlock, unleash, empower, journey (as a metaphor), landscape (as a metaphor), ecosystem (as a metaphor), holistic, deep dive, low-hanging fruit, think outside the box, circle back, touch base, it's important to note, it is important to note, it's worth noting, in conclusion.
 Never start a headline with "Why", "How" or "What" as a label. Headlines are things a presenter would say. A headline makes the act's point as a claim with a verb in it, a sentence a sceptic could disagree with. It is never a product name, a tagline, a positioning line or a label ("X is a system of intelligence for Y" names a thing; "Three layers turn raw data into decisions faster than any competitor" makes a point).
 Do not write in bullet points inside a string. Supporting points are separate strings.
@@ -95,6 +96,8 @@ ACT 3, WHAT: the ask. What needs to happen next, the decision or action required
 
 For each act give a headline the presenter could say aloud, a core message of one or two sentences, two to four supporting points drawn only from the material, and a soundbite.
 
+A supporting point is a fact and what it means for this audience, in one sentence. A bare statistic is not a supporting point: "Only 11 percent of organisations are fully data capable" becomes "Only 11 percent of organisations are fully data capable, so almost every client we meet still needs this help." If the audience section says to leave out a kind of detail unless it is translated, keep at most one such detail per act, and always translate it.
+
 The soundbite is the phrase the audience could repeat to a colleague afterwards, under fourteen words. It must stand on its own: never begin with "They", "It", "This" or another pronoun that points at a sentence the listener has not heard. Each act has a different job: WHY is the problem in a phrase; HOW is the insight or the solution in a phrase; WHAT is the closing image or headline. First look for it in the material. Presenters often write their best line without noticing. If a phrase in the material does the job, quote it word for word and mark the source "material". If none does, write one and mark it "proposed", and add a gap that encourages the presenter to find their own words for it, naming what the phrase has to do.
 
 Act 3 must contain one specific next step the audience takes. If the presenter has stated an intent ("After my presentation, the audience will..."), the ask is the first concrete instance of that intent: the next conversation, the next meeting, this week. Derive it. Never report the absence of an ask as a gap when an intent has been supplied. If there is no intent and no ask in the material, say what kind of ask the structure calls for, without inventing a specific business decision.
@@ -117,13 +120,15 @@ This is stage two: make the message land and stick. The presenter already has a 
 
 3. A visual idea for each act. One slide that illustrates rather than explains. One idea per slide. Write it in exactly this shape: Words: "the words on the slide, ten or fewer" Picture: one sentence saying what the picture is. A diagram when relationships matter, a chart when data tells the story, a comparison when contrast matters, a timeline when progression matters, a single number when one number makes the point, an image when an idea needs reinforcing. If the material contains its own image or metaphor, use it. If no visual would add anything, say so plainly.
 
-4. Epilogue. Written as words the presenter will say. Audiences need certainty, so it does three things in order: recaps the three headlines, in the presenter's words, as the story they have just heard; states the actions from here, who does what next; and ends on the Big Idea, so they leave with the message ringing in their ears. It connects back to the prologue so the story arrives somewhere deliberately. The last sentence is the strongest one. Never let it taper off.
+4. Epilogue. Written as words the presenter will say. Audiences need certainty, so it does three things in order: recaps the three headlines, in the presenter's words, as the story they have just heard; states the actions from here, who does what next; and ends on the Big Idea, so they leave with the message ringing in their ears. It connects back to the prologue so the story arrives somewhere deliberately. The Big Idea is said once, as the last sentence. Do not lead into it with a paraphrase of itself ("Remember what they are really buying.") or say it twice. The last sentence is the strongest one. Never let it taper off.
 
 5. The story in five lines. Prologue, why, how, what, epilogue. One line each. Read together they should be the whole presentation in thirty seconds.
 
 6. Two more slides: the words for the title slide (the Big Idea or a shorter form of it, eight words or fewer) and the words for the closing slide (eight words or fewer, the line the audience should leave with). Words only, no picture.
 
 7. Speech notes. The presenter will speak from notes, never from a script. For each beat (prologue, why, how, what, epilogue) give three to five cues in the order they are said, each ten words or fewer. A cue is a memory hook: the question to ask, the soundbite to land, the example to tell, the ask to make. Never a sentence to read out.
+
+Keep the parts consistent with each other, because the presenter will rehearse from all of them at once. The speech notes cue only what is in the words: every cue points to a line in the prologue, the act or the epilogue as written. Never cue a line the words do not contain. The closing slide shows the last words the audience hears: the final sentence of the epilogue, or a shorter form of it. The title slide shows the Big Idea or a shorter form of it.
 
 8. Gaps, re-assessed against the finished story. Only what the presenter alone can supply: a missing fact, example or piece of evidence. Anything the prologue, acts or epilogue have now resolved is not a gap. Empty list if nothing is missing.
 
@@ -151,7 +156,7 @@ ${given.length ? "\n" + given.join("\n\n") + "\n" : ""}
 Get the story straight. Work through audience, statement of intent, argument, Big Idea and the three acts in that order. Preserve the facts in the source material. Invent nothing. Name the gaps as a coach would.
 </task>
 
-Remember: find the presenter's conviction first, keep their own images, no antithesis, no em dashes, no banned phrases, short sentences, UK English.`;
+Remember: find the presenter's conviction first, keep their own images, hold one point of view, translate every figure for this audience, no antithesis outside the Big Idea and soundbites, no em dashes, no banned phrases, short sentences, UK English.`;
 }
 
 export function landUserMessage(notes: string, storyJson: string): string {
@@ -167,7 +172,7 @@ ${storyJson}
 Make this story land and stick. Write the prologue, a signpost and a visual idea for each act, the epilogue, the story in five lines, and the gaps re-assessed against the finished story. Do not change the story itself. Invent nothing.
 </task>
 
-Remember: no em dashes, no banned phrases, short sentences, UK English.`;
+Remember: hold the story's point of view, cue only what the words contain, the closing slide matches the last spoken sentence, the Big Idea said once at the end, no em dashes, no banned phrases, short sentences, UK English.`;
 }
 
 // Contextual edits: change one component, hold the rest of the story fixed.
