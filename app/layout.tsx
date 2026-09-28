@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Jim's Three Act Story Machine",
+  title: "Jim Harvey's StoryMachine",
   description:
-    "Turn rough notes into a clear, memorable presentation story. Prologue, Why, How, What, Epilogue.",
+    "Turn rough notes into a presentation story that lands and sticks. Stage 1: Get your story straight. Stage 2: Add interest and impact.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

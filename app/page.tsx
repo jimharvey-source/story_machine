@@ -150,7 +150,7 @@ function Intro() {
           of helping the biggest businesses do this, my advice is: start with the story, not the slides.
         </p>
         <p className="mt-3 max-w-xl text-ink-2">
-          The Story Machine<sup className="text-[0.6em]">TM</sup> takes the notes, slides and rough thinking you
+          Jim Harvey&apos;s StoryMachine<sup className="text-[0.6em]">TM</sup> takes the notes, slides and rough thinking you
           already have and builds your story for the people in front of you. You get:
         </p>
         <ul className="mt-3 max-w-xl space-y-1 text-ink-2">
@@ -337,7 +337,7 @@ export default function Home() {
             setNotice(
               d.ok
                 ? d.kind === "lifetime"
-                  ? "Payment received. The Story Machine is yours for good."
+                  ? "Payment received. The StoryMachine is yours for good."
                   : d.kind === "monthly"
                     ? "Payment received. A month of stories starts now."
                     : "Payment received. Your next story is ready to start."
@@ -674,7 +674,7 @@ export default function Home() {
   return (
     <main className="mx-auto w-full max-w-3xl px-5 pb-24 pt-10 sm:pt-16">
       <header className={story ? "mb-10" : "mb-6"}>
-        <p className="eyebrow">Jim&apos;s Three Act Story Machine</p>
+        <p className="eyebrow">Jim Harvey&apos;s StoryMachine</p>
         {me && (
           <div className="mt-4">
             <AccountBar
@@ -704,7 +704,7 @@ export default function Home() {
       {!story && (
         <section className="panel space-y-6">
           <div>
-            <p className="eyebrow">The Story Machine</p>
+            <p className="eyebrow">The StoryMachine</p>
             <h1 className="display mt-2 text-3xl leading-[1.05] sm:text-4xl">What do you want to say?</h1>
             <p className="mt-3 max-w-xl text-ink-2">
               Paste your notes, a deck, a paper or the rough thinking. It does not need to be neat.

@@ -75,7 +75,7 @@ export async function refundStory(p: Profile): Promise<void> {
 }
 
 export function signInRequired() {
-  return NextResponse.json({ error: "Sign in to use the Story Machine.", code: "signin" }, { status: 401 });
+  return NextResponse.json({ error: "Sign in to use the StoryMachine.", code: "signin" }, { status: 401 });
 }
 
 export function purchaseRequired() {

@@ -1,4 +1,4 @@
-# Jim's Three Act Story Machine
+# Jim Harvey's StoryMachine
 
 Turns rough notes into a clear, memorable presentation story:
 Prologue, Act 1 WHY, Act 2 HOW, Act 3 WHAT, Epilogue.

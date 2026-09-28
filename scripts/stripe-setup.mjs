@@ -63,7 +63,8 @@ async function stripe(method, resource, params) {
   return data;
 }
 
-const PRODUCT_NAME = "Story Machine";
+const PRODUCT_NAME = "Jim Harvey's StoryMachine";
+const PRODUCT_DESCRIPTION = "Jim Harvey's StoryMachine: turn rough notes into a presentation story that lands and sticks.";
 const PRICES = [
   { key: "story_machine_story", env: "STRIPE_PRICE_STORY", nickname: "One story", unit_amount: 299 },
   { key: "story_machine_monthly", env: "STRIPE_PRICE_MONTHLY", nickname: "A month", unit_amount: 1599, recurring: { interval: "month" } },
@@ -82,12 +83,17 @@ let product = (await stripe("GET", "products", { active: true, limit: 100 })).da
 if (!product) {
   product = await stripe("POST", "products", {
     name: PRODUCT_NAME,
-    description: "Jim's Three Act Story Machine: turn rough notes into a presentation story that lands and sticks.",
+    description: PRODUCT_DESCRIPTION,
     metadata: { app: "story-machine" },
-    statement_descriptor: "STORY MACHINE",
+    statement_descriptor: "JH STORYMACHINE",
   });
   console.log("created product", product.id);
-} else console.log("product exists", product.id);
+} else {
+  if (product.name !== PRODUCT_NAME) {
+    product = await stripe("POST", `products/${product.id}`, { name: PRODUCT_NAME, description: PRODUCT_DESCRIPTION, statement_descriptor: "JH STORYMACHINE" });
+    console.log("renamed product", product.id);
+  } else console.log("product exists", product.id);
+}
 
 // 2. Prices, found by lookup key. A price in another currency is retired and replaced.
 for (const p of PRICES) {
@@ -151,7 +157,7 @@ if (!promo) {
 // 4. Webhook endpoint. The signing secret is only returned on creation.
 let hook = (await stripe("GET", "webhook_endpoints", { limit: 100 })).data.find((w) => w.url === WEBHOOK_URL);
 if (!hook) {
-  hook = await stripe("POST", "webhook_endpoints", { url: WEBHOOK_URL, enabled_events: WEBHOOK_EVENTS, description: "Story Machine" });
+  hook = await stripe("POST", "webhook_endpoints", { url: WEBHOOK_URL, enabled_events: WEBHOOK_EVENTS, description: "Jim Harvey's StoryMachine" });
   out.STRIPE_WEBHOOK_SECRET = hook.secret;
   console.log("created webhook", hook.id, "(signing secret written to .env.local)");
 } else {
@@ -162,7 +168,7 @@ if (!hook) {
 const configs = await stripe("GET", "billing_portal/configurations", { limit: 10 });
 if (!configs.data.some((c) => c.is_default)) {
   await stripe("POST", "billing_portal/configurations", {
-    business_profile: { headline: "Story Machine billing", privacy_policy_url: `${SITE}/privacy`, terms_of_service_url: `${SITE}/terms` },
+    business_profile: { headline: "Jim Harvey's StoryMachine billing", privacy_policy_url: `${SITE}/privacy`, terms_of_service_url: `${SITE}/terms` },
     features: {
       invoice_history: { enabled: true },
       payment_method_update: { enabled: true },

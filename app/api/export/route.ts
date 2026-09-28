@@ -61,7 +61,7 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
       size: "A4",
       margins: { top: 64, bottom: 64, left: 60, right: 60 },
       bufferPages: true,
-      info: { Title: title, Author: "Jim's Three Act Story Machine", Subject: landing ? "Stage 2: Add interest and impact" : "Stage 1: Get your story straight" },
+      info: { Title: title, Author: "Jim Harvey's StoryMachine", Subject: landing ? "Stage 2: Add interest and impact" : "Stage 1: Get your story straight" },
     });
     const chunks: Buffer[] = [];
     doc.on("data", (c: Buffer) => chunks.push(c));
@@ -132,7 +132,7 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
     };
 
     // 1. The story
-    eyebrow("Jim's Three Act Story Machine");
+    eyebrow("Jim Harvey's StoryMachine");
     doc.font("Helvetica").fontSize(9).fillColor(MUTED).text(
       `${landing ? "Stage 2: Add interest and impact" : "Stage 1: Get your story straight"}  ·  ${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}`,
       L,
@@ -344,7 +344,7 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
     }
     rule();
     body(
-      "The story in this document is yours: your material, your conviction, your words. The method that shaped it, the three-act structure, the Prologue and Epilogue, the tests each part has to pass, is the intellectual property of The Message Business and is licensed to you for your own presentations. Teach it to your team with our training, or use the Story Machine as many times as you need.",
+      "The story in this document is yours: your material, your conviction, your words. The method that shaped it, the three-act structure, the Prologue and Epilogue, the tests each part has to pass, is the intellectual property of The Message Business and is licensed to you for your own presentations. Teach it to your team with our training, or use the StoryMachine as many times as you need.",
       9.5,
       "#3d3a33"
     );
@@ -359,7 +359,7 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
       const saved = doc.page.margins.bottom;
       doc.page.margins.bottom = 0;
       doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(
-        `Jim's Three Act Story Machine  ·  The Message Business  ·  ${i + 1} of ${range.count}`,
+        `Jim Harvey's StoryMachine  ·  The Message Business  ·  ${i + 1} of ${range.count}`,
         L,
         doc.page.height - 40,
         { width: W, align: "center", lineBreak: false }
