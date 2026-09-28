@@ -22,6 +22,11 @@ export async function currentProfile(): Promise<Profile | null> {
   const { data } = await sb.auth.getUser();
   const user = data.user;
   if (!user || !user.email) return null;
+  return ensureProfile({ id: user.id, email: user.email });
+}
+
+/** The profile for a signed-in user, created (and subscribed to the list) on first sight. */
+export async function ensureProfile(user: { id: string; email: string }): Promise<Profile> {
   const admin = supabaseAdmin();
   const { data: existing } = await admin.from("profiles").select("*").eq("id", user.id).maybeSingle();
   if (existing) return existing as Profile;
@@ -30,7 +35,12 @@ export async function currentProfile(): Promise<Profile | null> {
     .insert({ id: user.id, email: user.email })
     .select("*")
     .single();
-  if (error) throw new Error(`Could not create profile: ${error.message}`);
+  if (error) {
+    // Two requests on first sign-in can race to create it. If the other one won, use its row.
+    const { data: again } = await admin.from("profiles").select("*").eq("id", user.id).maybeSingle();
+    if (again) return again as Profile;
+    throw new Error(`Could not create profile: ${error.message}`);
+  }
   // First sign-in: join the Presentation Guru list. Never blocks the user.
   subscribeToPresentationGuru(user.email)
     .then((ok) => {

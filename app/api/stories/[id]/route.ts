@@ -10,13 +10,20 @@ type Ctx = { params: Promise<{ id: string }> };
 // A story can be read by its owner, or by the guest browser that made it before signing in.
 export async function GET(_req: Request, ctx: Ctx) {
   const p = await currentProfile();
-  const guest = p ? null : await guestId();
+  const guest = await guestId();
   if (!p && !guest) return signInRequired();
   const { id } = await ctx.params;
-  const q = supabaseAdmin().from("stories").select("*").eq("id", id);
-  const { data, error } = await (p ? q.eq("user_id", p.id) : q.eq("guest_id", guest!)).maybeSingle();
+  if (!/^[0-9a-f-]{36}$/.test(id)) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const admin = supabaseAdmin();
+  const q = admin.from("stories").select("*").eq("id", id);
+  // Signed in: your own story, or one this browser made as a guest before you signed in (claimed now).
+  const owner = p ? (guest && /^[0-9a-f-]{36}$/.test(guest) ? q.or(`user_id.eq.${p.id},guest_id.eq.${guest}`) : q.eq("user_id", p.id)) : q.eq("guest_id", guest!);
+  const { data, error } = await owner.maybeSingle();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!data) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (p && !data.user_id) {
+    await admin.rpc("claim_stories", { p_guest: data.guest_id, p_user: p.id });
+  }
   return NextResponse.json({
     id: data.id,
     title: data.title,

@@ -440,14 +440,9 @@ export default function Home() {
 
   async function openStory(id: string, quiet = false) {
     try {
-      const d = await postJson<never>(`/api/stories/${id}`, undefined).catch(
-        async () => {
-          const r = await fetch(`/api/stories/${id}`);
-          const j = await r.json();
-          if (!r.ok) throw new Error(j.error || "Could not open");
-          return j;
-        },
-      );
+      const r = await fetch(`/api/stories/${id}`);
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Could not open");
       const s = d as unknown as {
         id: string;
         notes: string;

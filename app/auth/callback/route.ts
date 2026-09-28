@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseServer, supabaseAdmin } from "@/lib/supabase/server";
+import { ensureProfile } from "@/lib/access";
 
 // The magic link lands here. Two shapes are accepted:
 //  - token_hash + type (set the Supabase "Magic Link" email template to use {{ .TokenHash }}): works in any browser,
@@ -41,6 +42,8 @@ export async function GET(req: Request) {
   // Claim the stories made before signing in. The guest id travels in the link, so this works in any browser.
   const claim = nextUrl.searchParams.get("claim");
   const { data } = await sb.auth.getUser();
+  // The profile has to exist before stories can point at it.
+  if (data.user?.email) await ensureProfile({ id: data.user.id, email: data.user.email }).catch((e) => console.warn("[profile]", e instanceof Error ? e.message : e));
   if (claim && data.user && /^[0-9a-f-]{36}$/.test(claim)) {
     const { data: n, error: ce } = await supabaseAdmin().rpc("claim_stories", { p_guest: claim, p_user: data.user.id });
     if (ce) console.warn("[claim_stories]", ce.message);
