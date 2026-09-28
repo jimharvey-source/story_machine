@@ -351,7 +351,9 @@ export default function Home() {
         loadMe();
       } else if (params.get("signin") === "failed") {
         setNotice(
-          "That sign-in link did not work. Links expire after an hour and work once. Send a new one.",
+          params.get("why") === "device"
+            ? "That sign-in link only works in the browser that asked for it. Send a new one from this device."
+            : "That sign-in link did not work. Links expire after an hour and work once. Send a new one.",
         );
         loadMe();
       } else {

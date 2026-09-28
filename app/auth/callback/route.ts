@@ -26,11 +26,19 @@ export async function GET(req: Request) {
   }
   if (error) {
     console.warn(JSON.stringify({ tag: "signin", ok: false, reason: error, shape: tokenHash ? "token_hash" : code ? "code" : "none" }));
-    return NextResponse.redirect(new URL(`/?signin=failed&reason=${encodeURIComponent(error)}`, url.origin));
+    const why = /code verifier|code challenge/i.test(error) ? "device" : "expired";
+    return NextResponse.redirect(new URL(`/?signin=failed&why=${why}&reason=${encodeURIComponent(error)}`, url.origin));
   }
 
+  // Where to go next. The token_hash template passes {{ .RedirectTo }}, which is this callback again with the real
+  // destination in its own "next". Unwrap it, or the second hop arrives with no token and fails. Stay on this site.
+  let nextUrl = new URL(next, url.origin);
+  for (let i = 0; i < 3 && nextUrl.pathname === "/auth/callback"; i++) {
+    nextUrl = new URL(nextUrl.searchParams.get("next") ?? "/", url.origin);
+  }
+  if (nextUrl.origin !== url.origin) nextUrl = new URL("/", url.origin);
+
   // Claim the stories made before signing in. The guest id travels in the link, so this works in any browser.
-  const nextUrl = new URL(next, url.origin);
   const claim = nextUrl.searchParams.get("claim");
   const { data } = await sb.auth.getUser();
   if (claim && data.user && /^[0-9a-f-]{36}$/.test(claim)) {
