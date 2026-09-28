@@ -289,7 +289,9 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
         ["Epilogue", landing.epilogue],
       ];
       for (const [name, text] of script) {
-        keep(90);
+        // Keep each spoken block on one page: a two-line orphan on a fresh page is no use in rehearsal.
+        doc.font("Times-Roman").fontSize(13);
+        keep(Math.min(doc.heightOfString(text, { width: W, lineGap: 9 }) + 40, bottom() - 80));
         gap(2);
         eyebrow(name, RED);
         doc.font("Times-Roman").fontSize(13).fillColor(INK).text(text, L, doc.y, { width: W, lineGap: 9 });

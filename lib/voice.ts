@@ -7,8 +7,11 @@ const BANNED: Array<[RegExp, string]> = [
   // "not X, but Y" with or without the comma; "Not because A, but because B."
   [/\bnot (?:just |only |merely |simply |by |about |for |because )?[^.;:!?]{1,70}\bbut\b/gi, "antithesis"],
   [/\b(?:isn't|aren't|wasn't|weren't|doesn't|don't|is not|are not|was not|were not|does not|do not|I'm not|I am not|we're not|we are not)\b[^.!?]{1,70}[.!?]\s+(?:It's|It is|They're|They are|We're|We are|You're|You are|That's|That is|This is|Instead|I'm|I am)\b/g, "antithesis-split"],
-  // "X, not Y." and "X, not because Y." up to five words in the tail
-  [/,\s*not\s+(?:a\s+|an\s+|the\s+|because\s+)?[\w']+(?:\s+[\w']+){0,4}[.!?]/g, "antithesis-tail"],
+  // "X, not Y." and "X, not because Y." up to five words in the tail; also mid-sentence "X, not Y, and..."
+  [/,\s*not\s+(?:a\s+|an\s+|the\s+|because\s+)?[\w'-]+(?:\s+[\w'-]+){0,4}\s*[.!?,;]/g, "antithesis-tail"],
+  // The comma splice: "That is not a technology problem, it is a positioning opportunity."
+  [/\b(?:is|are|was|were)\s+not\s+[^.!?;]{1,60},\s*(?:it|they|this|that|we|you)\s+(?:is|are|was|were)\b/gi, "antithesis-splice"],
+  [/\brather than\b/gi, "antithesis-rather-than"],
   [/\bNot (?:a|an|the)\s+\w+\.\s+(?:A|An|The)\s+\w+\./g, "antithesis-fragments"],
   [/\bleverag(e|es|ed|ing)\b/gi, "leverage"],
   [/\bdelv(e|es|ed|ing)\b/gi, "delve"],
@@ -37,7 +40,7 @@ const BANNED: Array<[RegExp, string]> = [
 ];
 
 // A contrast is allowed where a speaker needs it most: the Big Idea, soundbites, the title and closing slides.
-const CONTRAST_RULES = new Set(["antithesis", "antithesis-split", "antithesis-tail", "antithesis-fragments"]);
+const CONTRAST_RULES = new Set(["antithesis", "antithesis-split", "antithesis-tail", "antithesis-fragments", "antithesis-splice", "antithesis-rather-than"]);
 const CONTRAST_PATHS = /(^|\.)(bigIdea|titleSlide|closingSlide)$|(^|\.)soundbite(\.|$)/;
 
 type WalkOpts = { contrastAllowed?: boolean; bigIdea?: string };
