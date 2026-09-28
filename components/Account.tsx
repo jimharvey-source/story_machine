@@ -84,7 +84,12 @@ export function SignIn({ compact, title, body, next }: { compact?: boolean; titl
       if (error) throw error;
       setSent(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not send the link");
+      const msg = err instanceof Error ? err.message : "";
+      setError(
+        /rate limit/i.test(msg)
+          ? "Too many sign-in emails in the last hour. Wait a few minutes and try again."
+          : msg || "Could not send the link",
+      );
     } finally {
       setBusy(false);
     }
