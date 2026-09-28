@@ -15,9 +15,11 @@ const ACTS: Array<[keyof Pick<Story, "why" | "how" | "what">, string]> = [
 /** The five slides: title, one per act, close. */
 export function slideList(story: Story, landing: Landing): SlideLine[] {
   return [
-    ["Title", `Words: "${landing.titleSlide || story.bigIdea}" Picture: none, or one image that carries the Big Idea.`, "Prologue"],
+    // Title and closing slides carry the Big Idea word for word, set here rather than left to the model,
+    // so an edit to the Big Idea carries through and no variant wording ever reaches a slide.
+    ["Title", `Words: "${story.bigIdea}" Picture: none, or one image that carries the Big Idea.`, "Prologue"],
     ...ACTS.map(([key, label]): SlideLine => [label.split(",")[0], landing[key].visualIdea, label]),
-    ["Close", `Words: "${landing.closingSlide || story.bigIdea}" Picture: the title slide again, or nothing.`, "Epilogue"],
+    ["Close", `Words: "${story.bigIdea}" Picture: the title slide again, or nothing.`, "Epilogue"],
   ];
 }
 

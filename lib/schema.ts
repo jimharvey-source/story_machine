@@ -87,8 +87,8 @@ export const LandingSchema = z.object({
     what: z.string(),
     epilogue: z.string(),
   }),
-  titleSlide: z.string().describe("Words on the title slide: the Big Idea or a shorter form of it, eight words or fewer."),
-  closingSlide: z.string().describe("Words on the closing slide: the line the audience leaves with, eight words or fewer."),
+  titleSlide: z.string().describe("Words on the title slide: the Big Idea, word for word."),
+  closingSlide: z.string().describe("Words on the closing slide: the Big Idea, word for word, as the last line of the epilogue."),
   speechNotes: z
     .object({
       prologue: z.array(z.string()),
