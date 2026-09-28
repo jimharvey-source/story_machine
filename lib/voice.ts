@@ -11,7 +11,10 @@ const BANNED: Array<[RegExp, string]> = [
   [/,\s*not\s+(?:a\s+|an\s+|the\s+|because\s+)?[\w'-]+(?:\s+[\w'-]+){0,4}\s*[.!?,;]/g, "antithesis-tail"],
   // The comma splice: "That is not a technology problem, it is a positioning opportunity."
   [/\b(?:is|are|was|were)\s+not\s+[^.!?;]{1,60},\s*(?:it|they|this|that|we|you)\s+(?:is|are|was|were)\b/gi, "antithesis-splice"],
+  // The same with contractions: "Today isn't the why again, it's the how."
+  [/\b(?:isn't|aren't|wasn't|weren't)\s+[^.!?;]{1,60},\s*(?:it's|they're|this is|that's|we're|you're|it is|they are)\b/gi, "antithesis-splice"],
   [/\brather than\b/gi, "antithesis-rather-than"],
+  [/\binstead of\b/gi, "antithesis-instead-of"],
   [/\bNot (?:a|an|the)\s+\w+\.\s+(?:A|An|The)\s+\w+\./g, "antithesis-fragments"],
   [/\bleverag(e|es|ed|ing)\b/gi, "leverage"],
   [/\bdelv(e|es|ed|ing)\b/gi, "delve"],
@@ -40,7 +43,7 @@ const BANNED: Array<[RegExp, string]> = [
 ];
 
 // A contrast is allowed where a speaker needs it most: the Big Idea, soundbites, the title and closing slides.
-const CONTRAST_RULES = new Set(["antithesis", "antithesis-split", "antithesis-tail", "antithesis-fragments", "antithesis-splice", "antithesis-rather-than"]);
+const CONTRAST_RULES = new Set(["antithesis", "antithesis-split", "antithesis-tail", "antithesis-fragments", "antithesis-splice", "antithesis-rather-than", "antithesis-instead-of"]);
 const CONTRAST_PATHS = /(^|\.)(bigIdea|titleSlide|closingSlide)$|(^|\.)soundbite(\.|$)/;
 
 type WalkOpts = { contrastAllowed?: boolean; bigIdea?: string };
