@@ -120,9 +120,9 @@ export const LandingInputSchema = LandingSchema.extend({
 export const RegisterSchema = z.enum(["formal", "business", "conversational"]).default("business");
 
 export const StoryRequestSchema = z.object({
-  notes: z.string().min(40, "Paste at least a few lines of notes").max(60000),
-  audience: z.string().max(400).optional().default(""),
-  intent: z.string().max(400).optional().default(""),
+  notes: z.string().min(40, "Paste at least a few lines of notes").max(60000, "That is more than the StoryMachine can read at once. Cut anything that is not part of this story."),
+  audience: z.string().max(2000, "Keep the audience to a short paragraph: who they are and what matters to them.").optional().default(""),
+  intent: z.string().max(2000, "Keep what you want them to know, understand or do to a short paragraph.").optional().default(""),
   register: RegisterSchema,
   /** Rework an existing story rather than start a new one. */
   storyId: z.string().uuid().optional(),
