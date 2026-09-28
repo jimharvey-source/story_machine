@@ -45,6 +45,29 @@ export function SignIn({ compact, title, body, next }: { compact?: boolean; titl
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [code, setCode] = useState("");
+  const [checking, setChecking] = useState(false);
+
+  // The email carries a code as well as a link. Typing the code signs in this browser, whatever device
+  // the email was read on, and whatever the mail app did to the link.
+  async function verify(e: React.FormEvent) {
+    e.preventDefault();
+    const token = code.replace(/\s/g, "");
+    if (!/^\d{6,8}$/.test(token)) {
+      setError("The code is the number in the email.");
+      return;
+    }
+    setChecking(true);
+    setError(null);
+    const sb = supabaseBrowser();
+    const { error } = await sb.auth.verifyOtp({ email: email.trim(), token, type: "email" });
+    if (error) {
+      setChecking(false);
+      setError("That code did not work. Codes expire after an hour and work once. Send a new one.");
+      return;
+    }
+    window.location.assign(next ?? "/");
+  }
 
   async function send(e: React.FormEvent) {
     e.preventDefault();
@@ -72,11 +95,25 @@ export function SignIn({ compact, title, body, next }: { compact?: boolean; titl
       <div className="rounded-md border border-rule bg-paper-2 p-5">
         <p className="eyebrow">Check your email</p>
         <p className="mt-2 text-ink">
-          A sign-in link is on its way to <span className="font-medium">{email}</span>. Open it on this device and you
-          come straight back here.
+          A sign-in link and a code are on their way to <span className="font-medium">{email}</span>. Type the code
+          here, or tap the link.
         </p>
-        <p className="mt-2 text-sm text-muted">Open the link on any device: your story comes with you. Nothing arrived after a minute? Look in spam, or send it again.</p>
-        <button type="button" onClick={() => setSent(false)} className="mt-3 text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink">
+        <form onSubmit={verify} className="mt-4 flex flex-wrap items-center gap-2">
+          <input
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="Code from the email"
+            className="w-48 max-w-full rounded-md border border-rule bg-paper-2 px-3 py-2.5 text-base tracking-widest outline-none focus:border-ink"
+          />
+          <button type="submit" disabled={checking} className="rounded-md bg-ink px-4 py-2.5 text-base font-medium text-paper disabled:opacity-40">
+            {checking ? "Checking..." : "Sign in"}
+          </button>
+        </form>
+        {error && <p className="mt-2 text-sm text-red">{error}</p>}
+        <p className="mt-3 text-sm text-muted">Your story comes with you either way. Nothing arrived after a minute? Look in spam, or send it again.</p>
+        <button type="button" onClick={() => { setSent(false); setCode(""); setError(null); }} className="mt-3 text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink">
           Send it again
         </button>
       </div>
