@@ -16,6 +16,14 @@ const BANNED: Array<[RegExp, string]> = [
   [/\brather than\b/gi, "antithesis-rather-than"],
   [/\binstead of\b/gi, "antithesis-instead-of"],
   [/\bNot (?:a|an|the)\s+\w+\.\s+(?:A|An|The)\s+\w+\./g, "antithesis-fragments"],
+  // "It does not require more expertise. It requires the ability to..." (the second sentence starts with a plain verb)
+  [/\b(?:does not|do not|doesn't|don't|did not|didn't)\s+\w+[^.!?]{0,70}[.!?]\s+(?:It|They|This|That|What it)\s+(?:\w{3,}s|takes|needs|requires|means)\b/g, "antithesis-split"],
+  // "Every consultant knows what they do. Very few know why." and "Everyone knows what, few know why."
+  [/\b(?:Every|Everyone|Everybody|All|Most)\b[^.!?]{1,70}[.!?,]\s+(?:very\s+|but\s+)?(?:few|hardly anyone|almost nobody|nobody|none)\b/gi, "antithesis-every-few"],
+  // "value the relationship more than the immediate deal": a comparison of two things, one set against the other
+  [/\b(?:the|their|your|our|its|a|an)\s+[\w-]+\s+more than\s+(?:the|their|your|our|its|a|an)\s+(?:[\w-]+\s+)?[\w-]+/gi, "antithesis-more-than"],
+  // "They follow a structured process. But trust is what earns..."
+  [/[.!?]\s+But\s+[^.!?]{1,50}\b(?:is|are)\s+(?:what|the thing|where|who)\b/g, "antithesis-but"],
   [/\bleverag(e|es|ed|ing)\b/gi, "leverage"],
   [/\bdelv(e|es|ed|ing)\b/gi, "delve"],
   [/\bgame[- ]chang(er|ing)\b/gi, "game-changer"],
@@ -43,7 +51,7 @@ const BANNED: Array<[RegExp, string]> = [
 ];
 
 // A contrast is allowed where a speaker needs it most: the Big Idea, soundbites, the title and closing slides.
-const CONTRAST_RULES = new Set(["antithesis", "antithesis-split", "antithesis-tail", "antithesis-fragments", "antithesis-splice", "antithesis-rather-than", "antithesis-instead-of"]);
+const CONTRAST_RULES = new Set(["antithesis", "antithesis-split", "antithesis-tail", "antithesis-fragments", "antithesis-splice", "antithesis-rather-than", "antithesis-instead-of", "antithesis-every-few", "antithesis-more-than", "antithesis-but"]);
 const CONTRAST_PATHS = /(^|\.)(bigIdea|titleSlide|closingSlide)$|(^|\.)soundbite(\.|$)/;
 
 type WalkOpts = { contrastAllowed?: boolean; bigIdea?: string };
@@ -121,6 +129,10 @@ function soundbiteViolations(value: unknown, path: string, out: Violation[]): vo
   if (typeof o.text === "string" && (o.source === "material" || o.source === "proposed")) {
     if (/^(They|It|This|That|These|Those|He|She|We)\b/.test(o.text.trim())) {
       out.push({ path, rule: "soundbite-pronoun", sample: o.text });
+    }
+    // A soundbite is something the audience repeats. A question is something they answer.
+    if (/\?["”’']?\s*$/.test(o.text.trim())) {
+      out.push({ path, rule: "soundbite-question", sample: o.text });
     }
     return;
   }

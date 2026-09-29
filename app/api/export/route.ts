@@ -5,6 +5,7 @@ import { currentProfile, purchaseRequired, signInRequired, startStory } from "@/
 import { unlockStory } from "@/lib/guest";
 import { LandingInputSchema, StorySchema } from "@/lib/schema";
 import { slideList, slidePrompt } from "@/lib/slides";
+import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "@/lib/ownIt";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -136,6 +137,31 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
       small("Every figure here comes from your material. Check each one against its source before you present.");
       gap(2);
     };
+    // "Make it your own": the coach's advice, set apart in the accent colour so nobody skips it.
+    const ownIt = (items: string[]) => {
+      rule();
+      keep(160);
+      const top = doc.y;
+      doc.x = L;
+      doc.y = top + 12;
+      const inner = (t: string, font: string, size: number, colour: string, x = L + 14, w = W - 28) =>
+        doc.font(font).fontSize(size).fillColor(colour).text(t, x, doc.y, { width: w, lineGap: 2.5 });
+      doc.font("Helvetica").fontSize(7.5).fillColor(RED).text(OWN_IT_TITLE.toUpperCase(), L + 14, doc.y, { characterSpacing: 1.6, width: W - 28 });
+      gap(1);
+      inner(OWN_IT_LEAD, "Times-Roman", 13, INK);
+      gap(2);
+      for (const it of items) {
+        const y = doc.y;
+        doc.rect(L + 14, y + 3, 1.5, 9).fillColor(RED).fill();
+        inner(it, "Helvetica", 10, "#3d3a33", L + 26, W - 40);
+        gap(1);
+      }
+      gap(1);
+      const end = doc.y;
+      if (end > top) doc.rect(L, top, W, end - top).lineWidth(0.75).strokeColor(RED).stroke();
+      doc.x = L;
+      gap(2);
+    };
     const pageTitle = (kicker: string, t: string, intro?: string) => {
       eyebrow(kicker);
       display(t, 18);
@@ -232,12 +258,7 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
         doc.x = L;
         gap(2);
       }
-      if (landing.gaps.length) {
-        rule();
-        keep(90);
-        eyebrow("Before you rehearse: what only you can add");
-        bullets(landing.gaps);
-      }
+      ownIt([...landing.gaps, ...ownItAdvice(story, landing)]);
       sourceCheck();
 
       // 2. Speech notes: what the presenter holds in the room
@@ -333,12 +354,7 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
       doc.y = boxBottom + 6;
     }
 
-    if (!landing && story.gaps.length) {
-      rule();
-      keep(90);
-      eyebrow("What only you can add");
-      bullets(story.gaps);
-    }
+    if (!landing) ownIt([...story.gaps, ...ownItAdvice(story, null)]);
     if (!landing) sourceCheck();
 
     // 6. How this was made

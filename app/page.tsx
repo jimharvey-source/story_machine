@@ -7,6 +7,7 @@ import { Refine, type ChatMessage } from "@/components/Refine";
 import { AccountBar, Paywall, PRICES, SignIn, type Me } from "@/components/Account";
 import { StoriesPanel } from "@/components/Stories";
 import { Pack } from "@/components/Pack";
+import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "@/lib/ownIt";
 
 const DRAFT_KEY = "storymachine.draft";
 const CURRENT_KEY = "storymachine.current";
@@ -1091,17 +1092,18 @@ export default function Home() {
             </>
           )}
 
-          {gaps.length > 0 && (
-            <section className="border-t border-rule pt-8">
-              <p className="eyebrow">What only you can add</p>
-              <Why>The machine never invents. Where the notes were silent, it asks.</Why>
-              <ul className="mt-3 space-y-2 text-ink-2">
-                {gaps.map((g, i) => (
-                  <li key={i} className="border-l-2 border-rule pl-4">
+          {story && (
+            <section className="rounded-md border border-red bg-red-soft px-5 py-6 sm:px-7">
+              <p className="eyebrow text-red">{OWN_IT_TITLE}</p>
+              <p className="mt-2 font-display text-xl leading-snug text-ink">{OWN_IT_LEAD}</p>
+              <ul className="mt-4 space-y-3 text-ink-2">
+                {[...gaps, ...ownItAdvice(story, landing)].map((g, i) => (
+                  <li key={i} className="border-l-2 border-red pl-4">
                     {g}
                   </li>
                 ))}
               </ul>
+              <Why>The machine never invents. Where your notes were silent, it asks.</Why>
             </section>
           )}
 
