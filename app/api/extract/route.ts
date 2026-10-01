@@ -1,66 +1,13 @@
 import { NextResponse } from "next/server";
 import { currentProfile, logGeneration } from "@/lib/access";
-import JSZip from "jszip";
+import { ExtractError, MAX_CHARS, extractFromFile } from "@/lib/extractText";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-// Vercel functions accept request bodies up to 4.5 MB; the page checks this before sending.
+// The page now reads files in the browser and sends nothing here. This route stays for any old page
+// still open in a tab. Vercel functions accept request bodies up to 4.5 MB.
 const MAX_BYTES = 4 * 1024 * 1024;
-const MAX_CHARS = 60000;
-
-// unpdf carries its own serverless build of pdf.js, so nothing here needs a browser (no DOMMatrix, no canvas).
-async function extractPdf(buf: Buffer): Promise<string> {
-  const { extractText, getDocumentProxy } = await import("unpdf");
-  const pdf = await getDocumentProxy(new Uint8Array(buf));
-  const { text } = await extractText(pdf, { mergePages: true });
-  return text ?? "";
-}
-
-async function extractDocx(buf: Buffer): Promise<string> {
-  const mammoth = await import("mammoth");
-  const result = await mammoth.extractRawText({ buffer: buf });
-  return result.value ?? "";
-}
-
-// PowerPoint: read the text runs out of each slide's XML, in slide order.
-async function extractPptx(buf: Buffer): Promise<string> {
-  const zip = await JSZip.loadAsync(buf);
-  const slideNames = Object.keys(zip.files)
-    .filter((n) => /^ppt\/slides\/slide\d+\.xml$/.test(n))
-    .sort((a, b) => Number(a.match(/\d+/)![0]) - Number(b.match(/\d+/)![0]));
-  const out: string[] = [];
-  for (const name of slideNames) {
-    const xml = await zip.file(name)!.async("string");
-    const paragraphs = xml.split(/<\/a:p>/).map((p) => {
-      const runs = [...p.matchAll(/<a:t>([^<]*)<\/a:t>/g)].map((m) => m[1]);
-      return runs.join("");
-    });
-    const text = paragraphs.map((t) => t.trim()).filter(Boolean).join("\n");
-    const n = name.match(/\d+/)![0];
-    if (text) out.push(`Slide ${n}\n${text}`);
-    const notesName = `ppt/notesSlides/notesSlide${n}.xml`;
-    const notes = zip.file(notesName);
-    if (notes) {
-      const nxml = await notes.async("string");
-      const ntext = [...nxml.matchAll(/<a:t>([^<]*)<\/a:t>/g)]
-        .map((m) => m[1])
-        .join(" ")
-        .trim();
-      if (ntext && !/^\d+$/.test(ntext)) out.push(`Notes for slide ${n}\n${ntext}`);
-    }
-  }
-  return out.join("\n\n");
-}
-
-function decodeEntities(s: string): string {
-  return s
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'");
-}
 
 export async function POST(req: Request) {
   // Read the body before any early answer: replying while the upload is still arriving breaks the browser's fetch.
@@ -70,7 +17,6 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: "Send the file as form data" }, { status: 400 });
   }
-  // Reading a file needs no sign-in: people upload and answer the questions before they sign in at "Find my story".
   const profile = await currentProfile();
   if (profile) await logGeneration(profile.id, "extract");
   const file = form.get("file");
@@ -78,38 +24,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No file received" }, { status: 400 });
   }
   if (file.size > MAX_BYTES) {
-    return NextResponse.json({ error: "That file is over 4 MB. Export it smaller, or paste the text." }, { status: 413 });
+    return NextResponse.json({ error: "That file is over 4 MB. Reload the page and upload it again." }, { status: 413 });
   }
-  const name = file.name.toLowerCase();
-  const buf = Buffer.from(await file.arrayBuffer());
-
   try {
-    let text = "";
-    if (name.endsWith(".pdf")) text = await extractPdf(buf);
-    else if (name.endsWith(".docx")) text = await extractDocx(buf);
-    else if (name.endsWith(".pptx")) text = decodeEntities(await extractPptx(buf));
-    else if (name.endsWith(".txt") || name.endsWith(".md")) text = buf.toString("utf8");
-    else {
-      return NextResponse.json(
-        { error: "Upload a PDF, Word (.docx), PowerPoint (.pptx), text or Markdown file." },
-        { status: 415 }
-      );
+    const buf = await file.arrayBuffer();
+    if (file.name.toLowerCase().endsWith(".docx")) {
+      // On the server, mammoth's Node build takes a Buffer.
+      const mammoth = await import("mammoth");
+      const text = ((await mammoth.extractRawText({ buffer: Buffer.from(buf) })).value ?? "").trim();
+      if (!text) throw new ExtractError("No readable text found in that file. Paste the text instead.");
+      return NextResponse.json({ text: text.slice(0, MAX_CHARS), truncated: text.length > MAX_CHARS, chars: text.length, name: file.name });
     }
-    text = text.replace(/\r\n?/g, "\n").replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
-    if (!text) {
-      return NextResponse.json(
-        { error: "No readable text found in that file. If it is a scanned PDF, paste the text instead." },
-        { status: 422 }
-      );
-    }
-    const truncated = text.length > MAX_CHARS;
-    return NextResponse.json({
-      text: truncated ? text.slice(0, MAX_CHARS) : text,
-      truncated,
-      chars: text.length,
-      name: file.name,
-    });
+    return NextResponse.json(await extractFromFile(file.name, buf));
   } catch (e) {
+    if (e instanceof ExtractError) return NextResponse.json({ error: e.message }, { status: 422 });
     const message = e instanceof Error ? e.message : "Unknown error";
     console.error("[api/extract]", message);
     return NextResponse.json({ error: "Could not read that file. " + message }, { status: 500 });

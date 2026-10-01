@@ -268,7 +268,6 @@ function setIn<T>(obj: T, path: string[], value: unknown): T {
 }
 
 // Vercel functions accept request bodies up to 4.5 MB.
-const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 
 export default function Home() {
   const [notes, setNotes] = useState("");
@@ -594,31 +593,27 @@ export default function Home() {
     }
   }
 
+  // The file is read here, in the browser. Only its words go into the notes; the file itself is never sent.
   async function upload(file: File) {
     setError(null);
     setUploadNote(null);
-    if (file.size > MAX_UPLOAD_BYTES) {
-      setError("That file is over 4 MB, the most the upload can take. Export it smaller, or paste the text.");
-      if (fileRef.current) fileRef.current.value = "";
-      return;
-    }
     setBusy("upload");
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await fetch("/api/extract", { method: "POST", body: fd });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Could not read that file");
-      }
+      const { extractFromFile } = await import("@/lib/extractText");
+      const data = await extractFromFile(file.name, await file.arrayBuffer());
       setNotes(
         (prev) => (prev.trim() ? prev.trimEnd() + "\n\n" : "") + data.text,
       );
       setUploadNote(
-        `Added ${data.name}${data.truncated ? " (trimmed to the first 60,000 characters)" : ""}. Cut anything that is not part of the story before you go on.`,
+        `Added the words from ${data.name}${data.truncated ? " (the first 60,000 characters)" : ""}. The file stays on your computer. Cut anything that is not part of the story before you go on.`,
       );
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not read that file");
+      const msg = e instanceof Error ? e.message : "";
+      setError(
+        e instanceof Error && e.name === "ExtractError"
+          ? msg
+          : `Could not read that file${msg ? ` (${msg})` : ""}. Save it again as .pptx, .docx or .pdf, or paste the text.`,
+      );
     } finally {
       setBusy(null);
       if (fileRef.current) fileRef.current.value = "";
