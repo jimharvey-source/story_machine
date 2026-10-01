@@ -27,7 +27,7 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-  const { notes, audience, intent, register, storyId } = parsed.data;
+  const { notes, audience, intent, register, kind, storyId } = parsed.data;
   const admin = supabaseAdmin();
 
   // Reworking a story you own (signed in, or the guest who made it) keeps its id and its unlocked state.
@@ -42,13 +42,15 @@ export async function POST(req: Request) {
 
   try {
     const result = await generateStructured({
-      system: storySystem(register),
+      system: storySystem(register, kind ?? null),
       user: storyUserMessage(notes, audience, intent),
       schema: StorySchema,
       maxTokens: 8000,
       label: "story",
       voice: { contractionsInWritten: register === "conversational" },
     });
+    // The presenter's choice stands, whatever the model wrote.
+    if (kind) result.data.kind = kind;
     if (profile) await logGeneration(profile.id, "story", { attempts: result.attempts, violationsBefore: result.violationsBefore, violationsAfter: result.violationsAfter });
 
     // Every story is saved, so the person can come back to it and its edits stay free.

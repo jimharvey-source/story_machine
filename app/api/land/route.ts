@@ -33,7 +33,7 @@ export async function POST(req: Request) {
 
   try {
     const result = await generateStructured({
-      system: landSystem(register),
+      system: landSystem(register, story.kind),
       user: landUserMessage(notes, JSON.stringify(story, null, 2)),
       schema: LandingSchema,
       maxTokens: 8000,

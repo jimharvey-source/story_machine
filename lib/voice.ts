@@ -54,12 +54,12 @@ const BANNED: Array<[RegExp, string]> = [
 
 // Contrast is the oldest tool a speaker has, so it is rationed, not banned (Jim, 1 October).
 // Free: the Big Idea, soundbites, the title and closing slides, and the five lines (which repeat the story).
-// Never: audience, intent, argument, gaps and speech notes, which must be plain and quick to read.
+// Never: audience, the hero, intent, argument, gaps and speech notes, which must be plain and quick to read.
 // Everywhere else (headlines, core messages, supporting points, prologue, signposts, epilogue):
 // at most CONTRAST_BUDGET in the whole story, and never two in the same section.
 const CONTRAST_RULES = new Set(["antithesis", "antithesis-split", "antithesis-tail", "antithesis-fragments", "antithesis-splice", "antithesis-rather-than", "antithesis-instead-of", "antithesis-every-few", "antithesis-more-than", "antithesis-but"]);
 const CONTRAST_PATHS = /(^|\.)(bigIdea|titleSlide|closingSlide)$|(^|\.)soundbite(\.|$)|(^|\.)fiveLineStory(\.|$)/;
-const CONTRAST_NEVER = /(^|\.)(audience|intent|argument|gaps|speechNotes)(\.|\[|$)/;
+const CONTRAST_NEVER = /(^|\.)(audience|hero|intent|argument|gaps|speechNotes)(\.|\[|$)/;
 export const CONTRAST_BUDGET = 2;
 
 type ContrastHit = Violation;

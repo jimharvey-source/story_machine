@@ -63,7 +63,7 @@ export function SignIn({ compact, title, body, next, programme }: { compact?: bo
     const { error } = await sb.auth.verifyOtp({ email: email.trim(), token, type: "email" });
     if (error) {
       setChecking(false);
-      setError("That code did not work. Codes expire after an hour and work once. Send a new one.");
+      setError("That code did not work. Use the newest email, or send a new code. Each code works once, for an hour.");
       return;
     }
     window.location.assign(next ?? "/");

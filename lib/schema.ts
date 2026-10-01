@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { KIND_KEYS } from "./kinds";
 
 // Stage one: Get your story straight (Worksheet 1).
 // Audience, intent, argument, Big Idea, three acts.
@@ -23,7 +24,18 @@ export const ActSchema = z.object({
     .describe("Two to four points drawn only from the source material"),
 });
 
+export const KindSchema = z.enum(KIND_KEYS);
+
+export const HeroSchema = z.object({
+  who: z.string().describe("The hero of this story: the audience, named as the people in the room. One line."),
+  wants: z.string().describe("What they want: their yearning, in one line, in their terms."),
+  obstacle: z.string().describe("What stands in the way: the obstacle Act 1 shows, in one line."),
+});
+
 export const StorySchema = z.object({
+  kind: KindSchema.describe(
+    "The kind of presentation this story follows. The presenter's choice if they made one; otherwise the likeliest kind for this material."
+  ),
   audience: z.object({
     who: z.string().describe("Who the audience is, in one line"),
     needToHear: z.string().describe("What they need or want to hear, in one or two lines"),
@@ -31,6 +43,7 @@ export const StorySchema = z.object({
       .string()
       .describe("What they do not need to hear and should be left out, in one line"),
   }),
+  hero: HeroSchema.describe("The audience is the hero; the presenter is the faithful friend. What they want and what stands in the way."),
   intent: z
     .string()
     .describe(
@@ -51,6 +64,13 @@ export const StorySchema = z.object({
 });
 
 export type Story = z.infer<typeof StorySchema>;
+
+/** A story coming back from the browser or the database. Stories made before 1 October lack a kind and a hero. */
+export const EMPTY_HERO = { who: "", wants: "", obstacle: "" };
+export const StoryInputSchema = StorySchema.extend({
+  kind: KindSchema.catch("other").default("other"),
+  hero: HeroSchema.default(EMPTY_HERO),
+});
 
 // Stage two: Make it land and stick (Worksheet 2).
 // Prologue, signposts, visuals, epilogue, five-line story.
@@ -124,13 +144,15 @@ export const StoryRequestSchema = z.object({
   audience: z.string().max(2000, "Keep the audience to a short paragraph: who they are and what matters to them.").optional().default(""),
   intent: z.string().max(2000, "Keep what you want them to know, understand or do to a short paragraph.").optional().default(""),
   register: RegisterSchema,
+  /** The kind of presentation. Absent: the StoryMachine picks the likeliest and says so. */
+  kind: KindSchema.optional(),
   /** Rework an existing story rather than start a new one. */
   storyId: z.string().uuid().optional(),
 });
 
 export const LandRequestSchema = z.object({
   notes: z.string().min(40).max(60000),
-  story: StorySchema,
+  story: StoryInputSchema,
   register: RegisterSchema,
   /** The saved story to unlock for stage 2. */
   storyId: z.string().uuid().optional(),
@@ -140,7 +162,7 @@ export const LandRequestSchema = z.object({
 
 export const EditRequestSchema = z.object({
   notes: z.string().min(40).max(60000),
-  story: StorySchema,
+  story: StoryInputSchema,
   landing: LandingInputSchema.optional(),
   register: RegisterSchema,
   path: z.string().min(1).max(80),
@@ -161,7 +183,7 @@ export const RefineMessageSchema = z.object({
 
 export const RefineRequestSchema = z.object({
   notes: z.string().min(40).max(60000),
-  story: StorySchema,
+  story: StoryInputSchema,
   landing: LandingInputSchema.optional(),
   register: RegisterSchema,
   messages: z.array(RefineMessageSchema).min(1).max(30),

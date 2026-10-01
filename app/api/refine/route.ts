@@ -43,7 +43,7 @@ export async function POST(req: Request) {
   try {
     if (landing) {
       const result = await generateStructured({
-        system: refineSystem(register),
+        system: refineSystem(register, story.kind),
         user,
         history: rest,
         schema: RefineFullResultSchema,
@@ -54,7 +54,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ reply: result.data.reply, story: result.data.story, landing: result.data.landing, meta: { attempts: result.attempts, violationsAfter: result.violationsAfter } });
     }
     const result = await generateStructured({
-      system: refineSystem(register),
+      system: refineSystem(register, story.kind),
       user,
       history: rest,
       schema: RefineStoryResultSchema,

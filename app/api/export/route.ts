@@ -3,16 +3,17 @@ import PDFDocument from "pdfkit";
 import { z } from "zod";
 import { currentProfile, purchaseRequired, signInRequired, startStory } from "@/lib/access";
 import { unlockStory } from "@/lib/guest";
-import { LandingInputSchema, StorySchema } from "@/lib/schema";
+import { LandingInputSchema, StoryInputSchema } from "@/lib/schema";
 import { slideList, slidePrompt } from "@/lib/slides";
 import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "@/lib/ownIt";
+import { KINDS, kindOf } from "@/lib/kinds";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const ExportSchema = z.object({
   title: z.string().max(160).default("My story"),
-  story: StorySchema,
+  story: StoryInputSchema,
   landing: LandingInputSchema.nullable().default(null),
   /** The saved story; the PDF unlocks it like stage 2 does. */
   storyId: z.string().uuid().optional(),
@@ -60,7 +61,7 @@ export async function POST(req: Request) {
   });
 }
 
-type Story = z.infer<typeof StorySchema>;
+type Story = z.infer<typeof StoryInputSchema>;
 type Landing = z.infer<typeof LandingInputSchema>;
 
 function render(title: string, story: Story, landing: Landing | null): Promise<Buffer> {
@@ -180,6 +181,10 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
       doc.y,
       { width: W }
     );
+    // The structure: the book's name and its one line. Old stories were all Why, How, What.
+    const kind = KINDS[kindOf(story.kind)];
+    gap(1);
+    doc.font("Helvetica").fontSize(9).fillColor(MUTED).text(`Structure: ${kind.book}. ${kind.line}`, L, doc.y, { width: W });
     gap(6);
     eyebrow("Big Idea");
     display(story.bigIdea, 26);
@@ -190,6 +195,15 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
     body("They need to hear: " + story.audience.needToHear, 10, "#3d3a33");
     gap(1);
     body("Leave out: " + story.audience.doNotNeedToHear, 10, "#3d3a33");
+    if (story.hero?.who) {
+      gap(3);
+      eyebrow("The hero");
+      body(story.hero.who);
+      gap(1);
+      body("What they want: " + story.hero.wants, 10, "#3d3a33");
+      gap(1);
+      body("What stands in the way: " + story.hero.obstacle, 10, "#3d3a33");
+    }
     gap(3);
     eyebrow("Statement of intent");
     body(story.intent);
@@ -206,9 +220,9 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
     }
 
     const acts: Array<[keyof Pick<Story, "why" | "how" | "what">, string]> = [
-      ["why", "Act 1, Why, the hook"],
-      ["how", "Act 2, How, the response"],
-      ["what", "Act 3, What, the ask"],
+      ["why", `Act 1, ${kind.acts[0]}`],
+      ["how", `Act 2, ${kind.acts[1]}`],
+      ["what", `Act 3, ${kind.acts[2]}`],
     ];
     for (const [key, label] of acts) {
       const act = story[key];
@@ -246,9 +260,9 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
       eyebrow("The story in five lines");
       const lines: Array<[string, string]> = [
         ["Prologue", landing.fiveLineStory.prologue],
-        ["Why", landing.fiveLineStory.why],
-        ["How", landing.fiveLineStory.how],
-        ["What", landing.fiveLineStory.what],
+        [kind.acts[0], landing.fiveLineStory.why],
+        [kind.acts[1], landing.fiveLineStory.how],
+        [kind.acts[2], landing.fiveLineStory.what],
         ["Epilogue", landing.fiveLineStory.epilogue],
       ];
       for (const [k, v] of lines) {
@@ -265,9 +279,9 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
       const notes = landing.speechNotes;
       const beats: Array<[string, string[], string]> = [
         ["Prologue", notes.prologue, "the golden minute"],
-        ["Act 1, Why", notes.why, story.why.headline],
-        ["Act 2, How", notes.how, story.how.headline],
-        ["Act 3, What", notes.what, story.what.headline],
+        [`Act 1, ${kind.acts[0]}`, notes.why, story.why.headline],
+        [`Act 2, ${kind.acts[1]}`, notes.how, story.how.headline],
+        [`Act 3, ${kind.acts[2]}`, notes.what, story.what.headline],
         ["Epilogue", notes.epilogue, "end with certainty"],
       ];
       const hasNotes = beats.some(([, cues]) => cues.length > 0);
@@ -364,7 +378,7 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
       ["Understand the audience", "Every story starts with who is listening: what they need to hear, and what they do not. A message that is right for everyone lands with no one."],
       ["State your intent", "One sentence: after my presentation, the audience will... If you cannot finish it, you are not ready to present."],
       ["Clarify the argument", "The case in one sentence, in your words, that a sceptic could test. The Big Idea is the memorable form of it: the line people repeat in the corridor."],
-      ["Build a three-act story", "Why: the problem, and why it matters now. How: the insight or the answer. What: the ask. Each act has a headline that says the point, a soundbite worth quoting, and only the evidence that carries the point."],
+      ["Build a three-act story", "Each kind of presentation gives the acts their own jobs. The classic story runs Why: the problem, and why it matters now. How: the insight or the answer. What: the ask. Each act has a headline that says the point, a soundbite worth quoting, and only the evidence that carries the point."],
       ["Make it land", "A Prologue that earns attention in the first sentence and states the idea inside a minute. A signpost into each act so the audience knows the important thing has arrived. One slide per act that illustrates rather than explains."],
       ["End with certainty", "Audiences need certainty. End by recapping your headlines and the actions from here. Send them away with the message ringing in their ears."],
       ["Then the slides, last", "Slides come after the story, so every one has a job to do. Few, simple, one idea each."],

@@ -9,6 +9,7 @@ import { clearPendingProgramme, normaliseCode, readPendingProgramme, savePending
 import { StoriesPanel } from "@/components/Stories";
 import { Pack } from "@/components/Pack";
 import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "@/lib/ownIt";
+import { KIND_KEYS, KINDS, kindOf, type Kind } from "@/lib/kinds";
 
 const DRAFT_KEY = "storymachine.draft";
 const CURRENT_KEY = "storymachine.current";
@@ -45,6 +46,19 @@ const ACTS: Array<{ key: ActKey; n: string; word: string; job: string; why: stri
   { key: "how", n: "Act 2", word: "How", job: "the response", why: "The insight or the answer. Only the evidence that carries the point; the rest goes in a handout." },
   { key: "what", n: "Act 3", word: "What", job: "the ask", why: "What you want them to think, feel or do next. Say it plainly, once." },
 ];
+
+/** The three acts as this kind of presentation names them. The classic story keeps Why, How, What. */
+function actsFor(kind: Kind): typeof ACTS {
+  if (kind === "other") return ACTS;
+  const k = KINDS[kind];
+  const jobs = [k.act1, k.act2, k.act3];
+  return ACTS.map((a, i) => ({ ...a, word: k.acts[i], job: "", why: jobs[i] }));
+}
+
+// Old stories have no kind or hero; give them the defaults so the page can show them.
+function normaliseStory(s: Story): Story {
+  return { ...s, kind: kindOf(s.kind), hero: s.hero ?? { who: "", wants: "", obstacle: "" } };
+}
 
 // The process explains itself as the story appears: one line under each part saying why it is there.
 function Why({ children }: { children: React.ReactNode }) {
@@ -274,6 +288,9 @@ export default function Home() {
   const [audience, setAudience] = useState("");
   const [intent, setIntent] = useState("");
   const [register, setRegister] = useState<Register>("business");
+  // The kind of presentation. Empty: the StoryMachine chooses, and says so.
+  const [kind, setKind] = useState<Kind | "">("");
+  const [kindChosenByMachine, setKindChosenByMachine] = useState(false);
   const [story, setStory] = useState<Story | null>(null);
   const [landing, setLanding] = useState<Landing | null>(null);
   const [meta, setMeta] = useState<Meta | null>(null);
@@ -343,6 +360,7 @@ export default function Home() {
           d.register === "conversational"
         )
           setRegister(d.register);
+        if (typeof d.kind === "string" && (KIND_KEYS as readonly string[]).includes(d.kind)) setKind(d.kind as Kind);
       } catch {
         // storage unavailable; carry on
       }
@@ -405,12 +423,12 @@ export default function Home() {
     try {
       localStorage.setItem(
         DRAFT_KEY,
-        JSON.stringify({ notes, audience, intent, register }),
+        JSON.stringify({ notes, audience, intent, register, kind }),
       );
     } catch {
       // ignore
     }
-  }, [notes, audience, intent, register]);
+  }, [notes, audience, intent, register, kind]);
 
   useEffect(() => {
     try {
@@ -485,7 +503,10 @@ export default function Home() {
       setAudience(s.audience);
       setIntent(s.intent);
       setRegister(s.register);
-      setStory(s.story);
+      const opened = normaliseStory(s.story);
+      setStory(opened);
+      if (s.story.kind) setKind(opened.kind);
+      setKindChosenByMachine(false);
       setLanding(s.landing);
       setStoryId(s.id);
       setUnlocked(Boolean(s.unlocked));
@@ -557,11 +578,13 @@ export default function Home() {
         audience,
         intent,
         register,
+        kind: kind || undefined,
         storyId: storyId ?? undefined,
       });
+      setKindChosenByMachine(!kind);
       if (data.id) setStoryId(data.id);
       if (!storyId) setUnlocked(false);
-      setStory(data.story);
+      setStory(normaliseStory(data.story));
       setShowPaywall(false);
       loadMe();
       setMeta(data.meta);
@@ -675,7 +698,7 @@ export default function Home() {
         register,
         messages: next,
       });
-      setStory(data.story);
+      setStory(normaliseStory(data.story));
       if (data.landing) setLanding(data.landing);
       setChat([...next, { role: "assistant", content: data.reply }]);
     } catch (e) {
@@ -769,32 +792,60 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="block text-sm">
+          <label className="block text-sm">
               <span className="text-muted">
                 Who is in the audience, and what matters to them? (optional)
               </span>
               <textarea
                 value={audience}
                 onChange={(e) => setAudience(e.target.value)}
-                rows={6}
+                rows={4}
                 placeholder="Who they are, how many, what they already think, and what they care about. For example: the executive committee, eight people, sceptical about cost, who care most about the pipeline number."
                 className="mt-1 w-full rounded-md border border-rule bg-paper-2 p-3 text-base leading-relaxed outline-none focus:border-ink"
               />
             </label>
-            <label className="block text-sm">
+
+          <fieldset className="text-sm">
+            <legend className="eyebrow">What kind of presentation is it?</legend>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {KIND_KEYS.map((k) => (
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => setKind(kind === k ? "" : k)}
+                  title={KINDS[k].line}
+                  aria-pressed={kind === k}
+                  className={
+                    "rounded-md border px-3 py-1.5 " +
+                    (kind === k
+                      ? "border-ink bg-ink text-paper"
+                      : "border-rule bg-paper-2 text-ink-2 hover:border-ink")
+                  }
+                >
+                  {KINDS[k].label}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-muted">
+              {kind ? KINDS[kind].line : "Not sure? Leave it, and the StoryMachine will choose from your notes."}
+            </p>
+          </fieldset>
+
+          <label className="block text-sm">
               <span className="text-muted">
                 After I sit down, I want them to know, understand, do… (optional)
+              </span>
+              <span className="mt-0.5 block text-xs text-muted">
+                Good presenters explain, engage, inspire, influence, support change, clarify, reassure or motivate. Which is yours?
               </span>
               <textarea
                 value={intent}
                 onChange={(e) => setIntent(e.target.value)}
-                rows={6}
+                rows={4}
                 placeholder="What they should know, understand or do when you have finished. For example: understand why the process needs more structure, and approve the pilot budget."
                 className="mt-1 w-full rounded-md border border-rule bg-paper-2 p-3 text-base leading-relaxed outline-none focus:border-ink"
               />
             </label>
-          </div>
 
           <fieldset className="text-sm">
             <p className="mb-3 max-w-xl text-sm text-ink-2">
@@ -879,6 +930,13 @@ export default function Home() {
               className="display mt-3 text-4xl leading-[1.08] sm:text-5xl"
               label="Big Idea"
             />
+            <p className="mt-4 text-sm text-muted">
+              <span className="eyebrow mr-2">Structure</span>
+              {KINDS[story.kind].label}: {KINDS[story.kind].line}
+              {kindChosenByMachine && (
+                <> The StoryMachine chose this from your notes. To use another, choose Rework the notes, pick the kind and find your story again.</>
+              )}
+            </p>
           </section>
 
           <section className="grid gap-8 border-t border-rule pt-8 sm:grid-cols-2">
@@ -908,6 +966,29 @@ export default function Home() {
                   className="mt-1 text-ink-2"
                 />
               </div>
+              {story.hero.who && (
+                <div>
+                  <p className="eyebrow">The hero</p>
+                  <Why>The audience is the hero. You are the faithful friend who believes in them and tells them the truth.</Why>
+                  <Editable
+                    value={story.hero.who}
+                    onChange={(v) => applyPath("hero.who", v)}
+                    className="mt-1 font-medium"
+                  />
+                  <p className="eyebrow mt-3">What they want</p>
+                  <Editable
+                    value={story.hero.wants}
+                    onChange={(v) => applyPath("hero.wants", v)}
+                    className="mt-1 text-ink-2"
+                  />
+                  <p className="eyebrow mt-3">What stands in the way</p>
+                  <Editable
+                    value={story.hero.obstacle}
+                    onChange={(v) => applyPath("hero.obstacle", v)}
+                    className="mt-1 text-ink-2"
+                  />
+                </div>
+              )}
             </div>
             <div className="space-y-4">
               <div>
@@ -956,7 +1037,7 @@ export default function Home() {
             </section>
           )}
 
-          {ACTS.map(({ key, n, word, job, why }) => {
+          {actsFor(story.kind).map(({ key, n, word, job, why }) => {
             const act = story[key];
             const land = landing?.[key];
             return (
@@ -966,8 +1047,8 @@ export default function Home() {
               >
                 <div className="mb-3 sm:mb-0">
                   <p className="eyebrow">{n}</p>
-                  <p className="display mt-1 text-3xl text-red">{word}</p>
-                  <p className="mt-1 text-xs text-muted">{job}</p>
+                  <p className={"display mt-1 text-red " + (word.length > 5 ? "text-lg leading-tight" : "text-3xl")}>{word}</p>
+                  {job && <p className="mt-1 text-xs text-muted">{job}</p>}
                   <p className="mt-2 hidden text-xs leading-relaxed text-muted sm:block">{why}</p>
                 </div>
                 <div className="space-y-5">
@@ -1104,7 +1185,11 @@ export default function Home() {
                     ["prologue", "why", "how", "what", "epilogue"] as const
                   ).map((k) => (
                     <li key={k} className="grid grid-cols-[5rem_1fr] gap-3">
-                      <span className="eyebrow pt-1.5">{k}</span>
+                      <span className="eyebrow pt-1.5">
+                        {k === "why" || k === "how" || k === "what"
+                          ? KINDS[story.kind].acts[["why", "how", "what"].indexOf(k)]
+                          : k}
+                      </span>
                       <Editable
                         value={landing.fiveLineStory[k]}
                         onChange={(v) =>
@@ -1224,6 +1309,7 @@ export default function Home() {
                 setNotes("");
                 setAudience("");
                 setIntent("");
+                setKind("");
                 setUploadNote(null);
                 window.scrollTo({ top: 0 });
               }}

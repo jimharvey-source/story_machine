@@ -37,7 +37,7 @@ export async function POST(req: Request) {
   try {
     if (Array.isArray(current)) {
       const result = await generateStructured({
-        system: editSystem(register),
+        system: editSystem(register, story.kind),
         user,
         schema: EditListSchema,
         maxTokens: 2000,
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ value: result.data.items, meta: { attempts: result.attempts } });
     }
     const result = await generateStructured({
-      system: editSystem(register),
+      system: editSystem(register, story.kind),
       user,
       schema: EditTextSchema,
       maxTokens: 1500,

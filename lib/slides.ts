@@ -1,16 +1,21 @@
-import type { LandingInputSchema, StorySchema } from "./schema";
+import type { LandingInputSchema, StoryInputSchema } from "./schema";
 import type { z } from "zod";
+import { KINDS, kindOf } from "./kinds";
 
-type Story = z.infer<typeof StorySchema>;
+type Story = z.infer<typeof StoryInputSchema>;
 type Landing = z.infer<typeof LandingInputSchema>;
 
 export type SlideLine = [name: string, text: string, serves: string];
 
-const ACTS: Array<[keyof Pick<Story, "why" | "how" | "what">, string]> = [
-  ["why", "Act 1, Why, the hook"],
-  ["how", "Act 2, How, the response"],
-  ["what", "Act 3, What, the ask"],
-];
+/** The three acts with their names for this kind of presentation: "Act 1, The need". */
+function actsOf(story: Story): Array<[keyof Pick<Story, "why" | "how" | "what">, string]> {
+  const names = KINDS[kindOf(story.kind)].acts;
+  return [
+    ["why", `Act 1, ${names[0]}`],
+    ["how", `Act 2, ${names[1]}`],
+    ["what", `Act 3, ${names[2]}`],
+  ];
+}
 
 /** The five slides: title, one per act, close. */
 export function slideList(story: Story, landing: Landing): SlideLine[] {
@@ -18,7 +23,7 @@ export function slideList(story: Story, landing: Landing): SlideLine[] {
     // Title and closing slides carry the Big Idea word for word, set here rather than left to the model,
     // so an edit to the Big Idea carries through and no variant wording ever reaches a slide.
     ["Title", `Words: "${story.bigIdea}" Picture: none, or one image that carries the Big Idea.`, "Prologue"],
-    ...ACTS.map(([key, label]): SlideLine => [label.split(",")[0], landing[key].visualIdea, label]),
+    ...actsOf(story).map(([key, label]): SlideLine => [label.split(",")[0], landing[key].visualIdea, label]),
     ["Close", `Words: "${story.bigIdea}" Picture: the title slide again, or nothing.`, "Epilogue"],
   ];
 }

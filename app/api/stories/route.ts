@@ -3,7 +3,7 @@ import { z } from "zod";
 import { currentProfile, signInRequired } from "@/lib/access";
 import { guestId } from "@/lib/guest";
 import { supabaseAdmin } from "@/lib/supabase/server";
-import { LandingInputSchema, RegisterSchema, StorySchema } from "@/lib/schema";
+import { LandingInputSchema, RegisterSchema, StoryInputSchema } from "@/lib/schema";
 
 export const runtime = "nodejs";
 
@@ -14,7 +14,7 @@ const SaveSchema = z.object({
   audience: z.string().max(2000).default(""),
   intent: z.string().max(2000).default(""),
   register: RegisterSchema,
-  story: StorySchema,
+  story: StoryInputSchema,
   landing: LandingInputSchema.nullable().default(null),
 });
 
