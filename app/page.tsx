@@ -5,6 +5,7 @@ import type { Landing, Story } from "@/lib/schema";
 import { Editable, EditableList } from "@/components/Editable";
 import { Refine, type ChatMessage } from "@/components/Refine";
 import { AccountBar, Paywall, PRICES, SignIn, type Me } from "@/components/Account";
+import { clearPendingProgramme, normaliseCode, readPendingProgramme, savePendingProgramme } from "@/lib/pendingProgramme";
 import { StoriesPanel } from "@/components/Stories";
 import { Pack } from "@/components/Pack";
 import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "@/lib/ownIt";
@@ -293,6 +294,7 @@ export default function Home() {
   const [showPaywall, setShowPaywall] = useState(false);
   const [pdf, setPdf] = useState<{ url: string; name: string } | null>(null);
   const saveTimer = useRef<number | null>(null);
+  const [programme, setProgramme] = useState<string | null>(null);
 
   const loadMe = useCallback(async () => {
     try {
@@ -303,6 +305,27 @@ export default function Home() {
       setMe({ signedIn: false });
     }
   }, []);
+
+  // Once signed in, apply a code that came in a programme link, then forget it.
+  useEffect(() => {
+    if (!programme || !me?.signedIn) return;
+    const code = programme;
+    clearPendingProgramme();
+    queueMicrotask(() => setProgramme(null));
+    fetch("/api/code", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code }) })
+      .then(async (res) => {
+        const data = await res.json().catch(() => ({}));
+        if (res.ok) {
+          setNotice(`Programme code ${code} accepted. ${data.label ?? "Your stories are added"}.`);
+          loadMe();
+        } else if (/already used/i.test(data.error ?? "")) {
+          setNotice(`Programme code ${code} is already on your account.`);
+        } else {
+          setNotice(`Programme code ${code} did not work: ${data.error ?? "try again"}. Enter it under Programme code at the top of the page.`);
+        }
+      })
+      .catch(() => setNotice(`Programme code ${code} could not be applied. Enter it under Programme code at the top of the page.`));
+  }, [programme, me?.signedIn, loadMe]);
 
   // On load: restore the draft (it survives the magic-link round trip), read the account, handle Stripe's return.
   useEffect(() => {
@@ -326,6 +349,11 @@ export default function Home() {
       }
     });
     const params = new URLSearchParams(window.location.search);
+    // A programme link (?programme=XXXX): keep the code until the person signs in, then apply it.
+    const fromProgrammeLink = params.get("programme");
+    if (fromProgrammeLink) savePendingProgramme(fromProgrammeLink);
+    const pending = fromProgrammeLink ? normaliseCode(fromProgrammeLink) : readPendingProgramme();
+    if (pending) queueMicrotask(() => setProgramme(pending));
     const timer = window.setTimeout(() => {
       if (params.get("checkout") === "success" && params.get("session_id")) {
         fetch("/api/checkout/verify", {
@@ -685,6 +713,11 @@ export default function Home() {
         {notice && (
           <p className="mt-2 rounded-md bg-red-soft px-3 py-2 text-sm text-ink">
             {notice}
+          </p>
+        )}
+        {programme && me && !me.signedIn && (
+          <p className="mt-2 rounded-md bg-red-soft px-3 py-2 text-sm text-ink">
+            Your programme code <span className="font-mono tracking-[0.08em]">{programme}</span> is ready. Find your first story below, then sign in and the code is applied straight away.
           </p>
         )}
         {showStories && (
@@ -1110,7 +1143,8 @@ export default function Home() {
           {!signedIn && (
             <section className="border-t border-rule pt-8">
               <SignIn
-                next={`/?${new URLSearchParams({ ...(me?.guestId ? { claim: me.guestId } : {}), ...(storyId ? { story: storyId } : {}) }).toString()}`}
+                next={`/?${new URLSearchParams({ ...(me?.guestId ? { claim: me.guestId } : {}), ...(storyId ? { story: storyId } : {}), ...(programme ? { programme } : {}) }).toString()}`}
+                programme={programme}
                 title={landing ? "Sign in to download the PDF" : "Stage 2 and the PDF are free with your first story"}
                 body="Stage 2 adds interest and impact: the first minute, signposts, slide ideas, the ending, speaker notes and a slide brief. Then the whole thing as a PDF. Sign in with your email and we send you a link. No card. No password. Your story is waiting when you come back."
               />

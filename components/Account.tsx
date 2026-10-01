@@ -40,7 +40,7 @@ export function planLine(me: Me): string {
   return `${left} ${left === 1 ? "story" : "stories"} left`;
 }
 
-export function SignIn({ compact, title, body, next }: { compact?: boolean; title?: string; body?: string; next?: string }) {
+export function SignIn({ compact, title, body, next, programme }: { compact?: boolean; title?: string; body?: string; next?: string; programme?: string | null }) {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -133,6 +133,11 @@ export function SignIn({ compact, title, body, next }: { compact?: boolean; titl
           <p className="mt-2 text-ink">
             {body ?? "Your first story is free, the whole thing. Enter your email and we send you a link. No password to remember."}
           </p>
+          {programme && (
+            <p className="mt-2 rounded-md bg-red-soft px-3 py-2 text-sm text-ink">
+              Sign in and your programme code <span className="font-mono tracking-[0.08em]">{programme}</span> will be applied straight away.
+            </p>
+          )}
         </>
       )}
       <div className={compact ? "flex flex-wrap items-center gap-2" : "mt-4 flex flex-wrap items-center gap-2"}>
@@ -181,7 +186,7 @@ function CodeForm({ onDone, className }: { onDone: (label: string) => void; clas
       <input
         value={code}
         onChange={(e) => setCode(e.target.value.toUpperCase())}
-        placeholder="CODE"
+        placeholder="ABCD-12XY"
         aria-label="Programme code"
         className="w-36 rounded-md border border-rule bg-paper-2 px-3 py-1.5 font-mono text-sm tracking-[0.12em] text-ink outline-none focus:border-ink"
       />
