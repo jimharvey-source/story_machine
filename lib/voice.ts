@@ -8,11 +8,13 @@ const BANNED: Array<[RegExp, string]> = [
   [/\bnot (?:just |only |merely |simply |by |about |for |because )?[^.;:!?]{1,70}\bbut\b/gi, "antithesis"],
   [/\b(?:isn't|aren't|wasn't|weren't|doesn't|don't|is not|are not|was not|were not|does not|do not|I'm not|I am not|we're not|we are not)\b[^.!?]{1,70}[.!?]\s+(?:It's|It is|They're|They are|We're|We are|You're|You are|That's|That is|This is|Instead|I'm|I am)\b/g, "antithesis-split"],
   // "X, not Y." and "X, not because Y." up to five words in the tail; also mid-sentence "X, not Y, and..."
-  [/,\s*not\s+(?:a\s+|an\s+|the\s+|because\s+)?[\w'-]+(?:\s+[\w'-]+){0,4}\s*[.!?,;]/g, "antithesis-tail"],
+  [/,\s*not\s+(?:a\s+|an\s+|the\s+|because\s+)?[\w'-]+(?:\s+[\w'-]+){0,4}\s*(?:[.!?,;]|$)/g, "antithesis-tail"],
   // The comma splice: "That is not a technology problem, it is a positioning opportunity."
   [/\b(?:is|are|was|were)\s+not\s+[^.!?;]{1,60},\s*(?:it|they|this|that|we|you)\s+(?:is|are|was|were)\b/gi, "antithesis-splice"],
   // The same with contractions: "Today isn't the why again, it's the how."
   [/\b(?:isn't|aren't|wasn't|weren't)\s+[^.!?;]{1,60},\s*(?:it's|they're|this is|that's|we're|you're|it is|they are)\b/gi, "antithesis-splice"],
+  // "does not feel ten per cent better, they feel like a different category"
+  [/\b(?:does not|doesn't|do not|don't|did not|didn't)\s+\w+[^.!?;]{1,60},\s*(?:it|they|we|you|he|she)\s+\w+/gi, "antithesis-splice"],
   [/\brather than\b/gi, "antithesis-rather-than"],
   [/\binstead of\b/gi, "antithesis-instead-of"],
   [/\bNot (?:a|an|the)\s+\w+\.\s+(?:A|An|The)\s+\w+\./g, "antithesis-fragments"],
@@ -50,11 +52,24 @@ const BANNED: Array<[RegExp, string]> = [
   [/\bin conclusion\b/gi, "filler"],
 ];
 
-// A contrast is allowed where a speaker needs it most: the Big Idea, soundbites, the title and closing slides.
+// Contrast is the oldest tool a speaker has, so it is rationed, not banned (Jim, 1 October).
+// Free: the Big Idea, soundbites, the title and closing slides, and the five lines (which repeat the story).
+// Never: audience, intent, argument, gaps and speech notes, which must be plain and quick to read.
+// Everywhere else (headlines, core messages, supporting points, prologue, signposts, epilogue):
+// at most CONTRAST_BUDGET in the whole story, and never two in the same section.
 const CONTRAST_RULES = new Set(["antithesis", "antithesis-split", "antithesis-tail", "antithesis-fragments", "antithesis-splice", "antithesis-rather-than", "antithesis-instead-of", "antithesis-every-few", "antithesis-more-than", "antithesis-but"]);
-const CONTRAST_PATHS = /(^|\.)(bigIdea|titleSlide|closingSlide)$|(^|\.)soundbite(\.|$)/;
+const CONTRAST_PATHS = /(^|\.)(bigIdea|titleSlide|closingSlide)$|(^|\.)soundbite(\.|$)|(^|\.)fiveLineStory(\.|$)/;
+const CONTRAST_NEVER = /(^|\.)(audience|intent|argument|gaps|speechNotes)(\.|\[|$)/;
+export const CONTRAST_BUDGET = 2;
 
-type WalkOpts = { contrastAllowed?: boolean; bigIdea?: string };
+type ContrastHit = Violation;
+
+/** The section a path belongs to: "why", "prologue", "epilogue"... ignoring a leading "story." or "landing.". */
+function sectionOf(path: string): string {
+  return path.replace(/^(story|landing)\./, "").split(/[.[]/)[0] || "(component)";
+}
+
+type WalkOpts = { contrastAllowed?: boolean; bigIdea?: string; contrastHits?: ContrastHit[] };
 
 function walk(value: unknown, path: string, out: Violation[], opts: WalkOpts = {}): void {
   if (typeof value === "string") {
@@ -69,7 +84,10 @@ function walk(value: unknown, path: string, out: Violation[], opts: WalkOpts = {
       const m = re.exec(target);
       if (m) {
         const start = Math.max(0, m.index - 30);
-        out.push({ path, rule, sample: target.slice(start, m.index + m[0].length + 30) });
+        const v = { path, rule, sample: target.slice(start, m.index + m[0].length + 30) };
+        // A contrast outside the free places is rationed, not refused: collect it and judge the whole story.
+        if (CONTRAST_RULES.has(rule) && opts.contrastHits && !CONTRAST_NEVER.test(path)) opts.contrastHits.push(v);
+        else out.push(v);
       }
     }
     return;
@@ -190,7 +208,24 @@ export function voiceViolations(value: unknown, options: VoiceOptions = {}): Vio
   const out: Violation[] = [];
   const o = (value && typeof value === "object" ? value : {}) as { bigIdea?: unknown; story?: { bigIdea?: unknown } };
   const bigIdea = options.bigIdea ?? (typeof o.bigIdea === "string" ? o.bigIdea : typeof o.story?.bigIdea === "string" ? o.story.bigIdea : undefined);
-  walk(value, "", out, { contrastAllowed: options.contrastAllowed, bigIdea });
+  const contrastHits: ContrastHit[] = [];
+  walk(value, "", out, { contrastAllowed: options.contrastAllowed, bigIdea, contrastHits });
+  // One contrast per component counts once; then the budget and the one-per-section rule.
+  const byPath = new Map<string, ContrastHit>();
+  for (const h of contrastHits) if (!byPath.has(h.path)) byPath.set(h.path, h);
+  const sections = new Set<string>();
+  let used = 0;
+  for (const h of byPath.values()) {
+    const section = sectionOf(h.path);
+    if (sections.has(section)) {
+      out.push({ ...h, rule: "contrast-twice-in-section" });
+    } else if (used >= CONTRAST_BUDGET) {
+      out.push({ ...h, rule: `contrast-over-budget (at most ${CONTRAST_BUDGET} outside the Big Idea, soundbites and slides)` });
+    } else {
+      sections.add(section);
+      used++;
+    }
+  }
   avoidViolations(value, "", options.avoid ?? [], out);
   soundbiteViolations(value, "", out);
   if (options.contractionsInWritten === false) contractionViolations(value, "", out);
