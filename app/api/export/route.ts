@@ -7,6 +7,9 @@ import { LandingInputSchema, StoryInputSchema } from "@/lib/schema";
 import { slideList, slidePrompt } from "@/lib/slides";
 import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "@/lib/ownIt";
 import { KINDS, kindOf } from "@/lib/kinds";
+import { LICENCE, METHOD, SIGN_OFF } from "@/lib/method";
+import { renderDocx } from "@/lib/exportDocx";
+import { renderPptx } from "@/lib/exportPptx";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -17,7 +20,15 @@ const ExportSchema = z.object({
   landing: LandingInputSchema.nullable().default(null),
   /** The saved story; the PDF unlocks it like stage 2 does. */
   storyId: z.string().uuid().optional(),
+  /** pdf (default), docx (the same content as a Word document), pptx (the slide text, stage 2 only). */
+  format: z.enum(["pdf", "docx", "pptx"]).default("pdf"),
 });
+
+const TYPES = {
+  pdf: "application/pdf",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+} as const;
 
 const INK = "#16140f";
 const MUTED = "#7a766c";
@@ -35,13 +46,19 @@ export async function POST(req: Request) {
   }
   const parsed = ExportSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid" }, { status: 400 });
-  const { title, story, landing, storyId } = parsed.data;
+  const { title, story, landing, storyId, format } = parsed.data;
+  if (format === "pptx" && !landing) {
+    return NextResponse.json({ error: "The slides come with stage 2. Add interest and impact first." }, { status: 400 });
+  }
 
   // The PDF is part of what the free story, a credit, a month or lifetime buys. Same gate as stage 2.
   const allowed = storyId ? await unlockStory(p, storyId) : await startStory(p);
   if (!allowed) return purchaseRequired();
 
-  const buf = await render(title, story, landing);
+  const buf =
+    format === "docx" ? await renderDocx(title, story, landing)
+    : format === "pptx" && landing ? await renderPptx(story, landing)
+    : await render(title, story, landing);
   // Trim the title at a word boundary, so the file name never ends mid-word.
   const words = title.replace(/[^\w\- ]+/g, "").trim().split(/\s+/).filter(Boolean);
   let safe = "";
@@ -50,11 +67,13 @@ export async function POST(req: Request) {
     safe = safe ? `${safe}-${w}` : w;
   }
   safe = safe || "story";
-  const name = `${safe}-${landing ? "stage-2-interest-and-impact" : "stage-1-story-straight"}.pdf`;
-  console.log(JSON.stringify({ tag: "export", landed: Boolean(landing), bytes: buf.length, name }));
+  const name =
+    format === "pptx" ? `${safe}-slides.pptx`
+    : `${safe}-${landing ? "stage-2-interest-and-impact" : "stage-1-story-straight"}.${format}`;
+  console.log(JSON.stringify({ tag: "export", format, landed: Boolean(landing), bytes: buf.length, name }));
   return new NextResponse(new Uint8Array(buf), {
     headers: {
-      "Content-Type": "application/pdf",
+      "Content-Type": TYPES[format],
       "Content-Disposition": `attachment; filename="${name}"`,
       "Cache-Control": "no-store",
     },
@@ -374,16 +393,7 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
     // 6. How this was made
     doc.addPage();
     pageTitle("How this was made", "The method behind your story.");
-    const method: Array<[string, string]> = [
-      ["Understand the audience", "Every story starts with who is listening: what they need to hear, and what they do not. A message that is right for everyone lands with no one."],
-      ["State your intent", "One sentence: after my presentation, the audience will... If you cannot finish it, you are not ready to present."],
-      ["Clarify the argument", "The case in one sentence, in your words, that a sceptic could test. The Big Idea is the memorable form of it: the line people repeat in the corridor."],
-      ["Build a three-act story", "Each kind of presentation gives the acts their own jobs. The classic story runs Why: the problem, and why it matters now. How: the insight or the answer. What: the ask. Each act has a headline that says the point, a soundbite worth quoting, and only the evidence that carries the point."],
-      ["Make it land", "A Prologue that earns attention in the first sentence and states the idea inside a minute. A signpost into each act so the audience knows the important thing has arrived. One slide per act that illustrates rather than explains."],
-      ["End with certainty", "Audiences need certainty. End by recapping your headlines and the actions from here. Send them away with the message ringing in their ears."],
-      ["Then the slides, last", "Slides come after the story, so every one has a job to do. Few, simple, one idea each."],
-    ];
-    for (const [name, text] of method) {
+    for (const [name, text] of METHOD) {
       keep(50);
       gap(1);
       doc.font("Times-Roman").fontSize(12.5).fillColor(INK).text(name, L, doc.y, { width: W });
@@ -392,13 +402,9 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
       gap(2);
     }
     rule();
-    body(
-      "The story in this document is yours: your material, your conviction, your words. The method that shaped it, the three-act structure, the Prologue and Epilogue, the tests each part has to pass, is the intellectual property of The Message Business and is licensed to you for your own presentations. Teach it to your team with our training, or use the StoryMachine as many times as you need.",
-      9.5,
-      "#3d3a33"
-    );
+    body(LICENCE, 9.5, "#3d3a33");
     gap(2);
-    body("Jim Harvey  ·  The Message Business  ·  themessagebusiness.com  ·  presentation-guru.com", 9, MUTED);
+    body(SIGN_OFF, 9, MUTED);
 
     // Footer on every page. Writing inside the bottom margin makes pdfkit add a blank page
     // after each one, so the margin is lifted while the footer goes in.

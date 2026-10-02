@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Landing, Story } from "@/lib/schema";
 import { slideList, slidePrompt } from "@/lib/slides";
+import { KINDS, kindOf } from "@/lib/kinds";
 
 // Everything the PDF adds after stage two, shown on the page as well, in the same order.
 
@@ -12,11 +13,12 @@ function Why({ children }: { children: React.ReactNode }) {
 
 export function Pack({ story, landing }: { story: Story; landing: Landing }) {
   const notes = landing.speechNotes ?? { prologue: [], why: [], how: [], what: [], epilogue: [] };
+  const acts = KINDS[kindOf(story.kind)].acts;
   const beats: Array<[string, string[], string]> = [
     ["Prologue", notes.prologue, "the golden minute"],
-    ["Act 1, Why", notes.why, story.why.headline],
-    ["Act 2, How", notes.how, story.how.headline],
-    ["Act 3, What", notes.what, story.what.headline],
+    [`Act 1, ${acts[0]}`, notes.why, story.why.headline],
+    [`Act 2, ${acts[1]}`, notes.how, story.how.headline],
+    [`Act 3, ${acts[2]}`, notes.what, story.what.headline],
     ["Epilogue", notes.epilogue, "end with certainty"],
   ];
   const hasNotes = beats.some(([, cues]) => cues.length > 0);

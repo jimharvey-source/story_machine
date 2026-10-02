@@ -155,6 +155,8 @@ For each act give a headline the presenter could say aloud, a core message of on
 
 Every supporting point carries its act's headline. If a fact is true and interesting but does not prove the headline, cut it. Each fact is used once, in the act it proves best: the same point never appears in two acts, however it is worded. Each story, case or named person from the material is told in one act only; another act may refer back to it in a phrase, never retell it.
 
+A phrase quoted from the material keeps the grammar it has there. Never bend it into a sentence it does not fit ("Most presentations are only well enough to..."): use it whole, as a soundbite or a sentence of its own, or leave it out.
+
 Headlines and core messages claim no more than the material shows. No quantity the material does not give ("thousands of hours" when the material says sixty). No "proves", "always" or "never" unless the material makes that claim itself. Keep every detail attached to what the material attaches it to: a place, date, number or name belongs to the event or person the material gives it to, never to the one beside it. Nothing on the audience's leave-out line becomes a supporting point.
 
 A supporting point is a fact and what it means for this audience, in one sentence. A bare statistic is not a supporting point: "Only 11 percent of organisations are fully data capable" becomes "Only 11 percent of organisations are fully data capable, so almost every client we meet still needs this help." If the audience section says to leave out a kind of detail unless it is translated, keep at most one such detail per act, and always translate it. The translation says what the fact means; it never changes who the fact is about. "11 percent of organisations" stays about organisations in general: it never becomes "nine out of ten of our clients" or "the energy businesses we sell to". Moving a figure onto a narrower group is inventing a fact. Every number keeps its value and its unit exactly as the material gives it, everywhere it appears, on slides as well: "a forty-minute presentation" never becomes "one hour". Rounding, converting or combining a figure is inventing one.
@@ -256,7 +258,7 @@ export function editSystem(register: Register, kind: Kind): string {
   return withStructure(withRegister(
     `${CORE}
 
-This is a contextual edit. The presenter has a finished story and wants one component changed. You receive the whole story so you understand the change in context. You return only the new text for that one component. Keep everything it connects to true: the Big Idea, the act it sits in, the facts in the material. Do not change the component's job. A headline stays a headline a presenter could say; a signpost stays a spoken sentence; a supporting point stays a fact from the material.`,
+This is a contextual edit. The presenter has a finished story and wants one component changed. If the current text bends a phrase from the material into a sentence it does not fit, drop the phrase; never carry the same broken wording into the new version. You receive the whole story so you understand the change in context. You return only the new text for that one component. Keep everything it connects to true: the Big Idea, the act it sits in, the facts in the material. Do not change the component's job. A headline stays a headline a presenter could say; a signpost stays a spoken sentence; a supporting point stays a fact from the material.`,
     register
   ), kind);
 }

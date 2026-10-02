@@ -526,26 +526,28 @@ export default function Home() {
     }
   }
 
-  async function exportPdf() {
+  // The PDF, the same content as a Word document, or the slide text as PowerPoint. Same gate for all three.
+  async function exportFile(format: "pdf" | "docx" | "pptx" = "pdf") {
     if (!story) return;
-    setBusy("export");
+    const what = format === "pdf" ? "the PDF" : format === "docx" ? "the Word file" : "the slides";
+    setBusy(`export-${format}`);
     setError(null);
     try {
       const res = await fetch("/api/export", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: story.bigIdea, story, landing, storyId: storyId ?? undefined }),
+        body: JSON.stringify({ title: story.bigIdea, story, landing, storyId: storyId ?? undefined, format }),
       });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
-        throw new Error(j.error || "Could not make the PDF");
+        throw new Error(j.error || `Could not make ${what}`);
       }
       setUnlocked(true);
       const blob = await res.blob();
       const name =
         res.headers
           .get("Content-Disposition")
-          ?.match(/filename="([^"]+)"/)?.[1] ?? "story.pdf";
+          ?.match(/filename="([^"]+)"/)?.[1] ?? `story.${format}`;
       // Keep the last file: browsers sometimes block a second automatic download,
       // so the page also shows a real link the person can click.
       if (pdf) URL.revokeObjectURL(pdf.url);
@@ -558,7 +560,7 @@ export default function Home() {
       a.click();
       a.remove();
     } catch (e) {
-      handleApiError(e, "Could not make the PDF");
+      handleApiError(e, `Could not make ${what}`);
     } finally {
       setBusy(null);
     }
@@ -1250,12 +1252,35 @@ export default function Home() {
             {signedIn && (
               <button
                 type="button"
-                onClick={exportPdf}
+                onClick={() => exportFile("pdf")}
                 disabled={busy !== null}
                 className="rounded-md border border-ink bg-paper-2 px-5 py-3 text-base font-medium text-ink disabled:opacity-40"
               >
-                {busy === "export" ? "Making the PDF..." : landing ? "Download the PDF (stages 1 and 2)" : "Download the PDF (stage 1 so far)"}
+                {busy === "export-pdf" ? "Making the PDF..." : landing ? "Download the PDF (stages 1 and 2)" : "Download the PDF (stage 1 so far)"}
               </button>
+            )}
+            {signedIn && (
+              <span className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
+                <button
+                  type="button"
+                  onClick={() => exportFile("docx")}
+                  disabled={busy !== null}
+                  className="underline decoration-rule underline-offset-4 hover:text-ink disabled:opacity-40"
+                >
+                  {busy === "export-docx" ? "Making the Word file..." : "Word"}
+                </button>
+                {landing && (
+                  <button
+                    type="button"
+                    onClick={() => exportFile("pptx")}
+                    disabled={busy !== null}
+                    title="The slide words in title placeholders and the picture briefs in content placeholders, with the speech notes. Apply your company template in PowerPoint."
+                    className="underline decoration-rule underline-offset-4 hover:text-ink disabled:opacity-40"
+                  >
+                    {busy === "export-pptx" ? "Making the slides..." : "Slides for PowerPoint"}
+                  </button>
+                )}
+              </span>
             )}
             {signedIn && !unlocked && me && !me.unlimited && (
               <span className="w-full text-sm text-muted">
@@ -1264,7 +1289,7 @@ export default function Home() {
                   : "Stage 2 and the PDF need a story, a month or lifetime."}
               </span>
             )}
-            {pdf && busy !== "export" && (
+            {pdf && !busy?.startsWith("export") && (
               <a
                 href={pdf.url}
                 download={pdf.name}
