@@ -834,25 +834,34 @@ export default function Home() {
             <legend className="eyebrow">What kind of presentation is it?</legend>
             <div className="mt-2 flex flex-wrap gap-2">
               {KIND_KEYS.map((k) => (
-                <button
-                  key={k}
-                  type="button"
-                  onClick={() => setKind(kind === k ? "" : k)}
-                  title={KINDS[k].line}
-                  aria-pressed={kind === k}
-                  className={
-                    "rounded-md border px-3 py-1.5 " +
-                    (kind === k
-                      ? "border-ink bg-ink text-paper"
-                      : "border-rule bg-paper-2 text-ink-2 hover:border-ink")
-                  }
-                >
-                  {KINDS[k].label}
-                </button>
+                <span key={k} className="group relative">
+                  <button
+                    type="button"
+                    onClick={() => setKind(kind === k ? "" : k)}
+                    aria-pressed={kind === k}
+                    aria-describedby={`kind-help-${k}`}
+                    className={
+                      "rounded-md border px-3 py-1.5 " +
+                      (kind === k
+                        ? "border-ink bg-ink text-paper"
+                        : "border-rule bg-paper-2 text-ink-2 hover:border-ink")
+                    }
+                  >
+                    {KINDS[k].label}
+                  </button>
+                  {/* Hover or keyboard focus: what this kind helps you do. Touch screens see it under the buttons once chosen. */}
+                  <span
+                    id={`kind-help-${k}`}
+                    role="tooltip"
+                    className="pointer-events-none absolute bottom-full left-0 z-20 mb-2 hidden w-64 rounded-md bg-ink px-3 py-2 text-xs leading-snug text-paper shadow-lg group-hover:block group-focus-within:block"
+                  >
+                    {KINDS[k].helps}
+                  </span>
+                </span>
               ))}
             </div>
             <p className="mt-2 text-xs text-muted">
-              {kind ? KINDS[kind].line : "Not sure? Leave it, and the StoryMachine will choose from your notes."}
+              {kind ? KINDS[kind].helps : "Not sure? Leave it, and the StoryMachine will choose from your notes."}
             </p>
           </fieldset>
 

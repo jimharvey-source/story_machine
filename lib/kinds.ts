@@ -13,6 +13,8 @@ export type KindInfo = {
   book: string;
   /** One line under the label in the PDF and on the page. */
   line: string;
+  /** What this kind helps the presenter do: the hover text on the form. */
+  helps: string;
   /** Short names for the three acts, shown on the page. */
   acts: [string, string, string];
   prologue: string;
@@ -27,6 +29,7 @@ export const KINDS: Record<Kind, KindInfo> = {
     label: "Project update",
     book: "The Progress Report",
     line: "Where the work stands, what is in the way, and what it will deliver.",
+    helps: "Report where the work stands, own the problems, and show what it will deliver.",
     acts: ["Where we are", "The problems", "The results"],
     prologue: "The assignment and why it matters; one or two effects the work will have.",
     act1: "Where you started, where you are, the steps still outstanding.",
@@ -38,6 +41,7 @@ export const KINDS: Record<Kind, KindInfo> = {
     label: "Strategy recommendation",
     book: "The Strategy Recommendation",
     line: "Why things must change, how much better they could be, and the best way there.",
+    helps: "Make the case for change and win backing for the way forward.",
     acts: ["Where we are", "What could be", "The options"],
     prologue: "Why a new strategy, the one recommended, and two or three benefits the audience cares about.",
     act1: "Current conditions, with the cost of doing nothing as the bridge to Act 2.",
@@ -49,6 +53,7 @@ export const KINDS: Record<Kind, KindInfo> = {
     label: "Sales pitch",
     book: "The Product Sales Presentation",
     line: "The customer's need, how the product meets it, and the proof.",
+    helps: "Show a customer the need, how you meet it and the proof, then agree a next step.",
     acts: ["The need", "The solution", "The proof"],
     prologue: "The customer's need: open the gap the product fills.",
     act1: "The need in detail: how it hurts now.",
@@ -57,9 +62,10 @@ export const KINDS: Record<Kind, KindInfo> = {
     epilogue: "A summary and one agreed next step.",
   },
   decision: {
-    label: "Decision",
+    label: "Choosing between options",
     book: "The Justification of a Decision",
     line: "The dilemma, the criteria, the options, and the one that passes the test.",
+    helps: "Set out what matters, test the options against it, and win approval for the best one.",
     acts: ["The criteria", "The options", "The test"],
     prologue: "The dilemma and why the choice matters.",
     act1: "The criteria for success, in priority order.",
@@ -71,6 +77,7 @@ export const KINDS: Record<Kind, KindInfo> = {
     label: "Training session",
     book: "The Training Presentation",
     line: "A skill worth having: how it works, a chance to try it, and feedback.",
+    helps: "Teach a skill, let people try it, and send them away able to use it.",
     acts: ["How it works", "Try it", "Feedback"],
     prologue: "The skill and two or three benefits the audience values.",
     act1: "How the skill works and why it is worth learning, then the teaching.",
@@ -82,6 +89,7 @@ export const KINDS: Record<Kind, KindInfo> = {
     label: "Bad news",
     book: "The Bad News Presentation",
     line: "What happened, how, what is being done now, and the permanent fix.",
+    helps: "Say what went wrong, what you are doing now, and how it gets fixed for good.",
     acts: ["How it happened", "Containing it", "The fix"],
     prologue: "What happened and the damage, in facts.",
     act1: "How and why it happened: the explanation, no blame, the audience's questions answered.",
@@ -93,6 +101,7 @@ export const KINDS: Record<Kind, KindInfo> = {
     label: "Something else",
     book: "Why, How, What",
     line: "The problem and why it matters, the response, and the ask.",
+    helps: "The classic story: why it matters, how to respond, and what to do next.",
     acts: ["Why", "How", "What"],
     prologue: "The golden first minute: the Big Idea, why it matters now, and what you need from the audience.",
     act1: "Why: the hook. What has changed, the problem or opportunity, why it matters.",
