@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import type Stripe from "stripe";
 import { stripe } from "./stripe";
 import { supabaseAdmin } from "./supabase/server";
@@ -33,7 +34,7 @@ export async function applySubscription(sub: Stripe.Subscription) {
     update.plan = "free";
   }
   await admin.from("profiles").update(update).eq("id", profile.id);
-  if (active && profile.plan !== "pro" && profile.email) tagPurchase(profile.email, "monthly").catch(() => {});
+  if (active && profile.plan !== "pro" && profile.email) { const email = profile.email; after(() => tagPurchase(email, "monthly").then(() => {}, () => {})); }
 }
 
 /**
@@ -63,7 +64,7 @@ export async function applyCheckoutSession(session: Stripe.Checkout.Session): Pr
     if (error) throw new Error(`grant_purchase failed: ${error.message}`);
     if (applied) {
       const email = session.customer_details?.email ?? session.customer_email;
-      if (email) tagPurchase(email, kind).catch(() => {});
+      if (email) after(() => tagPurchase(email, kind).then(() => {}, () => {}));
     }
     return true;
   }

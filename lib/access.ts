@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { supabaseAdmin, supabaseServer } from "./supabase/server";
 import { subscribeToPresentationGuru } from "./mailchimp";
 
@@ -42,11 +42,16 @@ export async function ensureProfile(user: { id: string; email: string }): Promis
     throw new Error(`Could not create profile: ${error.message}`);
   }
   // First sign-in: join the Presentation Guru list. Never blocks the user.
-  subscribeToPresentationGuru(user.email)
-    .then((ok) => {
-      if (ok) admin.from("profiles").update({ mailchimp_subscribed_at: new Date().toISOString() }).eq("id", user.id).then(() => {});
-    })
-    .catch((e) => console.warn("[mailchimp]", e instanceof Error ? e.message : e));
+  // after() keeps the function alive until this finishes: a bare promise is cut off when the response
+  // is sent, which is how jghatherton+sm1 (2 October) signed in and never reached the list.
+  after(async () => {
+    try {
+      const ok = await subscribeToPresentationGuru(user.email);
+      if (ok) await admin.from("profiles").update({ mailchimp_subscribed_at: new Date().toISOString() }).eq("id", user.id);
+    } catch (e) {
+      console.warn("[mailchimp]", e instanceof Error ? e.message : e);
+    }
+  });
   return created as Profile;
 }
 
