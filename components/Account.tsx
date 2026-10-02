@@ -153,11 +153,10 @@ export function SignIn({ compact, title, body, next, programme }: { compact?: bo
           {busy ? "Sending..." : "Send me a link"}
         </button>
       </div>
-      {!compact && (
-        <p className="mt-3 text-xs text-muted">
-          Signing in adds you to the Presentation Guru list, one email a month from Jim Harvey. Unsubscribe any time.
-        </p>
-      )}
+      <p className="mt-3 text-xs text-muted">
+        Signing in adds you to the Presentation Guru list, one email a month from Jim Harvey. Unsubscribe any time.{" "}
+        <a href="/privacy" className="underline decoration-rule underline-offset-4 hover:text-ink">Privacy</a>
+      </p>
       {error && <p className="mt-2 text-sm text-red">{error}</p>}
     </form>
   );

@@ -60,6 +60,12 @@ export async function allowRun(profile: Profile | null, unlimited: boolean, gues
     }
   }
   await admin.from("runs").insert({ guest_id: profile ? null : guest, user_id: profile?.id ?? null, ip_hash: ip });
+  // The privacy notice says hashed addresses are kept for no more than a year. One run in fifty tidies up.
+  if (Math.random() < 0.02) {
+    const yearAgo = new Date(Date.now() - 365 * 86400000).toISOString();
+    await admin.from("runs").update({ ip_hash: null }).lt("created_at", yearAgo).not("ip_hash", "is", null);
+    await admin.from("code_attempts").delete().lt("created_at", yearAgo);
+  }
   return { ok: true };
 }
 
