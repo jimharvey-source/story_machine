@@ -27,16 +27,29 @@ export function Editable({ value, onChange, onAction, className = "", as = "p", 
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const ref = useRef<HTMLTextAreaElement>(null);
+  // Where the person clicked in the text, so the cursor opens there.
+  const caret = useRef<number | null>(null);
 
+  // Grow the box with the text on every keystroke. Never touch the cursor here:
+  // moving it on each keystroke sent it to the end mid-sentence (fixed 2 October).
   useEffect(() => {
     if (editing && ref.current) {
       const el = ref.current;
       el.style.height = "auto";
       el.style.height = el.scrollHeight + "px";
-      el.focus();
-      el.setSelectionRange(el.value.length, el.value.length);
     }
   }, [editing, draft]);
+
+  // Focus once, when editing starts, with the cursor where they clicked (or at the end).
+  useEffect(() => {
+    if (editing && ref.current) {
+      const el = ref.current;
+      el.focus();
+      const at = Math.min(caret.current ?? el.value.length, el.value.length);
+      el.setSelectionRange(at, at);
+      caret.current = null;
+    }
+  }, [editing]);
 
   function commit() {
     setEditing(false);
@@ -70,8 +83,16 @@ export function Editable({ value, onChange, onAction, className = "", as = "p", 
         ) : (
           <Tag
             className={className + (busy ? " opacity-50" : "")}
-            onClick={() => {
+            onClick={(e) => {
               if (busy) return;
+              // The browser has already placed a selection where they clicked; keep its offset.
+              try {
+                const sel = window.getSelection();
+                const node = sel?.anchorNode;
+                caret.current = node && e.currentTarget.contains(node) && node.nodeType === Node.TEXT_NODE ? sel!.anchorOffset : null;
+              } catch {
+                caret.current = null;
+              }
               setDraft(value);
               setEditing(true);
             }}
