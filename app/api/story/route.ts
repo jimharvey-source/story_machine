@@ -47,7 +47,7 @@ export async function POST(req: Request) {
       schema: StorySchema,
       maxTokens: 8000,
       label: "story",
-      voice: { contractionsInWritten: register === "conversational" },
+      voice: { contractionsInWritten: register === "conversational", source: notes },
     });
     // The presenter's choice stands, whatever the model wrote.
     if (kind) result.data.kind = kind;

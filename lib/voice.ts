@@ -165,7 +165,64 @@ export type VoiceOptions = {
   bigIdea?: string;
   /** The whole value is a component where contrast is allowed (an edit to the Big Idea, a soundbite or a slide line). */
   contrastAllowed?: boolean;
+  /** The presenter's material. Claims about "every", "most" or "nobody" must come from it. */
+  source?: string;
 };
+
+// "Every year, publishers add another book" and "Most training targets delivery" are claims about the world.
+// They stand only if the material says them: the first three words must appear in the source.
+const SWEEPING = /(?<!\b(?:the|a|at|its|their|our|your|his|her)\s)\b(?:Every|Most|Nobody|No one)\s+[A-Za-z'-]+(?:\s*,?\s+[A-Za-z'-]+)?/gi;
+const EVERY_OK = /^every\s+(?:one|time|single|act|slide|step|line|word|part|section|point|cue|sentence|story|presentation you)\b/i;
+const MOST_OK = /^most\s+(?:of\s+(?:your|you|them|us|it|the\s+time)|important|visible|useful|likely|common|people\s+in\s+the\s+room)\b/i;
+const SWEEPING_SKIP = /(^|\.)(audience|hero|gaps|speechNotes)(\.|\[|$)/;
+
+function norm(t: string): string {
+  return t.toLowerCase().replace(/[^a-z' ]+/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function sweepingViolations(value: unknown, path: string, source: string, out: Violation[]): void {
+  if (typeof value === "string") {
+    if (SWEEPING_SKIP.test(path)) return;
+    for (const m of value.matchAll(SWEEPING)) {
+      const phrase = m[0];
+      if (EVERY_OK.test(phrase) || MOST_OK.test(phrase)) continue;
+      if (/^most\s+[a-z]+(?:ly|est|er)\b/i.test(phrase)) continue;
+      if (source.includes(norm(phrase))) continue;
+      const start = Math.max(0, (m.index ?? 0) - 20);
+      out.push({ path, rule: "unsupported-generalisation (a claim about every, most or nobody that the material does not make)", sample: value.slice(start, (m.index ?? 0) + phrase.length + 40) });
+    }
+    return;
+  }
+  if (Array.isArray(value)) value.forEach((v, i) => sweepingViolations(v, `${path}[${i}]`, source, out));
+  else if (value && typeof value === "object") {
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) sweepingViolations(v, path ? `${path}.${k}` : k, source, out);
+  }
+}
+
+// The same fact in two acts: compare every supporting point with those of the other acts.
+function words(t: string): Set<string> {
+  return new Set(norm(t).split(" ").filter((w) => w.length > 3));
+}
+function repeatedPoints(value: unknown, out: Violation[]): void {
+  const o = (value && typeof value === "object" ? value : {}) as Record<string, { supportingPoints?: unknown }>;
+  const acts = (["why", "how", "what"] as const).filter((k) => Array.isArray(o[k]?.supportingPoints));
+  for (let a = 0; a < acts.length; a++) {
+    for (let b = a + 1; b < acts.length; b++) {
+      const pa = o[acts[a]].supportingPoints as string[];
+      const pb = o[acts[b]].supportingPoints as string[];
+      pa.forEach((x) => {
+        const wx = words(x);
+        pb.forEach((y, j) => {
+          const wy = words(y);
+          const shared = [...wx].filter((w) => wy.has(w)).length;
+          if (shared / Math.min(wx.size, wy.size || 1) >= 0.6 && shared >= 5) {
+            out.push({ path: `${acts[b]}.supportingPoints[${j}]`, rule: `repeated-point (already a supporting point in ${acts[a]}; use each fact once)`, sample: y });
+          }
+        });
+      });
+    }
+  }
+}
 
 const COMMON = new Set(["The", "This", "That", "These", "Those", "There", "Who", "What", "When", "Where", "Why", "How", "It", "They", "We", "You", "Our", "Their", "Internal", "No", "Not", "Any", "All", "One", "Each", "Every", "Some", "For", "And", "But", "Or", "If", "In", "On", "At", "To", "Of", "With", "Without", "After", "Before", "Act", "Stage", "Big", "Idea", "Prologue", "Epilogue"]);
 
@@ -228,6 +285,8 @@ export function voiceViolations(value: unknown, options: VoiceOptions = {}): Vio
   }
   avoidViolations(value, "", options.avoid ?? [], out);
   soundbiteViolations(value, "", out);
+  if (options.source) sweepingViolations(value, "", norm(options.source), out);
+  repeatedPoints(value, out);
   if (options.contractionsInWritten === false) contractionViolations(value, "", out);
   const texts: string[] = [];
   allText(value, texts);
