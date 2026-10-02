@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseServer, supabaseAdmin } from "@/lib/supabase/server";
 import { ensureProfile } from "@/lib/access";
+import { redeemFor } from "@/lib/join";
 
 // The magic link lands here. Two shapes are accepted:
 //  - token_hash + type (set the Supabase "Magic Link" email template to use {{ .TokenHash }}): works in any browser,
@@ -50,6 +51,18 @@ export async function GET(req: Request) {
     else console.log(JSON.stringify({ tag: "claim", user: data.user.id, stories: n }));
   }
   nextUrl.searchParams.delete("claim");
+  // A programme code carried through the link (from the welcome page, or an old ?programme= link): apply it here,
+  // on the server, so the stories are on the account when the page opens.
+  const programme = nextUrl.searchParams.get("programme");
+  nextUrl.searchParams.delete("programme");
+  if (programme && data.user) {
+    const r = await redeemFor(data.user.id, programme).catch(() => null);
+    if (r && (r.ok || r.already)) nextUrl.searchParams.set("joined", "1");
+    else {
+      nextUrl.searchParams.delete("joined");
+      nextUrl.searchParams.set("joinerror", r && !r.ok && r.throttled ? "throttled" : "failed");
+    }
+  }
   console.log(JSON.stringify({ tag: "signin", ok: true, shape: tokenHash ? "token_hash" : "code" }));
   return NextResponse.redirect(nextUrl);
 }

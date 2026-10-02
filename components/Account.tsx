@@ -14,6 +14,8 @@ export type Me = {
   planSource?: "stripe" | "code" | "manual" | null;
   periodEnd?: string | null;
   cohortCode?: string | null;
+  /** The programme's line ("Givaudan programme") while its code is running. */
+  programme?: string | null;
   stripeCustomer?: boolean;
   subscribed?: boolean;
   /** The guest cookie id, for a visitor who has not signed in. Travels in the sign-in link so their story is claimed. */
@@ -35,6 +37,7 @@ export function planLine(me: Me): string {
   if (me.plan === "lifetime") return "Lifetime";
   if (me.unlimited) return me.planSource === "code" ? "Programme" : "Monthly";
   const left = me.storiesLeft ?? 0;
+  if (me.programme) return `${me.programme}: ${left} ${left === 1 ? "story" : "stories"} left`;
   if (left === 0) return "No stories left";
   if (left === 1 && !me.storiesStarted) return "One free story";
   return `${left} ${left === 1 ? "story" : "stories"} left`;
@@ -223,7 +226,7 @@ export function AccountBar({ me, onChange, onOpenStories }: { me: Me; onChange: 
   return (
     <div className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-rule pb-4 font-mono text-[0.7rem] uppercase tracking-[0.12em] text-muted">
       <span className="normal-case tracking-normal font-body text-sm text-ink">{me.email}</span>
-      <span className={me.unlimited ? "text-red" : ""}>{line}</span>
+      <span className={me.unlimited || me.programme ? "text-red" : ""}>{line}</span>
       <button type="button" onClick={onOpenStories} className="underline decoration-rule underline-offset-4 hover:text-ink">
         My stories
       </button>
@@ -244,7 +247,7 @@ export function AccountBar({ me, onChange, onOpenStories }: { me: Me; onChange: 
         <CodeForm
           className="flex w-full flex-wrap items-center gap-2 pt-1"
           onDone={(label) => {
-            setMsg(`Unlocked. ${label}.`);
+            setMsg(`Code accepted. ${label}.`);
             setShowCode(false);
             onChange();
           }}
@@ -310,7 +313,7 @@ export function Paywall({ me, onChange }: { me: Me; onChange: () => void }) {
         <span className="text-sm text-muted">On a programme? Your code gives you your stories.</span>
         <CodeForm
           onDone={(label) => {
-            setMsg(`Unlocked. ${label}.`);
+            setMsg(`Code accepted. ${label}.`);
             onChange();
           }}
         />

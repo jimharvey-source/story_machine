@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { currentProfile, isUnlimited, storiesLeft } from "@/lib/access";
 import { supabaseServer } from "@/lib/supabase/server";
 import { claimGuestStories, guestId } from "@/lib/guest";
+import { programmeBanner } from "@/lib/join";
 
 export const runtime = "nodejs";
 
@@ -21,6 +22,7 @@ export async function GET() {
       planSource: p.plan_source,
       periodEnd: p.current_period_end,
       cohortCode: p.cohort_code,
+      programme: await programmeBanner(p.cohort_code).catch(() => null),
       stripeCustomer: Boolean(p.stripe_customer_id),
       subscribed: Boolean(p.stripe_subscription_id) && p.plan === "pro",
     });

@@ -334,7 +334,7 @@ export default function Home() {
       .then(async (res) => {
         const data = await res.json().catch(() => ({}));
         if (res.ok) {
-          setNotice(`Programme code ${code} accepted. ${data.label ?? "Your stories are added"}.`);
+          setNotice(`Code accepted. ${data.label ?? "Your stories are on your account"}.`);
           loadMe();
         } else if (/already used/i.test(data.error ?? "")) {
           setNotice(`Programme code ${code} is already on your account.`);
@@ -368,10 +368,16 @@ export default function Home() {
       }
     });
     const params = new URLSearchParams(window.location.search);
-    // A programme link (?programme=XXXX): keep the code until the person signs in, then apply it.
+    // An old programme link (?programme=XXXX) goes to the welcome page, where people sign in at the door.
     const fromProgrammeLink = params.get("programme");
-    if (fromProgrammeLink) savePendingProgramme(fromProgrammeLink);
-    const pending = fromProgrammeLink ? normaliseCode(fromProgrammeLink) : readPendingProgramme();
+    if (fromProgrammeLink) {
+      savePendingProgramme(fromProgrammeLink);
+      window.location.replace(`/join/${encodeURIComponent(normaliseCode(fromProgrammeLink))}`);
+      return;
+    }
+    // Arrived from the welcome page with the code applied: nothing is left to apply.
+    if (params.get("joined")) clearPendingProgramme();
+    const pending = params.get("joined") ? null : readPendingProgramme();
     if (pending) queueMicrotask(() => setProgramme(pending));
     const timer = window.setTimeout(() => {
       if (params.get("checkout") === "success" && params.get("session_id")) {
@@ -396,6 +402,16 @@ export default function Home() {
           .catch(() => loadMe());
       } else if (params.get("checkout") === "cancelled") {
         setNotice("Checkout cancelled. Your story is still here.");
+        loadMe();
+      } else if (params.get("joined")) {
+        setNotice("You are in. Paste your notes below to find your first story.");
+        loadMe();
+      } else if (params.get("joinerror")) {
+        setNotice(
+          params.get("joinerror") === "throttled"
+            ? "You are signed in, but too many codes failed from this connection. Wait an hour, or email jim.harvey@themessagebusiness.com."
+            : "You are signed in, but your programme stories were not added. Email jim.harvey@themessagebusiness.com and we will sort it out.",
+        );
         loadMe();
       } else if (params.get("signin") === "failed") {
         setNotice(
@@ -760,7 +776,8 @@ export default function Home() {
         )}
         {programme && me && !me.signedIn && (
           <p className="mt-2 rounded-md bg-red-soft px-3 py-2 text-sm text-ink">
-            Your programme code <span className="font-mono tracking-[0.08em]">{programme}</span> is ready. Find your first story below, then sign in and the code is applied straight away.
+            Your programme code <span className="font-mono tracking-[0.08em]">{programme}</span> is ready.{" "}
+            <a href={`/join/${encodeURIComponent(programme)}`} className="font-medium underline decoration-ink underline-offset-4">Sign in to use it</a>.
           </p>
         )}
         {showStories && (
