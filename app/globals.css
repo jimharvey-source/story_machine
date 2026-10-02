@@ -60,6 +60,8 @@ body {
 /* Spoken sections: words the presenter says aloud. Set as script. */
 .spoken {
   position: relative;
+  /* Spoken words read best at about seventy characters a line, however wide the screen. */
+  max-width: 46rem;
   font-family: var(--font-display);
   font-variation-settings: "opsz" 18, "SOFT" 50, "WONK" 1;
   font-weight: 400;

@@ -720,7 +720,7 @@ export default function Home() {
     signedIn ? (a: string) => edit(path, current, a) : undefined;
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-5 pb-24 pt-10 sm:pt-16">
+    <main className="mx-auto w-full max-w-3xl px-5 pb-24 pt-10 sm:pt-16 lg:max-w-5xl lg:px-10 2xl:max-w-6xl">
       <header className={story ? "mb-10" : "mb-6"}>
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <p className="eyebrow">Jim Harvey&apos;s StoryMachine</p>
