@@ -7,8 +7,7 @@
 import PptxGenJS from "pptxgenjs";
 import { z } from "zod";
 import type { LandingInputSchema, StoryInputSchema } from "./schema";
-import { KINDS, kindOf } from "./kinds";
-import { splitSlideIdea } from "./method";
+import { deck } from "./slides";
 
 type Story = z.infer<typeof StoryInputSchema>;
 type Landing = z.infer<typeof LandingInputSchema>;
@@ -42,33 +41,22 @@ export async function renderPptx(story: Story, landing: Landing): Promise<Buffer
     ],
   });
 
-  const kind = KINDS[kindOf(story.kind)];
-  const cues = landing.speechNotes;
-
-  // Title: the Big Idea, word for word.
-  const title = pres.addSlide({ masterName: TITLE_SLIDE });
-  title.addText(story.bigIdea, { placeholder: "title" });
-  title.addNotes(notes(["Prologue", ...cues.prologue]));
-
-  // One slide per act: the words as the title, the picture brief in the content placeholder
-  // for whoever makes the picture to replace.
-  const acts: Array<["why" | "how" | "what", string, string[]]> = [
-    ["why", `Act 1, ${kind.acts[0]}`, cues.why],
-    ["how", `Act 2, ${kind.acts[1]}`, cues.how],
-    ["what", `Act 3, ${kind.acts[2]}`, cues.what],
-  ];
-  for (const [key, name, beat] of acts) {
-    const { words, picture } = splitSlideIdea(landing[key].visualIdea);
+  // The deck from the slide brief: titles that narrate the story, one cue per slide, the cue in the notes.
+  const slides = deck(story, landing);
+  slides.forEach((d, i) => {
+    const first = i === 0;
+    const last = i === slides.length - 1;
+    if (first || last) {
+      const slide = pres.addSlide({ masterName: TITLE_SLIDE });
+      slide.addText(d.words, { placeholder: "title" });
+      slide.addNotes(notes(d.notes));
+      return;
+    }
     const slide = pres.addSlide({ masterName: TITLE_AND_CONTENT });
-    slide.addText(words || story[key].headline, { placeholder: "title" });
-    slide.addText(picture ? `Picture: ${picture}` : "", { placeholder: "body" });
-    slide.addNotes(notes([name, `Signpost: ${landing[key].signpost}`, ...beat]));
-  }
-
-  // Close: the last words the audience hears, which are the Big Idea.
-  const close = pres.addSlide({ masterName: TITLE_SLIDE });
-  close.addText(story.bigIdea, { placeholder: "title" });
-  close.addNotes(notes(["Epilogue", ...cues.epilogue]));
+    slide.addText(d.words, { placeholder: "title" });
+    slide.addText(d.picture && !/^none/i.test(d.picture) ? `Picture: ${d.picture}` : "", { placeholder: "body" });
+    slide.addNotes(notes(d.notes));
+  });
 
   const out = await pres.write({ outputType: "nodebuffer" });
   return out as Buffer;

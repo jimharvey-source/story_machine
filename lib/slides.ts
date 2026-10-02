@@ -1,6 +1,7 @@
 import type { LandingInputSchema, StoryInputSchema } from "./schema";
 import type { z } from "zod";
 import { KINDS, kindOf } from "./kinds";
+import { splitSlideIdea } from "./method";
 
 type Story = z.infer<typeof StoryInputSchema>;
 type Landing = z.infer<typeof LandingInputSchema>;
@@ -17,15 +18,73 @@ function actsOf(story: Story): Array<[keyof Pick<Story, "why" | "how" | "what">,
   ];
 }
 
-/** The five slides: title, one per act, close. */
+/** One slide in the deck. Words go in the title; the picture brief goes in the content area; notes are the cue. */
+export type Slide = { name: string; words: string; picture: string; serves: string; notes: string[] };
+
+// Labels a cue uses to tell the presenter what to do. On a slide they go: the rest of the cue is the title.
+const CUE_LABEL = /^(?:open with|close on|close|quote|recap|ask|preview|land it|tell|show|state|say|mention|remind them)\s*:\s*/i;
+
+function significant(text: string): string[] {
+  return (text.toLowerCase().match(/[a-z][a-z'-]{3,}/g) ?? []);
+}
+
+/** A cue that only says the Big Idea again: the title and closing slides already carry it. */
+function echoesBigIdea(cue: string, bigIdea: string): boolean {
+  const words = significant(cue.replace(CUE_LABEL, ""));
+  if (!words.length) return false;
+  const big = new Set(significant(bigIdea));
+  return words.filter((w) => big.has(w)).length / words.length >= 0.6;
+}
+
+function cueSlide(cue: string, name: string, serves: string): Slide {
+  const isQuote = /^quote\s*:/i.test(cue.trim());
+  const text = cue.trim().replace(CUE_LABEL, "").replace(/[.;,]\s*$/, "");
+  const words = text.charAt(0).toUpperCase() + text.slice(1);
+  return {
+    name,
+    words,
+    picture: isQuote ? "the words set large, as a quotation" : "none; the title carries the slide",
+    serves,
+    notes: [cue],
+  };
+}
+
+/**
+ * The deck. The titles narrate the story: read in order, they tell it.
+ * Title (the Big Idea), the Prologue's cues, then for each act its picture slide and one slide per cue,
+ * then the Epilogue's cues and the closing slide (the Big Idea again). Cues that only repeat the Big Idea are
+ * left to the title and closing slides. A story without speech notes gets the five-slide deck.
+ */
+export function deck(story: Story, landing: Landing): Slide[] {
+  const cues = landing.speechNotes;
+  const big = story.bigIdea;
+  const fromCues = (list: string[], name: string, serves: string) =>
+    (list ?? []).filter((c) => c.trim() && !echoesBigIdea(c, big)).map((c) => cueSlide(c, name, serves));
+  const out: Slide[] = [];
+  // Title and closing slides carry the Big Idea word for word, set here rather than left to the model,
+  // so an edit to the Big Idea carries through and no variant wording ever reaches a slide.
+  out.push({ name: "Title", words: big, picture: "none, or one image that carries the Big Idea", serves: "Prologue", notes: ["Prologue", ...(cues.prologue ?? [])] });
+  out.push(...fromCues(cues.prologue, "Prologue", "Prologue"));
+  for (const [key, label] of actsOf(story)) {
+    const { words, picture } = splitSlideIdea(landing[key].visualIdea);
+    const short = label.split(",")[0];
+    out.push({
+      name: short,
+      words: words || story[key].headline,
+      picture: picture || "none",
+      serves: label,
+      notes: [label, `Signpost: ${landing[key].signpost}`],
+    });
+    out.push(...fromCues(cues[key], short, label));
+  }
+  out.push(...fromCues(cues.epilogue, "Epilogue", "Epilogue"));
+  out.push({ name: "Close", words: big, picture: "the title slide again, or nothing", serves: "Epilogue", notes: ["Epilogue", ...(cues.epilogue ?? [])] });
+  return out;
+}
+
+/** The deck as brief lines: name, the words and picture, the part it serves. */
 export function slideList(story: Story, landing: Landing): SlideLine[] {
-  return [
-    // Title and closing slides carry the Big Idea word for word, set here rather than left to the model,
-    // so an edit to the Big Idea carries through and no variant wording ever reaches a slide.
-    ["Title", `Words: "${story.bigIdea}" Picture: none, or one image that carries the Big Idea.`, "Prologue"],
-    ...actsOf(story).map(([key, label]): SlideLine => [label.split(",")[0], landing[key].visualIdea, label]),
-    ["Close", `Words: "${story.bigIdea}" Picture: the title slide again, or nothing.`, "Epilogue"],
-  ];
+  return deck(story, landing).map((s): SlideLine => [s.name, `Words: "${s.words}" Picture: ${s.picture}.`.replace(/\.\.$/, "."), s.serves]);
 }
 
 /** The prompt a presenter pastes into their own AI slide tool. Our rules for slides, then their brief. */
@@ -33,6 +92,7 @@ export function slidePrompt(story: Story, landing: Landing, slides: SlideLine[] 
   const rules = [
     "Make a slide deck of exactly the slides listed below, in that order, 16:9.",
     "One idea per slide. If a slide needs two ideas, it is two slides.",
+    "The slide titles narrate the story: read in order, they tell it. Every slide title is a sentence the presenter would say, so keep each one exactly as given and never shorten it to a label.",
     "The three-second rule: everything on a slide must be understood in three seconds. If it needs reading, it needs cutting.",
     "Use the standard layouts and their placeholders, so the deck can be moved onto a company template without rebuilding a slide. The title slide uses the Title Slide layout: the words go in the title placeholder and the subtitle placeholder stays empty or is removed. Every other slide uses the Title and Content layout: the slide's words go in the title placeholder, and the picture goes in the content placeholder. If the picture is an image, insert it into the content placeholder.",
     "Never add a text box or a shape outside the placeholders. Never put each item in its own box. Where a slide lists several items (stages, steps, a comparison), they are lines in the one content placeholder, one item per line, no bullet characters. A chart is one native chart object in the content placeholder, with its labels inside it. A diagram is one object, grouped, in the content placeholder, with its labels inside it.",
