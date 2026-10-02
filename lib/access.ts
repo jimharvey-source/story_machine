@@ -25,14 +25,33 @@ export async function currentProfile(): Promise<Profile | null> {
   return ensureProfile({ id: user.id, email: user.email });
 }
 
+/**
+ * The inbox an address really reaches: no +tag, and for Gmail no dots.
+ * jim+a@gmail.com, jim+b@gmail.com and j.i.m@gmail.com are one inbox, so one free story.
+ * Keep in step with supabase/migrations/20261002_email_canonical.sql.
+ */
+export function canonicalEmail(email: string): string {
+  const [local = "", domain = ""] = email.trim().toLowerCase().split("@");
+  const base = local.split("+")[0];
+  if (domain === "gmail.com" || domain === "googlemail.com") return `${base.replace(/\./g, "")}@gmail.com`;
+  return `${base}@${domain}`;
+}
+
 /** The profile for a signed-in user, created (and subscribed to the list) on first sight. */
 export async function ensureProfile(user: { id: string; email: string }): Promise<Profile> {
   const admin = supabaseAdmin();
   const { data: existing } = await admin.from("profiles").select("*").eq("id", user.id).maybeSingle();
   if (existing) return existing as Profile;
+  // The free story belongs to the inbox, not the address. A second account on the same inbox starts
+  // with it already spent (stories_started 1), so it can still buy, or use a programme code.
+  const email_canonical = canonicalEmail(user.email);
+  const { count: siblings } = await admin
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("email_canonical", email_canonical);
   const { data: created, error } = await admin
     .from("profiles")
-    .insert({ id: user.id, email: user.email })
+    .insert({ id: user.id, email: user.email, email_canonical, stories_started: (siblings ?? 0) > 0 ? 1 : 0 })
     .select("*")
     .single();
   if (error) {
