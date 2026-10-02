@@ -26,7 +26,7 @@ export function setGuestCookie(res: NextResponse, id: string) {
   res.cookies.set(GUEST_COOKIE, id, { httpOnly: true, sameSite: "lax", secure: true, path: "/", maxAge: YEAR });
 }
 
-async function ipHash(): Promise<string | null> {
+export async function ipHash(): Promise<string | null> {
   const h = await headers();
   const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || null;
   if (!ip) return null;
