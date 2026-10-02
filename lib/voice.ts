@@ -171,7 +171,7 @@ export type VoiceOptions = {
 
 // "Every year, publishers add another book" and "Most training targets delivery" are claims about the world.
 // They stand only if the material says them: the first three words must appear in the source.
-const SWEEPING = /(?<!\b(?:the|a|at|its|their|our|your|his|her)\s)\b(?:Every|Most|Nobody|No one)\s+[A-Za-z'-]+(?:\s*,?\s+[A-Za-z'-]+)?/gi;
+const SWEEPING = /(?<!\b(?:the|a|at|its|their|our|your|his|her)\s)\b(?:Every|Most|Nobody|No one|Thousands of|Millions of|Hundreds of|Dozens of)\s+[A-Za-z'-]+(?:\s*,?\s+[A-Za-z'-]+)?/gi;
 const EVERY_OK = /^every\s+(?:one|time|single|act|slide|step|line|word|part|section|point|cue|sentence|story|presentation you)\b/i;
 const MOST_OK = /^most\s+(?:of\s+(?:your|you|them|us|it|the\s+time)|important|visible|useful|likely|common|people\s+in\s+the\s+room)\b/i;
 const SWEEPING_SKIP = /(^|\.)(audience|hero|gaps|speechNotes)(\.|\[|$)/;
@@ -189,13 +189,36 @@ function sweepingViolations(value: unknown, path: string, source: string, out: V
       if (/^most\s+[a-z]+(?:ly|est|er)\b/i.test(phrase)) continue;
       if (source.includes(norm(phrase))) continue;
       const start = Math.max(0, (m.index ?? 0) - 20);
-      out.push({ path, rule: "unsupported-generalisation (a claim about every, most or nobody that the material does not make)", sample: value.slice(start, (m.index ?? 0) + phrase.length + 40) });
+      out.push({ path, rule: "unsupported-generalisation (a claim about every, most or nobody, or a quantity such as thousands, that the material does not make)", sample: value.slice(start, (m.index ?? 0) + phrase.length + 40) });
     }
     return;
   }
   if (Array.isArray(value)) value.forEach((v, i) => sweepingViolations(v, `${path}[${i}]`, source, out));
   else if (value && typeof value === "object") {
     for (const [k, v] of Object.entries(value as Record<string, unknown>)) sweepingViolations(v, path ? `${path}.${k}` : k, source, out);
+  }
+}
+
+// The same case in two acts: a name (Harry, Steve) in the supporting points of two acts, which no headline,
+// Big Idea or argument uses. Framework terms appear in headlines and pass.
+function repeatedCases(value: unknown, out: Violation[], source?: string): void {
+  const o = (value && typeof value === "object" ? value : {}) as Record<string, unknown> & Record<"why" | "how" | "what", { headline?: string; supportingPoints?: unknown } | undefined>;
+  const acts = (["why", "how", "what"] as const).filter((k) => Array.isArray(o[k]?.supportingPoints));
+  if (acts.length < 2) return;
+  const frame = [o.bigIdea, o.argument, ...acts.map((k) => o[k]?.headline)].filter((x): x is string => typeof x === "string").join(" ");
+  const seen = new Map<string, string>();
+  // Names are the material's proper nouns (capitalised mid-sentence there), found anywhere in a point,
+  // so "Fit: Harry lost the room" still counts Harry.
+  const known = source ? namesToAvoid(source) : null;
+  for (const k of acts) {
+    const text = (o[k]!.supportingPoints as string[]).join(". ");
+    const names = known ? known.filter((n) => new RegExp(`\\b${n}\\b`).test(text)) : namesToAvoid(text);
+    for (const n of new Set(names)) {
+      if (new RegExp(`\\b${n}\\b`).test(frame)) continue;
+      const first = seen.get(n);
+      if (first && first !== k) out.push({ path: `${k}.supportingPoints`, rule: `repeated-case ("${n}" is already told in ${first}; tell each case in one act)`, sample: n });
+      else if (!first) seen.set(n, k);
+    }
   }
 }
 
@@ -287,6 +310,7 @@ export function voiceViolations(value: unknown, options: VoiceOptions = {}): Vio
   soundbiteViolations(value, "", out);
   if (options.source) sweepingViolations(value, "", norm(options.source), out);
   repeatedPoints(value, out);
+  repeatedCases(value, out, options.source);
   if (options.contractionsInWritten === false) contractionViolations(value, "", out);
   const texts: string[] = [];
   allText(value, texts);

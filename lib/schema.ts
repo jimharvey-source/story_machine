@@ -52,7 +52,7 @@ export const StorySchema = z.object({
   argument: z.string().describe("The argument of the presentation in one plain sentence"),
   bigIdea: z
     .string()
-    .describe("The soundbite: the one phrase the audience will carry out of the room. Under twelve words."),
+    .describe("The soundbite: the one phrase the audience will carry out of the room. Under twelve words, or up to twenty when it is the presenter's own line quoted word for word."),
   why: ActSchema,
   how: ActSchema,
   what: ActSchema,
