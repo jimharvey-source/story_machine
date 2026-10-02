@@ -311,6 +311,8 @@ export default function Home() {
   const [pdf, setPdf] = useState<{ url: string; name: string } | null>(null);
   const saveTimer = useRef<number | null>(null);
   const [programme, setProgramme] = useState<string | null>(null);
+  // Returning users sign in from the top of the page, without making a story first.
+  const [showSignIn, setShowSignIn] = useState(false);
 
   const loadMe = useCallback(async () => {
     try {
@@ -720,7 +722,28 @@ export default function Home() {
   return (
     <main className="mx-auto w-full max-w-3xl px-5 pb-24 pt-10 sm:pt-16">
       <header className={story ? "mb-10" : "mb-6"}>
-        <p className="eyebrow">Jim Harvey&apos;s StoryMachine</p>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <p className="eyebrow">Jim Harvey&apos;s StoryMachine</p>
+          {me && !me.signedIn && (
+            <button
+              type="button"
+              onClick={() => setShowSignIn((v) => !v)}
+              aria-expanded={showSignIn}
+              className="text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink"
+            >
+              {showSignIn ? "Close" : "Already a user? Sign in"}
+            </button>
+          )}
+        </div>
+        {me && !me.signedIn && showSignIn && (
+          <div className="mt-4">
+            <SignIn
+              title="Welcome back"
+              body="Enter the email you used before. We send you a code and a link. Your stories are waiting."
+              programme={programme}
+            />
+          </div>
+        )}
         {me && (
           <div className="mt-4">
             <AccountBar
