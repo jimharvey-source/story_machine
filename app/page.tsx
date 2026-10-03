@@ -308,6 +308,8 @@ export default function Home() {
   >("idle");
   const [notice, setNotice] = useState<string | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
+  // The Upgrade button in the account bar opens the prices under the bar, with or without a story on the page.
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const [pdf, setPdf] = useState<{ url: string; name: string } | null>(null);
   const saveTimer = useRef<number | null>(null);
   const [programme, setProgramme] = useState<string | null>(null);
@@ -458,6 +460,8 @@ export default function Home() {
   }, [storyId]);
 
   const signedIn = Boolean(me?.signedIn);
+  // Signed in, this story not yet paid for, and nothing left to pay with: the actions become one Upgrade button.
+  const locked = signedIn && !unlocked && !!me && !me.unlimited && me.plan !== "lifetime" && (me.storiesLeft ?? 0) === 0;
 
   // Autosave, a moment after the last change. Every story is saved; a guest's story is saved under its id.
   useEffect(() => {
@@ -766,7 +770,13 @@ export default function Home() {
               me={me}
               onChange={loadMe}
               onOpenStories={() => setShowStories(true)}
+              onUpgrade={() => setShowUpgrade((v) => !v)}
             />
+          </div>
+        )}
+        {me?.signedIn && showUpgrade && (
+          <div className="mt-4">
+            <Paywall me={me} onChange={() => { loadMe(); setShowUpgrade(false); }} onClose={() => setShowUpgrade(false)} />
           </div>
         )}
         {notice && (
@@ -1283,11 +1293,20 @@ export default function Home() {
           )}
 
           {signedIn && showPaywall && (
-            <Paywall me={me!} onChange={() => { loadMe(); setShowPaywall(false); }} />
+            <Paywall me={me!} onChange={() => { loadMe(); setShowPaywall(false); }} onClose={() => setShowPaywall(false)} />
           )}
 
           <section className="flex flex-wrap items-center gap-4 border-t border-rule pt-8">
-            {!landing && signedIn && (
+            {locked && !showPaywall && (
+              <button
+                type="button"
+                onClick={() => setShowPaywall(true)}
+                className="rounded-md bg-red px-6 py-3 text-base font-medium text-paper hover:opacity-90"
+              >
+                Upgrade for Stage 2, the PDF and your slides
+              </button>
+            )}
+            {!landing && signedIn && !locked && (
               <button
                 onClick={makeItLand}
                 disabled={busy !== null}
@@ -1298,7 +1317,7 @@ export default function Home() {
                   : "Stage 2: add interest and impact"}
               </button>
             )}
-            {signedIn && (
+            {signedIn && !locked && (
               <button
                 type="button"
                 onClick={() => exportFile("pdf")}
@@ -1308,7 +1327,7 @@ export default function Home() {
                 {busy === "export-pdf" ? "Making the PDF..." : landing ? "Download the PDF (stages 1 and 2)" : "Download the PDF (stage 1 so far)"}
               </button>
             )}
-            {signedIn && (
+            {signedIn && !locked && (
               <span className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
                 <button
                   type="button"
@@ -1335,7 +1354,7 @@ export default function Home() {
               <span className="w-full text-sm text-muted">
                 {(me.storiesLeft ?? 0) > 0
                   ? "Stage 2 and the PDF use your free story."
-                  : "Stage 2 and the PDF need a story, a month or lifetime."}
+                  : "Stage 1 stays free. Stage 2 and the downloads need a story, a month or lifetime."}
               </span>
             )}
             {pdf && !busy?.startsWith("export") && (

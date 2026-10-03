@@ -43,6 +43,13 @@ export function planLine(me: Me): string {
   return `${left} ${left === 1 ? "story" : "stories"} left`;
 }
 
+/** Whether to offer the Upgrade button: anyone who would pay for Stage 2 on their next story. */
+export function needsUpgrade(me: Me): boolean {
+  if (!me.signedIn || me.unlimited || me.plan === "lifetime") return false;
+  const left = me.storiesLeft ?? 0;
+  return left === 0 || !me.programme;
+}
+
 export function SignIn({ compact, title, body, next, programme }: { compact?: boolean; title?: string; body?: string; next?: string; programme?: string | null }) {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
@@ -200,7 +207,7 @@ function CodeForm({ onDone, className }: { onDone: (label: string) => void; clas
   );
 }
 
-export function AccountBar({ me, onChange, onOpenStories }: { me: Me; onChange: () => void; onOpenStories: () => void }) {
+export function AccountBar({ me, onChange, onOpenStories, onUpgrade }: { me: Me; onChange: () => void; onOpenStories: () => void; onUpgrade?: () => void }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [showCode, setShowCode] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -227,6 +234,15 @@ export function AccountBar({ me, onChange, onOpenStories }: { me: Me; onChange: 
     <div className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-rule pb-4 font-mono text-[0.7rem] uppercase tracking-[0.12em] text-muted">
       <span className="normal-case tracking-normal font-body text-sm text-ink">{me.email}</span>
       <span className={me.unlimited || me.programme ? "text-red" : ""}>{line}</span>
+      {onUpgrade && needsUpgrade(me) && (
+        <button
+          type="button"
+          onClick={onUpgrade}
+          className="rounded-md bg-red px-3 py-1.5 font-body text-sm font-medium normal-case tracking-normal text-paper hover:opacity-90"
+        >
+          Upgrade
+        </button>
+      )}
       <button type="button" onClick={onOpenStories} className="underline decoration-rule underline-offset-4 hover:text-ink">
         My stories
       </button>
@@ -262,7 +278,7 @@ export function AccountBar({ me, onChange, onOpenStories }: { me: Me; onChange: 
  * Shown when the free story is used and the person starts another.
  * Three ways in: one story, a month, or lifetime. Programme codes underneath.
  */
-export function Paywall({ me, onChange }: { me: Me; onChange: () => void }) {
+export function Paywall({ me, onChange, onClose }: { me: Me; onChange: () => void; onClose?: () => void }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -279,12 +295,19 @@ export function Paywall({ me, onChange }: { me: Me; onChange: () => void }) {
   const started = me.storiesStarted ?? 0;
   return (
     <section className="rounded-md border border-ink bg-paper-2 p-6 sm:p-8">
-      <p className="eyebrow">{started > 0 ? "Your free story is used" : "Ready for the next one"}</p>
-      <h2 className="display mt-2 text-2xl sm:text-3xl">Stage 2 and the PDF, for every story after the first.</h2>
+      <div className="flex items-start justify-between gap-4">
+        <p className="eyebrow">{(me.storiesLeft ?? 0) === 0 && started > 0 ? "Your free story is used" : "Upgrade"}</p>
+        {onClose && (
+          <button type="button" onClick={onClose} className="text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink">
+            Close
+          </button>
+        )}
+      </div>
+      <h2 className="display mt-2 text-2xl sm:text-3xl">The full story: Stage 2, the PDF, Word and PowerPoint.</h2>
       <p className="mt-3 max-w-xl text-ink-2">
-        Stage 1 stays free. Stage 2 adds interest and impact: the first minute, signposts, slide ideas, the ending,
-        speaker notes, a slide brief and a prompt for your slides. The strategist, every edit and the PDF of the
-        whole thing come with it.
+        Stage 1 stays free. Upgrade for Stage 2: the first minute, signposts, slide ideas, the ending and speaker
+        notes. Download the whole story as a PDF or a Word file, and the slide outline as PowerPoint, ready for your
+        company template. The strategist and every edit come with it.
       </p>
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
         {(["story", "monthly", "lifetime"] as PlanKey[]).map((k) => {
