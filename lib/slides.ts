@@ -24,9 +24,14 @@ export type Slide = { name: string; words: string; picture: string; serves: stri
 // Labels a cue uses to tell the presenter what to do. On a slide they go: the rest of the cue is the title.
 const CUE_LABEL = /^(?:open with|close on|close|quote|recap|ask|preview|land it|tell|show|state|say|mention|remind them)\s*:\s*/i;
 
-/** The words that carry meaning: four letters or more, hyphenated words split, a plural "s" dropped. */
+// Short words that carry no meaning of their own, so they never decide whether a cue repeats a slide.
+const FILLER = new Set(["this", "that", "these", "those", "with", "from", "your", "their", "they", "them", "have", "here", "there", "what", "when", "into", "onto", "about", "just", "also", "very", "then", "than", "will", "were", "been", "being"]);
+
+/** The words that carry meaning: four letters or more, filler dropped, hyphenated words split, a plural "s" dropped. */
 function significant(text: string): string[] {
-  return (text.toLowerCase().match(/[a-z][a-z']{3,}/g) ?? []).map((w) => (w.length > 4 && w.endsWith("s") && !w.endsWith("ss") ? w.slice(0, -1) : w));
+  return (text.toLowerCase().match(/[a-z][a-z']{3,}/g) ?? [])
+    .filter((w) => !FILLER.has(w))
+    .map((w) => (w.length > 4 && w.endsWith("s") && !w.endsWith("ss") ? w.slice(0, -1) : w));
 }
 
 /** A cue that only says again what another slide already says: most of its words are on that slide. */
