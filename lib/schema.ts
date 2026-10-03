@@ -158,6 +158,23 @@ export const LandRequestSchema = z.object({
   storyId: z.string().uuid().optional(),
 });
 
+// The ending, rewritten after the Big Idea has changed. Only the parts that carry the Big Idea at the close.
+
+export const EndingRequestSchema = z.object({
+  notes: z.string().min(40).max(60000),
+  story: StoryInputSchema,
+  landing: LandingInputSchema,
+  register: RegisterSchema,
+});
+
+export const EndingSchema = z.object({
+  epilogue: LandingSchema.shape.epilogue,
+  fiveLineEpilogue: z.string().describe("The Epilogue's line in the story in five lines."),
+  epilogueNotes: z
+    .array(z.string())
+    .describe("Three to five speech-note cues for the Epilogue, each ten words or fewer, written as what the audience hears."),
+});
+
 // Contextual edit
 
 export const EditRequestSchema = z.object({

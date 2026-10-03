@@ -240,6 +240,27 @@ Make this story land and stick. Write the prologue, a signpost and a visual idea
 Remember: hold the story's point of view, keep every number exactly as given, no request for the audience's time, cue only what the words contain, the closing slide matches the last spoken sentence, the Big Idea said once at the end, no em dashes, no banned phrases, short sentences, UK English.`;
 }
 
+/** The Big Idea changed after Stage 2: rewrite the ending so it lands on the new one. Everything else stays. */
+export function endingUserMessage(notes: string, storyJson: string, landingJson: string): string {
+  return `<source_material>
+${notes.trim()}
+</source_material>
+
+<story>
+${storyJson}
+</story>
+
+<landing>
+${landingJson}
+</landing>
+
+<task>
+The presenter has changed the Big Idea since the landing was written. Rewrite only the ending so it lands on the Big Idea in the story above: the epilogue, the Epilogue's line in the five-line story, and the Epilogue's speech-note cues. The epilogue recaps the act headlines, says what the audience should do next, keeps the bookend with the prologue as the presenter has written it, and ends on the Big Idea, word for word, as its last sentence. Say the Big Idea once. Any earlier closing line or image that competed with it goes. Do not touch the prologue, the acts or anything else. Invent nothing.
+</task>
+
+Remember: hold the story's point of view, keep every number exactly as given, cue only what the words contain, no em dashes, no banned phrases, short sentences, UK English.`;
+}
+
 // Contextual edits: change one component, hold the rest of the story fixed.
 
 export const EDIT_ACTIONS = {

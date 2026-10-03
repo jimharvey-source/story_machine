@@ -24,16 +24,17 @@ export type Slide = { name: string; words: string; picture: string; serves: stri
 // Labels a cue uses to tell the presenter what to do. On a slide they go: the rest of the cue is the title.
 const CUE_LABEL = /^(?:open with|close on|close|quote|recap|ask|preview|land it|tell|show|state|say|mention|remind them)\s*:\s*/i;
 
+/** The words that carry meaning: four letters or more, hyphenated words split, a plural "s" dropped. */
 function significant(text: string): string[] {
-  return (text.toLowerCase().match(/[a-z][a-z'-]{3,}/g) ?? []);
+  return (text.toLowerCase().match(/[a-z][a-z']{3,}/g) ?? []).map((w) => (w.length > 4 && w.endsWith("s") && !w.endsWith("ss") ? w.slice(0, -1) : w));
 }
 
-/** A cue that only says the Big Idea again: the title and closing slides already carry it. */
-function echoesBigIdea(cue: string, bigIdea: string): boolean {
+/** A cue that only says again what another slide already says: most of its words are on that slide. */
+function echoes(cue: string, slideWords: string): boolean {
   const words = significant(cue.replace(CUE_LABEL, ""));
   if (!words.length) return false;
-  const big = new Set(significant(bigIdea));
-  return words.filter((w) => big.has(w)).length / words.length >= 0.6;
+  const on = new Set(significant(slideWords));
+  return words.filter((w) => on.has(w)).length / words.length >= 0.6;
 }
 
 function cueSlide(cue: string, name: string, serves: string): Slide {
@@ -53,13 +54,17 @@ function cueSlide(cue: string, name: string, serves: string): Slide {
  * The deck. The titles narrate the story: read in order, they tell it.
  * Title (the Big Idea), the Prologue's cues, then for each act its picture slide and one slide per cue,
  * then the Epilogue's cues and the closing slide (the Big Idea again). Cues that only repeat the Big Idea are
- * left to the title and closing slides. A story without speech notes gets the five-slide deck.
+ * left to the title and closing slides, and cues that repeat their act's picture slide are left to that slide. A story without speech notes gets the five-slide deck.
  */
 export function deck(story: Story, landing: Landing): Slide[] {
   const cues = landing.speechNotes;
   const big = story.bigIdea;
-  const fromCues = (list: string[], name: string, serves: string) =>
-    (list ?? []).filter((c) => c.trim() && !echoesBigIdea(c, big)).map((c) => cueSlide(c, name, serves));
+  // A cue that repeats the Big Idea is left to the title and closing slides; one that repeats its act's
+  // picture slide is left to that slide. Either way its words stay in the speaker notes.
+  const fromCues = (list: string[], name: string, serves: string, also = "") =>
+    (list ?? [])
+      .filter((c) => c.trim() && !echoes(c, big) && !(also && echoes(c, also)))
+      .map((c) => cueSlide(c, name, serves));
   const out: Slide[] = [];
   // Title and closing slides carry the Big Idea word for word, set here rather than left to the model,
   // so an edit to the Big Idea carries through and no variant wording ever reaches a slide.
@@ -68,14 +73,16 @@ export function deck(story: Story, landing: Landing): Slide[] {
   for (const [key, label] of actsOf(story)) {
     const { words, picture } = splitSlideIdea(landing[key].visualIdea);
     const short = label.split(",")[0];
+    const anchorWords = words || story[key].headline;
+    const repeats = (cues[key] ?? []).filter((c) => c.trim() && echoes(c, anchorWords));
     out.push({
       name: short,
-      words: words || story[key].headline,
+      words: anchorWords,
       picture: picture || "none",
       serves: label,
-      notes: [label, `Signpost: ${landing[key].signpost}`],
+      notes: [label, `Signpost: ${landing[key].signpost}`, ...repeats],
     });
-    out.push(...fromCues(cues[key], short, label));
+    out.push(...fromCues(cues[key], short, label, anchorWords));
   }
   out.push(...fromCues(cues.epilogue, "Epilogue", "Epilogue"));
   out.push({ name: "Close", words: big, picture: "the title slide again, or nothing", serves: "Epilogue", notes: ["Epilogue", ...(cues.epilogue ?? [])] });

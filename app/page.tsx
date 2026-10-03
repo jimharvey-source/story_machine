@@ -250,6 +250,13 @@ function Prices() {
   );
 }
 
+/** Whether the Epilogue still says the Big Idea. If the Big Idea was changed after Stage 2, it will not. */
+function endsOnBigIdea(epilogue: string, bigIdea: string): boolean {
+  const norm = (t: string) => t.toLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim();
+  const big = norm(bigIdea);
+  return !big || norm(epilogue).includes(big);
+}
+
 async function postJson<T>(url: string, body: unknown): Promise<T> {
   const res = await fetch(url, {
     method: "POST",
@@ -635,6 +642,35 @@ export default function Home() {
       loadMe();
     } catch (e) {
       handleApiError(e, "Something went wrong");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  // The Big Idea changed after Stage 2: rewrite the Epilogue, its five-line entry and its cues to land on the new one.
+  async function rewriteEnding() {
+    if (!story || !landing) return;
+    setBusy("ending");
+    setError(null);
+    try {
+      const data = await postJson<{ ending: { epilogue: string; fiveLineEpilogue: string; epilogueNotes: string[] } }>(
+        "/api/ending",
+        { notes, story, landing, register },
+      );
+      setLanding((prev) =>
+        prev
+          ? {
+              ...prev,
+              epilogue: data.ending.epilogue,
+              fiveLineStory: { ...prev.fiveLineStory, epilogue: data.ending.fiveLineEpilogue },
+              speechNotes: { ...prev.speechNotes, epilogue: data.ending.epilogueNotes },
+              titleSlide: story.bigIdea,
+              closingSlide: story.bigIdea,
+            }
+          : prev,
+      );
+    } catch (e) {
+      handleApiError(e, "The ending could not be rewritten");
     } finally {
       setBusy(null);
     }
@@ -1227,6 +1263,21 @@ export default function Home() {
                   Epilogue &middot; spoken &middot; end with certainty
                 </p>
                 <Why>Audiences need certainty. End by recapping your headlines and the actions from here. Send them away with the message ringing in their ears.</Why>
+                {story && !endsOnBigIdea(landing.epilogue, story.bigIdea) && (
+                  <div className="mt-4 flex flex-wrap items-center gap-3 rounded-md border border-red bg-red-soft px-4 py-3">
+                    <p className="text-sm text-ink">
+                      Your Big Idea has changed. The Epilogue, the five lines and the closing notes still end on the old one.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={rewriteEnding}
+                      disabled={busy !== null}
+                      className="rounded-md bg-red px-4 py-2 text-sm font-medium text-paper hover:opacity-90 disabled:opacity-40"
+                    >
+                      {busy === "ending" ? "Rewriting the ending..." : "Rewrite the ending"}
+                    </button>
+                  </div>
+                )}
                 <div className="mt-4">
                   <Editable
                     value={landing.epilogue}
