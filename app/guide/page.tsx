@@ -3,6 +3,7 @@ import path from "node:path";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Lockup } from "@/components/Logo";
+import { Icon, IconTile, type IconName } from "@/components/Icon";
 
 // The user guide, from content/user-guide.md. Read at build time, so the page is static.
 // The markdown is our own and uses a small subset: ## and ### headings, paragraphs, **bold**, *italic*,
@@ -73,6 +74,26 @@ function Inline({ text }: { text: string }) {
   return <>{parts}</>;
 }
 
+// One icon per section of the guide, from the StoryMachine icon set.
+const ICONS: Record<string, IconName> = {
+  "What the StoryMachine does": "quote",
+  "Before you start": "clipboard",
+  "Step 1: Put in your material": "upload",
+  "Step 2: Answer two questions": "questions",
+  "Step 3: Choose the kind of presentation": "grid",
+  "Stage 1: Get your story straight": "target",
+  "Making the story yours": "pen",
+  "Stage 2: Add interest and impact": "mic",
+  "Downloads": "download",
+  "Making the slides": "slides",
+  "Before you present": "acts",
+  "Your account": "key",
+  "What it costs": "tag",
+  "Questions": "help",
+  "Help": "mail",
+};
+const iconFor = (heading: string): IconName => ICONS[heading] ?? "quote";
+
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 export default function Guide() {
@@ -98,22 +119,27 @@ export default function Guide() {
           <ol className="mt-3 space-y-1.5 text-sm">
             {contents.map((c) => (
               <li key={c.text}>
-                <a href={`#${slug(c.text)}`} className="text-ink-2 hover:text-ink">{c.text}</a>
+                <a href={`#${slug(c.text)}`} className="flex items-center gap-2.5 py-0.5 text-ink-2 hover:text-ink">
+                  <Icon name={iconFor(c.text)} className="!h-[18px] !w-[18px]" />
+                  <span>{c.text}</span>
+                </a>
               </li>
             ))}
           </ol>
         </nav>
 
         <article className="min-w-0 max-w-3xl">
-          <p className="eyebrow">User guide</p>
+          <IconTile name="book" />
+          <p className="eyebrow mt-5">User guide</p>
           <h1 className="display mt-3 text-4xl leading-[1.05] sm:text-5xl">How to use the StoryMachine</h1>
           <div className="mt-10 space-y-5 text-[1.0625rem] leading-relaxed text-ink-2">
             {blocks.map((b, i) => {
               switch (b.t) {
                 case "h2":
                   return (
-                    <h2 key={i} id={slug(b.text)} className="display scroll-mt-8 border-t border-rule pt-10 !mt-14 text-2xl text-ink sm:text-3xl">
-                      {b.text}
+                    <h2 key={i} id={slug(b.text)} className="display !mt-14 flex scroll-mt-8 items-center gap-4 border-t border-rule pt-10 text-2xl text-ink sm:text-3xl">
+                      <IconTile name={iconFor(b.text)} />
+                      <span>{b.text}</span>
                     </h2>
                   );
                 case "h3":

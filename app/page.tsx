@@ -3,6 +3,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Lockup } from "@/components/Logo";
+import { Icon, IconTile, type IconName } from "@/components/Icon";
 
 // The front door. Signed-out visitors read the case and press "Build your first story"; the tool lives at /build.
 // Copy: claude/storymachine-landing-page.md. Lines in quotation marks there are Jim's, word for word.
@@ -45,8 +46,9 @@ export default async function Landing({ searchParams }: Props) {
 
       <main className="mx-auto w-full max-w-6xl px-5 pb-24 lg:px-10">
         {/* 1. Opening */}
-        <section className="max-w-4xl pt-16 sm:pt-24">
-          <h1 className="display text-[2.75rem] leading-[1.02] tracking-[-0.035em] sm:text-7xl sm:leading-[0.98]">
+        <section className="grid items-center gap-14 pt-16 sm:pt-24 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16">
+          <div>
+          <h1 className="display text-[2.75rem] leading-[1.02] tracking-[-0.035em] sm:text-7xl sm:leading-[0.98] lg:text-[4.25rem]">
             Start with the story, not with the slides.
           </h1>
           <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink-2 sm:text-xl">
@@ -58,10 +60,12 @@ export default async function Landing({ searchParams }: Props) {
             <BuildButton />
             <p className="text-sm text-muted">Free to start. No sign-in, no card.</p>
           </div>
+          </div>
+          <HeroStory />
         </section>
 
         {/* 2. The problem */}
-        <Section label="The problem" title="Most presentations are built backwards.">
+        <Section icon="backwards" label="The problem" title="Most presentations are built backwards.">
           <p>
             Most people open PowerPoint first. They gather old slides, add new ones, and hope an argument appears. The
             audience leaves with plenty of information and no message.
@@ -79,15 +83,16 @@ export default async function Landing({ searchParams }: Props) {
         </Section>
 
         {/* 3. How it works */}
-        <Section label="How it works" title="Three steps. About twenty minutes.">
+        <Section icon="acts" label="How it works" title="Three steps. About twenty minutes.">
           <ol className="mt-2 border-b border-rule">
             {HOW.map(([head, body], i) => (
-              <li key={head} className="grid grid-cols-[2.5rem_1fr] gap-3 border-t border-rule py-6">
-                <span className="text-base font-semibold text-red">{i + 1}</span>
+              <li key={head} className="grid grid-cols-[1.5rem_1fr_auto] items-start gap-3 border-t border-rule py-6">
+                <span className="text-base font-semibold text-red pt-0.5">{i + 1}</span>
                 <span>
                   <span className="block text-lg font-semibold text-ink">{head}</span>
                   <span className="mt-1 block text-ink-2">{body}</span>
                 </span>
+                <IconTile name={STEP_ICONS[i]} size="sm" />
               </li>
             ))}
           </ol>
@@ -95,12 +100,14 @@ export default async function Landing({ searchParams }: Props) {
 
         {/* 4. What you get */}
         <section className="border-t border-rule pt-16 mt-20 sm:mt-28">
-          <p className="eyebrow">What you get</p>
+          <IconTile name="download" />
+          <p className="eyebrow mt-5">What you get</p>
           <h2 className="display mt-3 max-w-3xl text-3xl leading-tight sm:text-[2.6rem]">A detailed PDF you can use at once.</h2>
           <div className="mt-10 grid gap-5 md:grid-cols-2">
             {STAGES.map((st) => (
               <div key={st.n} className="panel flex flex-col !p-7 sm:!p-9">
-                <p className="tag text-red">{st.n}</p>
+                <IconTile name={st.icon} />
+                <p className="tag mt-5 text-red">{st.n}</p>
                 <p className="display mt-1 text-2xl">{st.name}</p>
                 <p className="mt-1 text-sm text-muted">{st.access}</p>
                 <ul className="mt-6 space-y-4">
@@ -120,7 +127,7 @@ export default async function Landing({ searchParams }: Props) {
         </section>
 
         {/* 5. Built for the room you face */}
-        <Section label="Presentation types" title="Tell it what kind of presentation it is.">
+        <Section icon="grid" label="Presentation types" title="Tell it what kind of presentation it is.">
           <p>
             A project update, a strategy recommendation, a sales pitch, choosing between options, a training session, bad
             news, or something else. Each one gives the three acts the right job for that room. A sales pitch moves from
@@ -128,14 +135,17 @@ export default async function Landing({ searchParams }: Props) {
             where it ends for the people affected.
           </p>
           <ul className="mt-8 flex flex-wrap gap-2">
-            {KINDS.map((k) => (
-              <li key={k} className="rounded-full border border-rule bg-paper-2 px-4 py-1.5 text-sm text-ink-2">{k}</li>
+            {KINDS.map(([k, icon]) => (
+              <li key={k} className="inline-flex items-center gap-2 rounded-full border border-rule bg-paper-2 py-1.5 pl-2.5 pr-4 text-sm text-ink-2">
+                <Icon name={icon} className="!h-[18px] !w-[18px]" />
+                {k}
+              </li>
             ))}
           </ul>
         </Section>
 
         {/* 6. Make it your own */}
-        <Section label="It works only from what you give it" title="Make it your own.">
+        <Section icon="pen" label="It works only from what you give it" title="Make it your own.">
           <p>
             Where your notes are silent, the StoryMachine asks. Every story ends with a panel headed{" "}
             <span className="font-semibold text-ink">Make it your own: Jim&apos;s suggestions</span>: the example, the
@@ -145,7 +155,7 @@ export default async function Landing({ searchParams }: Props) {
         </Section>
 
         {/* 7. Your deck stays on your computer */}
-        <Section label="Confidential material" title="Your deck stays on your computer.">
+        <Section icon="laptop" label="Confidential material" title="Your deck stays on your computer.">
           <p>
             Upload a PowerPoint, Word file or PDF of any size. The StoryMachine reads the words on your own computer and
             keeps only those. The file is never sent anywhere, so a confidential board deck stays where it belongs.
@@ -153,7 +163,7 @@ export default async function Landing({ searchParams }: Props) {
         </Section>
 
         {/* 8. The method behind it */}
-        <Section label="The method behind it" title="Thirty years of the same method, in one tool.">
+        <Section icon="book" label="The method behind it" title="Thirty years of the same method, in one tool.">
           <p>
             We have used this method for thirty years with teams at JP Morgan, Mercer, Ford, Rolls-Royce, Givaudan, Puig,
             Grifols, AstraZeneca, Mott MacDonald and many others.
@@ -172,7 +182,8 @@ export default async function Landing({ searchParams }: Props) {
 
         {/* 9. What it costs */}
         <section className="mt-20 border-t border-rule pt-16 sm:mt-28">
-          <p className="eyebrow">What it costs</p>
+          <IconTile name="tag" />
+          <p className="eyebrow mt-5">What it costs</p>
           <h2 className="display mt-3 text-3xl leading-tight sm:text-[2.6rem]">Your first story is free.</h2>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Price label="Stage 1" amount="Free" note="No sign-in, no card." />
@@ -188,7 +199,8 @@ export default async function Landing({ searchParams }: Props) {
 
         {/* 10. Close */}
         <section className="panel mt-20 sm:mt-28 !p-8 sm:!p-14">
-          <h2 className="display max-w-2xl text-3xl leading-tight sm:text-[2.6rem]">
+          <Icon name="quote" className="!h-12 !w-12" />
+          <h2 className="display mt-6 max-w-2xl text-3xl leading-tight sm:text-[2.6rem]">
             Try it on the presentation you are worried about.
           </h2>
           <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
@@ -211,6 +223,49 @@ export default async function Landing({ searchParams }: Props) {
   );
 }
 
+/**
+ * The hero picture, drawn from the app itself: rough notes behind, the story they become in front.
+ * The Big Idea is Jim's own, from his FFF book pitch.
+ */
+function HeroStory() {
+  const scribble = ["w-[86%]", "w-[64%]", "w-[92%]", "w-[48%]", "w-[78%]", "w-[58%]", "w-[84%]", "w-[40%]"];
+  return (
+    <div className="relative mx-auto w-full max-w-[30rem] pb-4 lg:mx-0" aria-hidden="true">
+      <div className="absolute left-0 top-0 w-[74%] -rotate-[5deg] rounded-md border border-rule bg-paper-2 p-5 shadow-[0_10px_30px_-18px_rgba(22,21,19,0.35)]">
+        <div className="flex items-center gap-2">
+          <Icon name="notes" className="!h-[18px] !w-[18px]" />
+          <span className="tag text-muted">Your notes</span>
+        </div>
+        <div className="mt-4 space-y-2.5">
+          {scribble.map((w, i) => (
+            <div key={i} className={`h-[5px] rounded-full bg-rule ${w}`} />
+          ))}
+        </div>
+      </div>
+      <div className="panel relative ml-auto mt-24 w-[90%] !p-6 sm:!p-7">
+        <div className="flex items-center gap-2">
+          <Icon name="quote" className="!h-5 !w-5" />
+          <span className="eyebrow">Big Idea</span>
+        </div>
+        <p className="said mt-3 text-[1.4rem] leading-[1.3] text-ink">Everyone admires the ceiling. The genius is in the walls.</p>
+        <div className="mt-6 grid grid-cols-3 gap-2">
+          {["Why", "How", "What"].map((w) => (
+            <div key={w} className="rounded-md bg-panel p-3">
+              <p className="text-sm font-semibold text-red">{w}</p>
+              <div className="mt-2.5 h-[5px] w-full rounded-full bg-rule" />
+              <div className="mt-1.5 h-[5px] w-2/3 rounded-full bg-rule" />
+            </div>
+          ))}
+        </div>
+        <div className="mt-5 flex items-center gap-2 border-t border-rule pt-4 text-sm text-muted">
+          <Icon name="mic" className="!h-[18px] !w-[18px]" />
+          Prologue, signposts, Epilogue, speaker notes
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function BuildButton({ small = false }: { small?: boolean }) {
   return (
     <Link
@@ -225,11 +280,12 @@ function BuildButton({ small = false }: { small?: boolean }) {
   );
 }
 
-function Section({ label, title, children }: { label: string; title: string; children: React.ReactNode }) {
+function Section({ icon, label, title, children }: { icon: IconName; label: string; title: string; children: React.ReactNode }) {
   return (
     <section className="mt-20 grid gap-6 border-t border-rule pt-16 sm:mt-28 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
       <div>
-        <p className="eyebrow">{label}</p>
+        <IconTile name={icon} />
+        <p className="eyebrow mt-5">{label}</p>
         <h2 className="display mt-3 text-3xl leading-tight sm:text-[2.6rem]">{title}</h2>
       </div>
       <div className="max-w-2xl text-lg leading-relaxed text-ink-2 lg:pt-8">{children}</div>
@@ -265,6 +321,7 @@ const HOW: Array<[string, string]> = [
 const STAGES = [
   {
     n: "Stage 1",
+    icon: "target" as IconName,
     name: "Get your story straight",
     access: "Free. No sign-in.",
     steps: [
@@ -275,6 +332,7 @@ const STAGES = [
   },
   {
     n: "Stage 2",
+    icon: "mic" as IconName,
     name: "Add interest and impact",
     access: "Free with your first story.",
     steps: [
@@ -286,12 +344,14 @@ const STAGES = [
   },
 ];
 
-const KINDS = [
-  "Project update",
-  "Strategy recommendation",
-  "Sales pitch",
-  "Choosing between options",
-  "Training session",
-  "Bad news",
-  "Something else",
+const KINDS: Array<[string, IconName]> = [
+  ["Project update", "update"],
+  ["Strategy recommendation", "strategy"],
+  ["Sales pitch", "pitch"],
+  ["Choosing between options", "options"],
+  ["Training session", "training"],
+  ["Bad news", "badnews"],
+  ["Something else", "quote"],
 ];
+
+const STEP_ICONS: IconName[] = ["notes", "questions", "acts"];

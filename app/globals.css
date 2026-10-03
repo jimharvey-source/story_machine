@@ -226,3 +226,41 @@ input:focus-visible {
 .stages li[data-done="true"] {
   color: var(--ink-2);
 }
+
+/* Icons (approved 3 October): 24px grid, 1.5px line, round ends; ink with one red accent (class r). components/Icon.tsx */
+.ic {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ic .r {
+  stroke: var(--red);
+  color: var(--red);
+}
+/* The icon on a small grey tile. */
+.tile {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--panel);
+}
+.tile-sm {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+}
+.tile-sm .ic {
+  width: 20px;
+  height: 20px;
+}
+.tile-white {
+  background: var(--paper-2);
+}
