@@ -100,9 +100,11 @@ export default async function Landing({ searchParams }: Props) {
 
         {/* 4. What you get */}
         <section className="border-t border-rule pt-16 mt-20 sm:mt-28">
-          <IconTile name="download" />
-          <p className="eyebrow mt-5">What you get</p>
+          <p className="eyebrow">What you get</p>
           <h2 className="display mt-3 max-w-3xl text-3xl leading-tight sm:text-[2.6rem]">A detailed PDF you can use at once.</h2>
+          <div className="mt-8">
+            <IconTile name="download" size="xl" />
+          </div>
           <div className="mt-10 grid gap-5 md:grid-cols-2">
             {STAGES.map((st) => (
               <div key={st.n} className="panel flex flex-col !p-7 sm:!p-9">
@@ -182,9 +184,11 @@ export default async function Landing({ searchParams }: Props) {
 
         {/* 9. What it costs */}
         <section className="mt-20 border-t border-rule pt-16 sm:mt-28">
-          <IconTile name="tag" />
-          <p className="eyebrow mt-5">What it costs</p>
+          <p className="eyebrow">What it costs</p>
           <h2 className="display mt-3 text-3xl leading-tight sm:text-[2.6rem]">Your first story is free.</h2>
+          <div className="mt-8">
+            <IconTile name="tag" size="xl" />
+          </div>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Price label="Stage 1" amount="Free" note="No sign-in, no card." />
             <Price label="Your first full story" amount="Free" note="When you sign in with your email. No password." />
@@ -284,9 +288,11 @@ function Section({ icon, label, title, children }: { icon: IconName; label: stri
   return (
     <section className="mt-20 grid gap-6 border-t border-rule pt-16 sm:mt-28 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
       <div>
-        <IconTile name={icon} />
-        <p className="eyebrow mt-5">{label}</p>
+        <p className="eyebrow">{label}</p>
         <h2 className="display mt-3 text-3xl leading-tight sm:text-[2.6rem]">{title}</h2>
+        <div className="mt-8">
+          <IconTile name={icon} size="xl" />
+        </div>
       </div>
       <div className="max-w-2xl text-lg leading-relaxed text-ink-2 lg:pt-8">{children}</div>
     </section>

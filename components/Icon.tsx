@@ -194,10 +194,10 @@ export function Icon({ name, className = "" }: { name: IconName; className?: str
   );
 }
 
-/** The icon on its small grey tile. */
-export function IconTile({ name, size = "md", white = false }: { name: IconName; size?: "sm" | "md"; white?: boolean }) {
+/** The icon on its grey tile. sm 40px, md 48px, lg 96px (guide headings), xl 144px (landing page sections). */
+export function IconTile({ name, size = "md", white = false }: { name: IconName; size?: "sm" | "md" | "lg" | "xl"; white?: boolean }) {
   return (
-    <span className={`tile ${size === "sm" ? "tile-sm" : ""} ${white ? "tile-white" : ""}`}>
+    <span className={`tile ${size === "md" ? "" : `tile-${size}`} ${white ? "tile-white" : ""}`}>
       <Icon name={name} />
     </span>
   );

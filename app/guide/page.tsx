@@ -129,7 +129,7 @@ export default function Guide() {
         </nav>
 
         <article className="min-w-0 max-w-3xl">
-          <IconTile name="book" />
+          <IconTile name="book" size="lg" />
           <p className="eyebrow mt-5">User guide</p>
           <h1 className="display mt-3 text-4xl leading-[1.05] sm:text-5xl">How to use the StoryMachine</h1>
           <div className="mt-10 space-y-5 text-[1.0625rem] leading-relaxed text-ink-2">
@@ -137,8 +137,8 @@ export default function Guide() {
               switch (b.t) {
                 case "h2":
                   return (
-                    <h2 key={i} id={slug(b.text)} className="display !mt-14 flex scroll-mt-8 items-center gap-4 border-t border-rule pt-10 text-2xl text-ink sm:text-3xl">
-                      <IconTile name={iconFor(b.text)} />
+                    <h2 key={i} id={slug(b.text)} className="display !mt-14 flex scroll-mt-8 items-center gap-5 border-t border-rule pt-10 text-2xl text-ink sm:text-3xl">
+                      <IconTile name={iconFor(b.text)} size="lg" />
                       <span>{b.text}</span>
                     </h2>
                   );
