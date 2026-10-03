@@ -76,7 +76,7 @@ export function SignIn({ compact, title, body, next, programme }: { compact?: bo
       setError("That code did not work. Use the newest email, or send a new code. Each code works once, for an hour.");
       return;
     }
-    window.location.assign(next ?? "/");
+    window.location.assign(next ?? "/build");
   }
 
   async function send(e: React.FormEvent) {
@@ -89,7 +89,7 @@ export function SignIn({ compact, title, body, next, programme }: { compact?: bo
       const sb = supabaseBrowser();
       const { error } = await sb.auth.signInWithOtp({
         email: v,
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next ?? "/")}` },
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next ?? "/build")}` },
       });
       if (error) throw error;
       setSent(true);

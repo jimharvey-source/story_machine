@@ -95,7 +95,7 @@ export function Welcome({ invitation }: { invitation: Invitation }) {
         <p className="mt-5 text-lg text-ink-2">This invitation has closed.</p>
         <p className="mt-2 text-ink-2">Already joined? Sign in and your stories are waiting.</p>
         <div className="mt-8">
-          <DoorSignIn next="/" />
+          <DoorSignIn next="/build" />
         </div>
         <p className="mt-8 text-sm text-ink-2">Expected to get in? Email <Mail />.</p>
       </Shell>
@@ -120,7 +120,7 @@ function OpenWelcome({ invitation }: { invitation: Extract<Invitation, { status:
             {storiesInWords(invitation.stories)} waiting for you{invitation.until ? `, free until ${invitation.until}` : ", free"}.
           </p>
           <div className="mt-8">
-            <DoorSignIn programme={invitation.code} next="/?joined=1" />
+            <DoorSignIn programme={invitation.code} next="/build?joined=1" />
           </div>
         </section>
         <Steps />
@@ -215,7 +215,7 @@ function DoorSignIn({ programme, next }: { programme?: string; next: string }) {
         {error && (
           <>
             <p className="mt-3 text-sm text-red">{error}</p>
-            <Link href="/" className="mt-4 inline-block text-ink underline decoration-rule underline-offset-4">Carry on to the StoryMachine</Link>
+            <Link href="/build" className="mt-4 inline-block text-ink underline decoration-rule underline-offset-4">Carry on to the StoryMachine</Link>
           </>
         )}
       </div>

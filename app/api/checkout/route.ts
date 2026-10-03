@@ -32,8 +32,8 @@ export async function POST(req: Request) {
       customer,
       line_items: [{ price: priceId(plan), quantity: 1 }],
       allow_promotion_codes: true,
-      success_url: `${base}/?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${base}/?checkout=cancelled`,
+      success_url: `${base}/build?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${base}/build?checkout=cancelled`,
       metadata,
       ...(plan === "monthly"
         ? { subscription_data: { metadata } }

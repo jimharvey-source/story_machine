@@ -23,6 +23,7 @@ export function SiteFooter() {
   return (
     <footer className="mx-auto mt-auto w-full max-w-3xl px-5 lg:max-w-5xl lg:px-10 2xl:max-w-6xl pb-10 pt-6 text-xs text-muted">
       <nav className="flex flex-wrap gap-x-5 gap-y-1">
+        <Link href="/guide" className="hover:text-ink">User guide</Link>
         <Link href="/terms" className="hover:text-ink">Terms</Link>
         <Link href="/privacy" className="hover:text-ink">Privacy</Link>
         <Link href="/refunds" className="hover:text-ink">Refunds</Link>

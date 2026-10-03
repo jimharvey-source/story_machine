@@ -12,10 +12,10 @@ export async function JoinView({ invitation }: { invitation: Invitation }) {
   if (p && (invitation.status === "open" || invitation.status === "closed")) {
     if (invitation.status === "open") {
       const r = await redeemFor(p.id, invitation.code);
-      if (!r.ok && !r.already) redirect(`/?joinerror=${r.throttled ? "throttled" : "failed"}`);
-      redirect("/?joined=1");
+      if (!r.ok && !r.already) redirect(`/build?joinerror=${r.throttled ? "throttled" : "failed"}`);
+      redirect("/build?joined=1");
     }
-    redirect("/");
+    redirect("/build");
   }
   return <Welcome invitation={invitation} />;
 }
