@@ -1,17 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  --paper: #faf8f3;
+  /* Jim Harvey's StoryMachine design system (approved 3 October 2026). Names kept from the first look so the
+     Tailwind classes still work: paper = canvas, paper-2 = surface, panel = surface-sunk, red = signal. */
+  --paper: #f5f4f2;
   --paper-2: #ffffff;
-  --ink: #16140f;
-  --ink-2: #3d3a33;
-  --muted: #7a766c;
-  --rule: #e6e2d8;
+  --ink: #161513;
+  --ink-2: #45433f;
+  --muted: #6a6761;
+  --rule: #e3e1dd;
   --red: #b3261e;
-  --red-soft: #f6e4e2;
-  --panel: #f3efe6;
-  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
-  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --red-soft: #f7e8e6;
+  --panel: #efeeeb;
+  /* The programme's own colour. Ink until a programme sets one: it then shows only in the top bar and the lockup rule. */
+  --client: var(--ink);
+  --font-display: "Instrument Sans", -apple-system, "SF Pro Text", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-body: "Instrument Sans", -apple-system, "SF Pro Text", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-spoken: "Fraunces", "Iowan Old Style", Georgia, serif;
   --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
 }
 
@@ -26,8 +31,12 @@
   --color-red-soft: var(--red-soft);
   --color-panel: var(--panel);
   --font-display: var(--font-display);
+  --font-spoken: var(--font-spoken);
+  --color-client: var(--client);
   --font-body: var(--font-body);
   --font-mono: var(--font-mono);
+  /* Fields, buttons and blocks: 10px corners. */
+  --radius-md: 10px;
 }
 
 html {
@@ -42,19 +51,39 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Headlines: the machine's structure, in the sans. */
 .display {
   font-family: var(--font-display);
-  font-variation-settings: "opsz" 96, "SOFT" 30, "WONK" 0;
-  font-weight: 500;
-  letter-spacing: -0.015em;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
 }
 
+/* Words the presenter says aloud: Big Idea, soundbites, five lines, cues. The one rule of the look. */
+.said {
+  font-family: var(--font-spoken);
+  font-variation-settings: "SOFT" 0, "WONK" 0;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* Section labels: sentence case, quiet. */
 .eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   color: var(--muted);
+}
+
+/* Small tags inside a section (act numbers, slide numbers, cue groups). */
+.tag {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 /* Spoken sections: words the presenter says aloud. Set as script. */
@@ -62,8 +91,9 @@ body {
   position: relative;
   /* Spoken words read best at about seventy characters a line, however wide the screen. */
   max-width: 46rem;
-  font-family: var(--font-display);
-  font-variation-settings: "opsz" 18, "SOFT" 50, "WONK" 1;
+  font-family: var(--font-spoken);
+  font-variation-settings: "SOFT" 0, "WONK" 0;
+  font-optical-sizing: auto;
   font-weight: 400;
   font-size: 1.2rem;
   line-height: 1.6;
@@ -75,15 +105,16 @@ body {
   position: absolute;
   left: 0;
   top: -0.35rem;
-  font-size: 2.4rem;
+  font-size: 2.6rem;
   line-height: 1;
+  font-weight: 700;
+  font-variation-settings: "SOFT" 100, "WONK" 0;
   color: var(--red);
-  opacity: 0.85;
 }
 
 /* Editable fields: quiet until hovered or focused. */
 .editable {
-  border-radius: 4px;
+  border-radius: 6px;
   outline: 1px solid transparent;
   outline-offset: 4px;
   transition: outline-color 120ms ease, background-color 120ms ease;
@@ -147,21 +178,51 @@ input:focus-visible {
   outline-offset: 2px;
 }
 
-/* The working area: the tool itself sits in a panel, so it reads as an app inside the page. */
+/* The working area: the tool sits on white in one raised panel, so it reads as an app inside the page. */
 .panel {
-  background: var(--panel);
-  border: 1px solid var(--rule);
-  border-radius: 14px;
+  background: var(--paper-2);
+  border-radius: 22px;
   padding: 1.5rem;
-  box-shadow: 0 1px 0 rgba(22, 20, 15, 0.04), 0 12px 32px -20px rgba(22, 20, 15, 0.25);
+  box-shadow: 0 1px 2px rgba(22, 21, 19, 0.04), 0 18px 44px -28px rgba(22, 21, 19, 0.28);
 }
 @media (min-width: 640px) {
   .panel {
-    padding: 2.25rem;
+    padding: 3rem;
   }
 }
 .panel textarea,
 .panel input[type="email"],
 .panel input:not([type]) {
   background: var(--paper-2);
+}
+
+/* The stage tracker: two stages in a segmented pill. */
+.stages {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  background: var(--panel);
+  border-radius: 999px;
+  list-style: none;
+  margin: 0;
+}
+.stages li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.stages li[aria-current="step"] {
+  background: var(--paper-2);
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgba(22, 21, 19, 0.08);
+}
+.stages li[data-done="true"] {
+  color: var(--ink-2);
 }

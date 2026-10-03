@@ -36,7 +36,7 @@ export function StoriesPanel({ onOpen, onClose, currentId }: { onOpen: (id: stri
             <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
               <button type="button" onClick={() => onOpen(s.id)} className={"text-left hover:underline " + (s.id === currentId ? "font-medium" : "")}>
                 {s.title}
-                <span className="ml-2 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-muted">
+                <span className="ml-2 tag text-muted">
                   {s.landed ? "stages 1 and 2" : "stage 1"} · {new Date(s.updatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                 </span>
               </button>

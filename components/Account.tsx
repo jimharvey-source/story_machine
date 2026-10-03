@@ -231,7 +231,7 @@ export function AccountBar({ me, onChange, onOpenStories, onUpgrade }: { me: Me;
   if (!me.signedIn) return null;
   const line = planLine(me);
   return (
-    <div className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-rule pb-4 font-mono text-[0.7rem] uppercase tracking-[0.12em] text-muted">
+    <div className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-rule pb-4 text-sm text-muted">
       <span className="normal-case tracking-normal font-body text-sm text-ink">{me.email}</span>
       <span className={me.unlimited || me.programme ? "text-red" : ""}>{line}</span>
       {onUpgrade && needsUpgrade(me) && (

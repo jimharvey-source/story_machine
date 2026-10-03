@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { LEGAL } from "@/lib/legal";
+import { Lockup } from "@/components/Logo";
 
 export function LegalPage({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <main className="mx-auto w-full max-w-3xl px-5 lg:max-w-5xl lg:px-10 2xl:max-w-6xl pb-24 pt-10 sm:pt-16">
-      <p className="eyebrow">
-        <Link href="/" className="hover:text-ink">Jim Harvey&apos;s StoryMachine</Link>
-      </p>
-      <h1 className="display mt-3 text-4xl leading-[1.05]">{title}</h1>
+      <Lockup />
+      <h1 className="display mt-8 text-4xl leading-[1.05]">{title}</h1>
       <p className="mt-2 text-sm text-muted">Last updated {LEGAL.updated}</p>
       <div className="legal mt-8 max-w-3xl space-y-4 text-ink-2 leading-relaxed [&_h2]:display [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:text-ink [&_a]:underline [&_a]:decoration-rule [&_a]:underline-offset-4 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5">
         {children}

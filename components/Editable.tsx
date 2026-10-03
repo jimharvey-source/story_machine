@@ -110,7 +110,7 @@ export function Editable({ value, onChange, onAction, className = "", as = "p", 
               type="button"
               disabled={busy}
               onClick={() => onAction(a.key)}
-              className="rounded-full border border-rule bg-paper-2 px-2.5 py-0.5 font-mono text-[0.68rem] uppercase tracking-[0.12em] text-muted hover:border-ink hover:text-ink disabled:opacity-40"
+              className="rounded-full border border-rule bg-paper-2 px-3 py-1 text-[0.8rem] font-medium text-ink-2 hover:border-ink hover:text-ink disabled:opacity-40"
             >
               {a.label}
             </button>
@@ -156,7 +156,7 @@ export function EditableList({ items, onChange, onAction, busy }: ListProps) {
                 type="button"
                 disabled={busy}
                 onClick={() => onAction(k)}
-                className="rounded-full border border-rule bg-paper-2 px-2.5 py-0.5 font-mono text-[0.68rem] uppercase tracking-[0.12em] text-muted hover:border-ink hover:text-ink disabled:opacity-40"
+                className="rounded-full border border-rule bg-paper-2 px-3 py-1 text-[0.8rem] font-medium text-ink-2 hover:border-ink hover:text-ink disabled:opacity-40"
               >
                 {a.label}
               </button>

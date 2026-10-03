@@ -6,6 +6,7 @@ import { supabaseBrowser } from "@/lib/supabase/browser";
 import { clearPendingProgramme, savePendingProgramme } from "@/lib/pendingProgramme";
 import { LEGAL } from "@/lib/legal";
 import type { Invitation } from "@/lib/join";
+import { Lockup } from "@/components/Logo";
 
 // The welcome page for programme participants and trialists. Sign in once, at the door, and never be
 // interrupted again. The code is the welcome; the email is the key to come back.
@@ -25,14 +26,45 @@ function Mail() {
   );
 }
 
-function Shell({ children }: { children: React.ReactNode }) {
+function Shell({ children, wide = false }: { children: React.ReactNode; wide?: boolean }) {
   return (
-    <main className="mx-auto w-full max-w-xl px-5 pb-24 pt-12 sm:pt-20">
-      <p className="eyebrow">
-        <Link href="/" className="hover:text-ink">Jim Harvey&apos;s StoryMachine</Link>
-      </p>
-      {children}
-    </main>
+    <>
+      {/* The programme's colour bar. Ink until a programme sets its own colour. */}
+      <div className="h-1 w-full bg-client" aria-hidden="true" />
+      <main className={"mx-auto w-full px-5 pb-24 pt-6 " + (wide ? "max-w-6xl lg:px-10" : "max-w-xl")}>
+        <header className="flex flex-wrap items-center justify-between gap-4">
+          <Lockup />
+          <span className="text-sm text-muted">Beta</span>
+        </header>
+        <div className={wide ? "pt-12 sm:pt-20" : "pt-12 sm:pt-16"}>{children}</div>
+      </main>
+    </>
+  );
+}
+
+/** What happens next, from Jim's invitation email. */
+const STEPS: Array<[string, string]> = [
+  ["Get your story straight", "Paste your notes or an old deck. Find the Big Idea, three acts and the gaps."],
+  ["Add interest and impact", "A Prologue and Epilogue, headlines, signposts and soundbites, with suggestions from Jim."],
+  ["Take it with you", "The story as PDF or Word. Draft slides as PowerPoint, ready for your company template."],
+];
+
+function Steps() {
+  return (
+    <aside className="lg:pt-14">
+      <p className="eyebrow mb-4">In under thirty minutes</p>
+      <ol className="border-b border-rule">
+        {STEPS.map(([head, sub], i) => (
+          <li key={head} className="grid grid-cols-[2.5rem_1fr] gap-3 border-t border-rule py-5">
+            <span className="text-[0.95rem] font-semibold text-red">{i + 1}</span>
+            <span>
+              <span className="block text-[1.05rem] font-semibold text-ink">{head}</span>
+              <span className="mt-1 block text-[0.95rem] leading-relaxed text-ink-2">{sub}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
+    </aside>
   );
 }
 
@@ -40,7 +72,7 @@ export function Welcome({ invitation }: { invitation: Invitation }) {
   if (invitation.status === "unknown") {
     return (
       <Shell>
-        <h1 className="display mt-4 text-4xl leading-[1.05] sm:text-5xl">We do not recognise that address.</h1>
+        <h1 className="display text-4xl leading-[1.05] sm:text-5xl">We do not recognise that address.</h1>
         <p className="mt-5 text-lg text-ink-2">Check the link you were given. If it still does not work, email <Mail />.</p>
         <p className="mt-8">
           <Link href="/" className="text-ink underline decoration-rule underline-offset-4">Go to Jim Harvey&apos;s StoryMachine</Link>
@@ -51,7 +83,7 @@ export function Welcome({ invitation }: { invitation: Invitation }) {
   if (invitation.status === "throttled") {
     return (
       <Shell>
-        <h1 className="display mt-4 text-4xl leading-[1.05] sm:text-5xl">Too many addresses that did not work.</h1>
+        <h1 className="display text-4xl leading-[1.05] sm:text-5xl">Too many addresses that did not work.</h1>
         <p className="mt-5 text-lg text-ink-2">Wait an hour and try the link again, or email <Mail />.</p>
       </Shell>
     );
@@ -59,7 +91,7 @@ export function Welcome({ invitation }: { invitation: Invitation }) {
   if (invitation.status === "closed") {
     return (
       <Shell>
-        <h1 className="display mt-4 text-4xl leading-[1.05] sm:text-5xl">{invitation.greeting}</h1>
+        <h1 className="display text-4xl leading-[1.05] sm:text-5xl">{invitation.greeting}</h1>
         <p className="mt-5 text-lg text-ink-2">This invitation has closed.</p>
         <p className="mt-2 text-ink-2">Already joined? Sign in and your stories are waiting.</p>
         <div className="mt-8">
@@ -79,13 +111,19 @@ function OpenWelcome({ invitation }: { invitation: Extract<Invitation, { status:
   }, [invitation.code]);
 
   return (
-    <Shell>
-      <h1 className="display mt-4 text-4xl leading-[1.05] sm:text-5xl">{invitation.greeting}</h1>
-      <p className="mt-5 text-lg text-ink-2">
-        {storiesInWords(invitation.stories)} waiting for you{invitation.until ? `, free until ${invitation.until}` : ", free"}.
-      </p>
-      <div className="mt-8">
-        <DoorSignIn programme={invitation.code} next="/?joined=1" />
+    <Shell wide>
+      <div className="grid items-start gap-16 lg:grid-cols-2">
+        <section className="max-w-xl">
+          <p className="eyebrow">Your invitation</p>
+          <h1 className="display mt-4 text-[2.5rem] leading-[1.05] tracking-[-0.035em] sm:text-6xl sm:leading-none">{invitation.greeting}</h1>
+          <p className="mt-6 text-lg text-ink-2 sm:text-xl">
+            {storiesInWords(invitation.stories)} waiting for you{invitation.until ? `, free until ${invitation.until}` : ", free"}.
+          </p>
+          <div className="mt-8">
+            <DoorSignIn programme={invitation.code} next="/?joined=1" />
+          </div>
+        </section>
+        <Steps />
       </div>
     </Shell>
   );

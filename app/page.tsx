@@ -7,6 +7,7 @@ import { Refine, type ChatMessage } from "@/components/Refine";
 import { AccountBar, Paywall, PRICES, SignIn, type Me } from "@/components/Account";
 import { clearPendingProgramme, normaliseCode, readPendingProgramme, savePendingProgramme } from "@/lib/pendingProgramme";
 import { StoriesPanel } from "@/components/Stories";
+import { Lockup } from "@/components/Logo";
 import { Pack } from "@/components/Pack";
 import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "@/lib/ownIt";
 import { KIND_KEYS, KINDS, kindOf, type Kind } from "@/lib/kinds";
@@ -125,12 +126,12 @@ function Method() {
         {STAGES.map((st) => (
           <li key={st.n} className="flex flex-col overflow-hidden rounded-md border border-rule bg-paper-2">
             <div className="flex-1 p-5">
-              <p className="font-mono text-[0.7rem] uppercase tracking-[0.12em] text-red">{st.n}</p>
+              <p className="tag text-red">{st.n}</p>
               <p className="display mt-1 text-xl">{st.name}</p>
               <ol className="mt-4 space-y-3">
                 {st.steps.map(([head, sub], i) => (
                   <li key={head} className="grid grid-cols-[1.5rem_1fr] gap-2">
-                    <span className="font-mono text-[0.7rem] leading-6 text-muted">{i + 1}</span>
+                    <span className="tag leading-6 text-muted">{i + 1}</span>
                     <span>
                       <span className="block font-medium text-ink">{head}</span>
                       <span className="block text-sm text-ink-2">{sub}</span>
@@ -140,7 +141,7 @@ function Method() {
               </ol>
             </div>
             <div className={"border-t p-4 " + (st.tone === "free" ? "border-rule bg-paper" : "border-ink bg-ink text-paper")}>
-              <p className={"font-mono text-[0.7rem] uppercase tracking-[0.12em] " + (st.tone === "free" ? "text-red" : "text-paper/70")}>
+              <p className={"tag " + (st.tone === "free" ? "text-red" : "text-paper/70")}>
                 {st.tone === "free" ? "Free" : "Sign in"}
               </p>
               <p className="mt-1 font-medium">{st.access}</p>
@@ -160,7 +161,7 @@ function Intro() {
   return (
     <div className="mb-12 space-y-12">
       <div>
-        <h1 className="display mt-3 text-4xl leading-[1.05] sm:text-6xl">Start with the story, not with the slides.</h1>
+        <h1 className="display mt-10 text-4xl leading-[1.05] tracking-[-0.035em] sm:mt-16 sm:text-6xl sm:leading-none">Start with the story, not with the slides.</h1>
         <p className="mt-5 max-w-xl text-lg text-ink-2">
           You have a big presentation to make. The audience is tough, and the subject is complex. After thirty years
           of helping the biggest businesses do this, my advice is: start with the story, not the slides.
@@ -229,7 +230,7 @@ function Prices() {
       <p className="eyebrow">To continue using the tool</p>
       <div className="mt-4 grid gap-4 sm:grid-cols-3">
         {(["story", "monthly", "lifetime"] as const).map((k) => (
-          <div key={k} className={"rounded-md border p-4 " + (k === "lifetime" ? "border-ink" : "border-rule")}>
+          <div key={k} className={"rounded-md border bg-paper-2 p-5 " + (k === "lifetime" ? "border-ink" : "border-rule")}>
             <span className="eyebrow">{PRICES[k].label}</span>
             <span className="display mt-1 block text-3xl">{PRICES[k].price}</span>
             <span className="mt-2 block text-sm text-muted">{PRICES[k].note}</span>
@@ -778,8 +779,8 @@ export default function Home() {
   return (
     <main className="mx-auto w-full max-w-3xl px-5 pb-24 pt-10 sm:pt-16 lg:max-w-5xl lg:px-10 2xl:max-w-6xl">
       <header className={story ? "mb-10" : "mb-6"}>
-        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-          <p className="eyebrow">Jim Harvey&apos;s StoryMachine</p>
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <Lockup />
           {me && !me.signedIn && (
             <button
               type="button"
@@ -1007,12 +1008,12 @@ export default function Home() {
 
       {story && (
         <article className="panel rise space-y-14">
-          <ol className="flex flex-wrap gap-x-6 gap-y-1 font-mono text-[0.7rem] uppercase tracking-[0.12em]">
-            <li className="text-ink">
-              <span className="text-red">1</span> Get your story straight <span className="text-red">&#10003;</span>
+          <ol className="stages">
+            <li data-done="true" aria-current={landing ? undefined : "step"}>
+              <span className="font-semibold text-red">1</span> Get your story straight <span className="text-red">&#10003;</span>
             </li>
-            <li className={landing ? "text-ink" : "text-muted"}>
-              <span className="text-red">2</span> Add interest and impact {landing && <span className="text-red">&#10003;</span>}
+            <li aria-current={landing ? "step" : undefined}>
+              <span className="font-semibold text-red">2</span> Add interest and impact {landing && <span className="text-red">&#10003;</span>}
             </li>
           </ol>
           <section>
@@ -1024,7 +1025,7 @@ export default function Home() {
               busy={busy === "bigIdea"}
               onChange={(v) => applyPath("bigIdea", v)}
               onAction={chips("bigIdea", story.bigIdea)}
-              className="display mt-3 text-4xl leading-[1.08] sm:text-5xl"
+              className="said mt-3 text-4xl leading-[1.08] sm:text-5xl"
               label="Big Idea"
             />
             <p className="mt-4 text-sm text-muted">
@@ -1197,7 +1198,7 @@ export default function Home() {
                         act.soundbite.text,
                       )}
                       actions={["sharper", "memorable", "another"]}
-                      className="display mt-1 text-xl"
+                      className="said mt-1 text-xl"
                     />
                   </div>
                   <EditableList
@@ -1212,7 +1213,7 @@ export default function Home() {
                     )}
                   />
                   {land && (
-                    <div className="grid gap-5 rounded-md bg-paper-2 p-5 sm:grid-cols-2">
+                    <div className="grid gap-5 rounded-md bg-panel p-5 sm:grid-cols-2">
                       <div>
                         <p className="eyebrow">Signpost &middot; spoken</p>
                         <Why>One spoken sentence that tells the room the important idea has arrived.</Why>
@@ -1289,7 +1290,7 @@ export default function Home() {
                   />
                 </div>
               </section>
-              <section className="rounded-md border border-rule bg-paper-2 p-6 sm:p-8">
+              <section className="rounded-md bg-panel p-6 sm:p-8">
                 <p className="eyebrow">The story in five lines</p>
                 <Why>The whole talk in thirty seconds. If it works here, it works in the room.</Why>
                 <ol className="mt-4 space-y-3">
@@ -1307,7 +1308,7 @@ export default function Home() {
                         onChange={(v) =>
                           applyPath(`landing.fiveLineStory.${k}`, v)
                         }
-                        className="display text-lg"
+                        className="said text-lg"
                       />
                     </li>
                   ))}
@@ -1318,9 +1319,9 @@ export default function Home() {
           )}
 
           {story && (
-            <section className="rounded-md border border-red bg-red-soft px-5 py-6 sm:px-7">
+            <section className="rounded-md bg-red-soft px-5 py-6 sm:px-8 sm:py-8">
               <p className="eyebrow text-red">{OWN_IT_TITLE}</p>
-              <p className="mt-2 font-display text-xl leading-snug text-ink">{OWN_IT_LEAD}</p>
+              <p className="said mt-2 text-xl leading-snug text-ink">{OWN_IT_LEAD}</p>
               <ul className="mt-4 space-y-3 text-ink-2">
                 {[...gaps, ...ownItAdvice(story, landing)].map((g, i) => (
                   <li key={i} className="border-l-2 border-red pl-4">
@@ -1418,7 +1419,7 @@ export default function Home() {
               </a>
             )}
             {saveState !== "idle" && (
-              <span className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-muted">
+              <span className="text-xs text-muted">
                 {saveState === "saving"
                   ? "Saving"
                   : saveState === "saved"

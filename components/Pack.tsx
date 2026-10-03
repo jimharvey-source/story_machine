@@ -54,12 +54,12 @@ export function Pack({ story, landing }: { story: Story; landing: Landing }) {
           <div className="grid gap-6 sm:grid-cols-2">
             {beats.map(([name, cues, sub]) => (
               <div key={name}>
-                <p className="font-mono text-[0.7rem] uppercase tracking-[0.12em] text-red">
+                <p className="tag text-red">
                   {name} <span className="ml-1 normal-case tracking-normal text-muted">{sub}</span>
                 </p>
                 <ul className="mt-2 space-y-1.5">
                   {cues.map((c, i) => (
-                    <li key={i} className="display border-l-2 border-red pl-3 text-lg leading-snug">
+                    <li key={i} className="said border-l-2 border-red pl-3 text-lg leading-snug">
                       {c}
                     </li>
                   ))}
@@ -84,8 +84,8 @@ export function Pack({ story, landing }: { story: Story; landing: Landing }) {
           <div className="mt-4 space-y-5">
             {script.map(([name, text]) => (
               <div key={name}>
-                <p className="font-mono text-[0.7rem] uppercase tracking-[0.12em] text-red">{name}</p>
-                <p className="display mt-1 text-lg leading-[1.7]">{text}</p>
+                <p className="tag text-red">{name}</p>
+                <p className="said mt-1 text-lg leading-[1.7]">{text}</p>
               </div>
             ))}
           </div>
@@ -97,8 +97,8 @@ export function Pack({ story, landing }: { story: Story; landing: Landing }) {
         <Why>One idea per slide. The words carry the story; the slide reinforces it. Build the deck from this list, in this order, and nothing else goes on the slide.</Why>
         <ol className="space-y-3">
           {slides.map(([name, text, serves], i) => (
-            <li key={i} className="rounded-md bg-paper-2 p-4">
-              <p className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-muted">
+            <li key={i} className="rounded-md bg-panel p-4">
+              <p className="tag text-muted">
                 Slide {i + 1} · {name} · serves {serves}
               </p>
               <p className="mt-1 text-ink-2">{text}</p>
@@ -111,7 +111,7 @@ export function Pack({ story, landing }: { story: Story; landing: Landing }) {
         <p className="eyebrow">Make the slides with your own AI tool</p>
         <Why>Copy this prompt into the AI tool you use for slides. It carries our rules and your brief: one idea per slide, the three-second rule, one item at a time, television quality. Add the build animations in your slide software afterwards.</Why>
         <div className="relative">
-          <pre className="max-h-80 overflow-auto whitespace-pre-wrap rounded-md border border-rule bg-paper-2 p-4 font-mono text-[0.75rem] leading-relaxed text-ink-2">
+          <pre className="max-h-80 overflow-auto whitespace-pre-wrap rounded-md bg-panel p-4 font-mono text-[0.75rem] leading-relaxed text-ink-2">
             {prompt}
           </pre>
           <button
