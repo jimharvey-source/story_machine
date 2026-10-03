@@ -3,7 +3,7 @@
 
 import type { Landing, Story } from "./schema";
 
-export const OWN_IT_TITLE = "Make it your own";
+export const OWN_IT_TITLE = "Make it your own: Jim's suggestions";
 export const OWN_IT_LEAD =
   "The StoryMachine gives you the structure and a first draft. An audience believes a speaker who sounds like themselves, so this part is yours. Do these before you rehearse.";
 
