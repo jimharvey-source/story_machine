@@ -68,7 +68,7 @@ function Steps() {
   );
 }
 
-export function Welcome({ invitation }: { invitation: Invitation }) {
+export function Welcome({ invitation, tour }: { invitation: Invitation; tour?: React.ReactNode }) {
   if (invitation.status === "unknown") {
     return (
       <Shell>
@@ -101,10 +101,10 @@ export function Welcome({ invitation }: { invitation: Invitation }) {
       </Shell>
     );
   }
-  return <OpenWelcome invitation={invitation} />;
+  return <OpenWelcome invitation={invitation} tour={tour} />;
 }
 
-function OpenWelcome({ invitation }: { invitation: Extract<Invitation, { status: "open" }> }) {
+function OpenWelcome({ invitation, tour }: { invitation: Extract<Invitation, { status: "open" }>; tour?: React.ReactNode }) {
   // Keep the code in this browser too, so it survives a wander to the home page before signing in.
   useEffect(() => {
     savePendingProgramme(invitation.code);
@@ -113,7 +113,7 @@ function OpenWelcome({ invitation }: { invitation: Extract<Invitation, { status:
   return (
     <Shell wide>
       <div className="grid items-start gap-16 lg:grid-cols-2">
-        <section className="max-w-xl">
+        <section id="signin" className="max-w-xl scroll-mt-8">
           <p className="eyebrow">Your invitation</p>
           <h1 className="display mt-4 text-[2.5rem] leading-[1.05] tracking-[-0.035em] sm:text-6xl sm:leading-none">{invitation.greeting}</h1>
           <p className="mt-6 text-lg text-ink-2 sm:text-xl">
@@ -122,9 +122,37 @@ function OpenWelcome({ invitation }: { invitation: Extract<Invitation, { status:
           <div className="mt-8">
             <DoorSignIn programme={invitation.code} next="/build?joined=1" />
           </div>
+          {tour && (
+            <p className="mt-5 text-sm text-ink-2">
+              New to the StoryMachine?{" "}
+              <a href="#how" className="underline decoration-rule underline-offset-4 hover:text-ink">See how it works</a>, or read the{" "}
+              <Link href="/guide" className="underline decoration-rule underline-offset-4 hover:text-ink">user guide</Link>.
+            </p>
+          )}
         </section>
         <Steps />
       </div>
+      {tour && (
+        <>
+          <div id="how" className="scroll-mt-8">{tour}</div>
+          {/* The close: back to the door. */}
+          <section className="panel mt-20 !p-8 sm:mt-28 sm:!p-14">
+            <h2 className="display max-w-2xl text-3xl leading-tight sm:text-[2.6rem]">Try it on the presentation you are worried about.</h2>
+            <p className="mt-4 text-lg text-ink-2">
+              {storiesInWords(invitation.stories)} waiting for you{invitation.until ? `, free until ${invitation.until}` : ", free"}.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+              <a href="#signin" className="inline-flex items-center justify-center rounded-md bg-ink px-7 py-3.5 text-base font-medium text-paper hover:opacity-90">
+                Sign in to start
+              </a>
+              <p className="text-sm text-muted">
+                Questions? Read the{" "}
+                <Link href="/guide" className="underline decoration-rule underline-offset-4 hover:text-ink">user guide</Link> or email <Mail />.
+              </p>
+            </div>
+          </section>
+        </>
+      )}
     </Shell>
   );
 }
