@@ -10,18 +10,18 @@ export function Tour({ programme = false }: { programme?: boolean }) {
         {/* 2. The problem */}
         <Section icon="backwards" label="The problem" title="Most presentations are built backwards.">
           <p>
-            Most people open PowerPoint first. They gather old slides, add new ones, and hope an argument appears. The
+            Most people open PowerPoint first. They gather old slides, add new ones, and hope a story appears. The
             audience leaves with plenty of information and no message.
           </p>
           <div className="my-8 space-y-4 border-l-2 border-red pl-6">
             <p className="said text-2xl leading-snug text-ink sm:text-[1.7rem]">
-              Presentation skills training is repainting the Titanic after it has hit the iceberg.
+              Presentation skills training alone is like repainting the Titanic after it has hit the iceberg. The story is the problem.
             </p>
-            <p className="said text-2xl leading-snug text-ink sm:text-[1.7rem]">When has a great actor saved a terrible script?</p>
+            <p className="said text-2xl leading-snug text-ink sm:text-[1.7rem]">When has a great actor saved a terrible script? Never.</p>
           </div>
           <p>
-            The fix is to decide what you are saying, and to whom, before you build a single slide. That is what the
-            StoryMachine does with you.
+            The long-term fix is to decide what you are saying, and to whom, before you build a single slide. That is
+            what the StoryMachine does.
           </p>
         </Section>
 

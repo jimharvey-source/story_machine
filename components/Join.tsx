@@ -42,19 +42,35 @@ function Shell({ children, wide = false }: { children: React.ReactNode; wide?: b
   );
 }
 
-/** What happens next, from Jim's invitation email. */
+/** What happens next, from Jim's invitation email. Givaudan's page keeps these words. */
 const STEPS: Array<[string, string]> = [
   ["Get your story straight", "Paste your notes or an old deck. Find the Big Idea, three acts and the gaps."],
   ["Add interest and impact", "A Prologue and Epilogue, headlines, signposts and soundbites, with suggestions from Jim."],
   ["Take it with you", "The story as PDF or Word. Draft slides as PowerPoint, ready for your company template."],
 ];
 
-function Steps() {
+/** Jim's fuller version (4 October), on every welcome page that carries the tour. */
+const STEPS_TOUR: Array<[string, string]> = [
+  [
+    "Get your story straight",
+    "Paste your notes or upload an old deck. Answer two simple questions then let StoryMachine find your Big Idea, your three-act story and any gaps that need filling.",
+  ],
+  [
+    "Add interest and impact",
+    "A strong start (Prologue) and a clear, confident ending (Epilogue), memorable headlines, key message signposts and quotable soundbites, with suggestions from Jim along the way to help you make your point with even more impact.",
+  ],
+  [
+    "Take it with you",
+    "Download the story as PDF or Word documents to share. Draft slides as PowerPoint, ready for your company template. Or a detailed AI slide design prompt.",
+  ],
+];
+
+function Steps({ full = false }: { full?: boolean }) {
   return (
     <aside className="lg:pt-14">
       <p className="eyebrow mb-4">In under thirty minutes</p>
       <ol className="border-b border-rule">
-        {STEPS.map(([head, sub], i) => (
+        {(full ? STEPS_TOUR : STEPS).map(([head, sub], i) => (
           <li key={head} className="grid grid-cols-[2.5rem_1fr] gap-3 border-t border-rule py-5">
             <span className="text-[0.95rem] font-semibold text-red">{i + 1}</span>
             <span>
@@ -130,7 +146,7 @@ function OpenWelcome({ invitation, tour }: { invitation: Extract<Invitation, { s
             </p>
           )}
         </section>
-        <Steps />
+        <Steps full={Boolean(tour)} />
       </div>
       {tour && (
         <>
