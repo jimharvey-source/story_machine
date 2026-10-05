@@ -168,7 +168,8 @@ function OpenWelcome({ invitation, tour }: { invitation: Extract<Invitation, { s
 
 /**
  * Email, then the six-digit code, on one screen. The code is the main route: it works on any device and
- * survives the link scanners in corporate mail. The link in the email is the back-up.
+ * survives the link scanners in corporate mail. Since 5 October the email carries only the code: a scanner that
+ * opened the link spent the code with it (Givaudan).
  * With `programme`, the code is applied the moment sign-in succeeds, so the stories are there on arrival.
  */
 function DoorSignIn({ programme, next }: { programme?: string; next: string }) {
@@ -296,8 +297,7 @@ function DoorSignIn({ programme, next }: { programme?: string; next: string }) {
         </form>
         {error && <p className="mt-3 text-sm text-red">{error}</p>}
         <p className="mt-5 text-sm text-ink-2">
-          Nothing after a minute? Look in junk or spam. Work email can take a few minutes. The email also carries a link:
-          tap it and you are signed in on that device.
+          Nothing after a minute? Look in junk or spam. Work email can take a few minutes.
         </p>
         <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted">
           <button type="button" onClick={() => send()} disabled={busy} className="underline decoration-rule underline-offset-4 hover:text-ink disabled:opacity-40">

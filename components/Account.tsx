@@ -58,8 +58,8 @@ export function SignIn({ compact, title, body, next, programme }: { compact?: bo
   const [code, setCode] = useState("");
   const [checking, setChecking] = useState(false);
 
-  // The email carries a code as well as a link. Typing the code signs in this browser, whatever device
-  // the email was read on, and whatever the mail app did to the link.
+  // The email carries only a code (since 5 October: mail scanners that opened the link spent the code too).
+  // Typing the code signs in this browser, whatever device the email was read on.
   async function verify(e: React.FormEvent) {
     e.preventDefault();
     const token = code.replace(/\s/g, "");
@@ -98,7 +98,7 @@ export function SignIn({ compact, title, body, next, programme }: { compact?: bo
       setError(
         /rate limit/i.test(msg)
           ? "Too many sign-in emails in the last hour. Wait a few minutes and try again."
-          : msg || "Could not send the link",
+          : msg || "Could not send the code",
       );
     } finally {
       setBusy(false);
@@ -110,8 +110,7 @@ export function SignIn({ compact, title, body, next, programme }: { compact?: bo
       <div className="rounded-md border border-rule bg-paper-2 p-5">
         <p className="eyebrow">Check your email</p>
         <p className="mt-2 text-ink">
-          A sign-in link and a code are on their way to <span className="font-medium">{email}</span>. Type the code
-          here, or tap the link.
+          A six-digit code is on its way to <span className="font-medium">{email}</span>. Type it here.
         </p>
         <form onSubmit={verify} className="mt-4 flex flex-wrap items-center gap-2">
           <input
@@ -141,7 +140,7 @@ export function SignIn({ compact, title, body, next, programme }: { compact?: bo
         <>
           <p className="eyebrow">{title ?? "Sign in to find your story"}</p>
           <p className="mt-2 text-ink">
-            {body ?? "Your first story is free, the whole thing. Enter your email and we send you a link. No password to remember."}
+            {body ?? "Your first story is free, the whole thing. Enter your email and we send you a six-digit code. No password to remember."}
           </p>
           {programme && (
             <p className="mt-2 rounded-md bg-red-soft px-3 py-2 text-sm text-ink">
@@ -160,7 +159,7 @@ export function SignIn({ compact, title, body, next, programme }: { compact?: bo
           className="w-64 max-w-full rounded-md border border-rule bg-paper-2 px-3 py-2.5 text-base outline-none focus:border-ink"
         />
         <button type="submit" disabled={busy} className="rounded-md bg-ink px-4 py-2.5 text-base font-medium text-paper disabled:opacity-40">
-          {busy ? "Sending..." : "Send me a link"}
+          {busy ? "Sending..." : "Send me a code"}
         </button>
       </div>
       <p className="mt-3 text-xs text-muted">

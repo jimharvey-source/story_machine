@@ -161,9 +161,9 @@ Whichever route you take, keep the titles as written. Read in order, they tell y
 
 ## Your account
 
-**Signing in.** Enter your email. We send you an email from Jim Harvey's StoryMachine with a six-digit code and a link. Type the code on the page, or tap the link. There is no password.
+**Signing in.** Enter your email. We send you an email from Jim Harvey's StoryMachine with a six-digit code. Type the code on the page. There is no password.
 
-- The code works on any device and is the most reliable route. Work email systems sometimes open links before you do, which uses them up. The code still works.
+- The code works whatever device you read the email on. Read it on your phone and type it on your laptop if you like.
 - Each code works once, for an hour. If you ask for another, use the newest email.
 - Nothing after a minute? Look in your junk folder and mark the email as safe.
 

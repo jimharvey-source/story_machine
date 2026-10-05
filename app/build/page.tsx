@@ -619,7 +619,7 @@ export default function Build() {
           <div className="mt-4">
             <SignIn
               title="Welcome back"
-              body="Enter the email you used before. We send you a code and a link. Your stories are waiting."
+              body="Enter the email you used before. We send you a six-digit code. Your stories are waiting."
               programme={programme}
             />
           </div>
@@ -1166,7 +1166,7 @@ export default function Build() {
                 next={`/build?${new URLSearchParams({ ...(me?.guestId ? { claim: me.guestId } : {}), ...(storyId ? { story: storyId } : {}), ...(programme ? { programme } : {}) }).toString()}`}
                 programme={programme}
                 title={landing ? "Sign in to download the PDF" : "Stage 2 and the PDF are free with your first story"}
-                body="Stage 2 adds interest and impact: the first minute, signposts, slide ideas, the ending, speaker notes and a slide brief. Then the whole thing as a PDF. Sign in with your email and we send you a link. No card. No password. Your story is waiting when you come back."
+                body="Stage 2 adds interest and impact: the first minute, signposts, slide ideas, the ending, speaker notes and a slide brief. Then the whole thing as a PDF. Sign in with your email and we send you a code. No card. No password. Your story is waiting when you come back."
               />
             </section>
           )}
