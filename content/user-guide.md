@@ -1,4 +1,4 @@
-## What the StoryMachine does
+## Meet the StoryMachine
 
 You have a presentation to make. You have notes, an old deck, a report or a head full of rough thinking. The StoryMachine turns that material into a story built for the people in front of you, then gives you what you need to deliver it: the words for the first and last minute, speaker notes, and a brief for your slides.
 
@@ -10,7 +10,7 @@ It works in two stages.
 
 Each part arrives with a line saying why it is there, so you learn the method while it works.
 
-## Before you start
+## Step 1: Upload or add your content
 
 Bring whatever you have. The StoryMachine works only from your material, so the more of your own thinking it has, the more the story sounds like you.
 
@@ -22,19 +22,15 @@ Good material includes:
 - an email that explains the situation;
 - a few lines on why this matters to you.
 
-Have two answers ready. Who is in the room? And what do you want them to do when you sit down?
-
-## Step 1: Put in your material
-
 **Paste** your notes into the large box, or **upload** a file: PowerPoint (.pptx), Word (.docx), PDF or plain text.
 
-Your file stays on your computer. The StoryMachine reads the words on your own machine and adds only those to the box. The file itself is never sent anywhere, so a confidential board deck stays where it belongs. There is no size limit on the file.
+Your file stays on your computer. The StoryMachine reads the words on your own machine and adds only those to the box. The file itself never leaves your computer. There is no size limit on the file.
 
 Before you go on, read what landed in the box and cut anything that belongs to a different story. The box holds up to 60,000 characters, about thirty pages of text.
 
 A scanned PDF is a picture of text, so it has no words to read. Export it again with text, or paste the text in.
 
-## Step 2: Answer two questions
+## Step 2: Answer two questions to help us understand what you want to do
 
 **Who is in the audience?** Say who they are and what matters to them. "The executive committee, who approved last year's budget and want to know what it bought" gives the StoryMachine far more to work with than "senior managers".
 
@@ -42,7 +38,9 @@ A scanned PDF is a picture of text, so it has no words to read. Export it again 
 
 Each answer can run to a short paragraph. If you leave them out, the StoryMachine works them out from your material and tells you what it assumed.
 
-## Step 3: Choose the kind of presentation
+## Step 3: Choose the presentation type
+
+*Sales pitch, training session and five more.*
 
 Every story has a Prologue, three acts and an Epilogue. What changes is the job each act does. Pick the kind of presentation you are making and the StoryMachine gives each act the right job for that room.
 
@@ -66,6 +64,8 @@ Then press **Find my story**. It takes a minute or two.
 
 ## Stage 1: Get your story straight
 
+*We build a three-act story for you.*
+
 Here is what arrives, from the top.
 
 **The Big Idea.** The one line people repeat in the corridor afterwards. It is the memorable form of your argument. If you change one thing by hand, make it this.
@@ -87,9 +87,9 @@ Here is what arrives, from the top.
 
 **The gaps.** What your material does not say and only you can supply: the example, the number, the reason this matters to you. The StoryMachine never fills a gap with something plausible. It asks.
 
-## Making the story yours
+## Make it your own
 
-Every line is editable.
+*You can add or edit every section.*
 
 **Type.** Click any line and change it. Your edits save as you go.
 
@@ -101,7 +101,11 @@ Every line is editable.
 
 Signed-in users get the quick edits and the strategist. Anyone can type.
 
+Stage 2 ends with a panel headed **Make it your own: Jim's suggestions**: the gaps in your story, followed by my advice before you rehearse.
+
 ## Stage 2: Add interest and impact
+
+*Headlines, soundbites and signposts.*
 
 When the story is right, press **Stage 2: add interest and impact**. Your first full story is free when you sign in.
 
@@ -129,41 +133,43 @@ When the story is right, press **Stage 2: add interest and impact**. Your first 
 
 The Epilogue ends on the Big Idea. If you change the Big Idea afterwards, a red panel appears above the Epilogue. Press **Rewrite the ending** and the StoryMachine rewrites the Epilogue, its line in the five lines and its speaker notes so they land on the new Big Idea. Your Prologue and your acts stay exactly as you left them.
 
-## Downloads
+## Create a set of visuals
 
-Below the story you will find three downloads.
-
-**PDF.** The whole story in one document: Stage 1, Stage 2, Jim's suggestions, speaker notes, the words in full, the slide brief, the prompt and a final page on the method. Use it to rehearse, to share with a colleague, or to keep.
-
-**Word.** The same content as an editable document.
-
-**PowerPoint.** The slide outline as a real deck. Each slide's words are in the title placeholder and its picture brief in the content placeholder, with the cue in the speaker notes. Apply your company template in PowerPoint and the slides take on its look.
-
-Every figure in the story comes from your material. Check each one against its source before you present.
-
-## Making the slides
+*In PowerPoint or using an AI tool.*
 
 The slides come last. That is the point of the method.
 
 You have three routes:
 
-1. **Open the PowerPoint download** and apply your company template.
+1. **Open the PowerPoint download** and apply your company template. Each slide's words are in the title placeholder and its picture brief in the content placeholder, with the cue in the speaker notes. The slides take on your template's look.
 2. **Paste the prompt** into the AI tool you use for slides. It carries the brief and the rules: one idea per slide, the three-second rule, words large, one picture at most, no bullet lists, television quality.
 3. **Build them yourself** from the slide brief.
 
 Whichever route you take, keep the titles as written. Read in order, they tell your story.
 
-## Before you present
+## Rehearse from your speaker notes
+
+Download your story to rehearse from it.
+
+**PDF.** The whole story in one document: Stage 1, Stage 2, Jim's suggestions, speaker notes, the words in full, the slide brief, the prompt and a final page on the method. Use it to rehearse, to share with a colleague, or to keep.
+
+**Word.** The same content as an editable document.
+
+Every figure in the story comes from your material. Check each one against its source before you present.
+
+Then:
 
 1. **Do Jim's suggestions.** Add the example, the number or the story only you have.
 2. **Say the Prologue and Epilogue aloud.** Change any word that feels borrowed.
 3. **Rehearse from the speaker notes.** Talk it through to a colleague and ask three questions: What was my argument? What do I want you to do? What will you remember tomorrow? If the answers match your intent, the story works. If they do not, fix the story. Slides cannot repair a weak argument.
 
-## Your account
+## Sign in for more options
 
-**Signing in.** Enter your email. We send you an email from Jim Harvey's StoryMachine with a six-digit code. Type the code on the page. There is no password.
+Sign in to unlock Stage 2, the downloads, the quick edits and the strategist, and to save your stories.
 
-- The code works whatever device you read the email on. Read it on your phone and type it on your laptop if you like.
+**Signing in.** Enter your email. We send you an email from Jim Harvey's StoryMachine with a six-digit code. Type it on the page. There is no password.
+
+- The code works on any device.
 - Each code works once, for an hour. If you ask for another, use the newest email.
 - Nothing after a minute? Look in your junk folder and mark the email as safe.
 
@@ -171,7 +177,7 @@ Whichever route you take, keep the titles as written. Read in order, they tell y
 
 **Signing in also** adds you to the Presentation Guru list: one email a month from me. Unsubscribe any time.
 
-## What it costs
+## Choose a payment plan
 
 **Stage 1** is free, with no sign-in and no card: three stories a day, and more once you sign in.
 
@@ -191,7 +197,7 @@ Once a story is unlocked, everything on it stays free for good: edits, the strat
 
 **Billing.** Monthly subscribers manage or cancel from **Billing** at the top of the page. Payments go through Stripe.
 
-## Questions
+## Get help
 
 **The code did not arrive.** Check your junk folder, wait a minute, then send another. Use the newest email.
 
@@ -207,8 +213,6 @@ Once a story is unlocked, everything on it stays free for good: edits, the strat
 
 **Can I use it for a client presentation?** Yes. The story is yours: your material, your conviction, your words.
 
-## Help
-
-For help with the StoryMachine, or for training for you or your team in the method behind it: jim.harvey@themessagebusiness.com
+For anything else, or for training for you or your team in the method behind it: jim.harvey@themessagebusiness.com
 
 Terms, privacy and refunds are linked at the foot of every page.
