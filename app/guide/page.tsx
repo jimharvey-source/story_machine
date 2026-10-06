@@ -76,21 +76,21 @@ function Inline({ text }: { text: string }) {
 
 // One icon per section of the guide, from the StoryMachine icon set.
 const ICONS: Record<string, IconName> = {
-  "What the StoryMachine does": "quote",
+  "Meet the StoryMachine": "quote",
   "Before you start": "clipboard",
-  "Step 1: Put in your material": "upload",
-  "Step 2: Answer two questions": "questions",
-  "Step 3: Choose the kind of presentation": "grid",
+  "Step 1: Upload or add your content": "upload",
+  "Step 2: Answer two questions to help us understand what you want to do": "questions",
+  "Step 3: Choose the presentation type": "grid",
   "Stage 1: Get your story straight": "target",
-  "Making the story yours": "pen",
+  "Make it your own": "pen",
   "Stage 2: Add interest and impact": "mic",
   "Downloads": "download",
-  "Making the slides": "slides",
-  "Before you present": "acts",
-  "Your account": "key",
-  "What it costs": "tag",
+  "Create a set of visuals": "slides",
+  "Rehearse from your speaker notes": "acts",
+  "Sign in for more options": "key",
+  "Choose a payment plan": "tag",
   "Questions": "help",
-  "Help": "mail",
+  "Get help": "mail",
 };
 const iconFor = (heading: string): IconName => ICONS[heading] ?? "quote";
 
