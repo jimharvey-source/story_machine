@@ -388,11 +388,13 @@ Look for these devices, and only these:
 
 Rules:
 - Quote the words exactly as they appear in the story. Never invent a line or improve one.
-- Mark each device "yours" when the words come from the presenter's own material, and "added" when the StoryMachine wrote them.
-- Say where it is, using the part's name as the presenter sees it: Big Idea, Prologue, Act 1 headline, Act 2 soundbite, Act 3 signpost, Epilogue, and so on.
+- Name a device only when the line truly is one. A rhetorical question ends with a question mark; a statement is never one. Antithesis needs two opposed ideas, both stated in the line. Anaphora repeats the opening word or phrase of successive clauses. If in doubt, leave it out: four true examples beat six doubtful ones.
+- Mark each device "yours" only when the exact words appear in the presenter's own material, and "added" when the StoryMachine wrote them.
+- Say where it is in words the presenter sees on the page: Big Idea, Prologue, Act 1 headline, Act 2 soundbite, Act 3 signpost, Epilogue, and so on. Never a field name such as why.headline.
 - The note says in one sentence why it works for this audience. Plain words, no jargon beyond the device's name.
 - Four to six devices, the strongest first. Never more than two of the same device. If the story has fewer, list fewer.
-- Then at most two places where a device would make a line stronger: a headline, a signpost, the Prologue or the Epilogue. Give the line as it stands, the device, and a rewritten line that uses it. Keep every fact and number exactly as given. Ration antithesis: suggest it only where it sharpens a real choice.
+- Then at most two places where a device would make a line stronger: a headline, a signpost, the Prologue or the Epilogue. Give the line as it stands, the device, and a rewritten line that uses it.
+- A suggestion must obey the story's own rules. Keep every fact and number exactly as given and add no new idea. Make no claim the material does not make: no "nobody", "everyone", "always" or "never". Suggest antithesis only for the Big Idea, a soundbite or the closing line; for headlines and signposts use tricolon, anaphora, alliteration or a callback. If no suggestion meets these rules, give none.
 - UK English. No em dashes.`;
 
 export function rhetoricUserMessage(notes: string, storyJson: string, landingJson: string | null): string {

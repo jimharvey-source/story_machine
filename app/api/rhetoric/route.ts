@@ -38,6 +38,14 @@ export async function POST(req: Request) {
       label: "rhetoric",
       skipVoice: true,
     });
+    // Check the model's claims we can check. "Yours" only when the words really are in the notes; and never a field name.
+    const flat = (t: string) => t.toLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim();
+    const source = flat(notes);
+    const cleanWhere = (w: string) => w.replace(/\s*\((?:why|how|what|landing|story)[\w.[\]]*\)/gi, "").trim();
+    result.data.devices = result.data.devices
+      .filter((d) => d.device.toLowerCase() !== "rhetorical question" || d.line.trim().endsWith("?"))
+      .map((d) => ({ ...d, where: cleanWhere(d.where), source: flat(d.line) && source.includes(flat(d.line)) ? "yours" : "added" }));
+    result.data.suggestions = result.data.suggestions.map((sg) => ({ ...sg, where: cleanWhere(sg.where) }));
     await logGeneration(profile.id, "rhetoric");
     await admin.from("stories").update({ rhetoric: result.data }).eq("id", storyId).eq("user_id", profile.id);
     return NextResponse.json({ rhetoric: result.data });
