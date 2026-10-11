@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { currentProfile, logGeneration, signInRequired } from "@/lib/access";
+import { capReached, currentProfile, isUnlimited, logGeneration, refundAi, signInRequired, spendAi } from "@/lib/access";
 import type Anthropic from "@anthropic-ai/sdk";
 import { generateStructured } from "@/lib/anthropic";
 import { refineSystem, refineUserContext } from "@/lib/prompts";
@@ -11,7 +11,6 @@ export const maxDuration = 300;
 export async function POST(req: Request) {
   const profile = await currentProfile();
   if (!profile) return signInRequired();
-  await logGeneration(profile.id, "refine");
   let body: unknown;
   try {
     body = await req.json();
@@ -22,10 +21,14 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid request" }, { status: 400 });
   }
-  const { notes, story, landing, register, messages } = parsed.data;
+  const { notes, story, landing, register, messages, storyId } = parsed.data;
   if (messages[messages.length - 1].role !== "user") {
     return NextResponse.json({ error: "The last message must be yours" }, { status: 400 });
   }
+  // A Refine turn counts as one of a free story's five AI edits.
+  if (!storyId && !isUnlimited(profile)) return NextResponse.json({ error: "Wait a moment for the story to save, then try again." }, { status: 409 });
+  if (storyId && !(await spendAi(profile, storyId, "edit"))) return capReached("edit");
+  await logGeneration(profile.id, "refine");
 
   const context = refineUserContext({
     notes,
@@ -64,6 +67,7 @@ export async function POST(req: Request) {
     });
     return NextResponse.json({ reply: result.data.reply, story: result.data.story, meta: { attempts: result.attempts, violationsAfter: result.violationsAfter } });
   } catch (e) {
+    if (storyId) await refundAi(storyId, "edit");
     const message = e instanceof Error ? e.message : "Unknown error";
     console.error("[api/refine]", message);
     return NextResponse.json({ error: "The strategist could not answer that. " + message }, { status: 502 });

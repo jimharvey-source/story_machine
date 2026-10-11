@@ -3,7 +3,7 @@ import { z } from "zod";
 import { currentProfile, signInRequired } from "@/lib/access";
 import { guestId } from "@/lib/guest";
 import { supabaseAdmin } from "@/lib/supabase/server";
-import { LandingInputSchema, RegisterSchema, StoryInputSchema } from "@/lib/schema";
+import { LandingInputSchema, RegisterSchema, RhetoricSchema, StoryInputSchema } from "@/lib/schema";
 
 export const runtime = "nodejs";
 
@@ -16,6 +16,8 @@ const SaveSchema = z.object({
   register: RegisterSchema,
   story: StoryInputSchema,
   landing: LandingInputSchema.nullable().default(null),
+  /** Absent: leave the saved notes alone. Null: clear them (the story was found again). */
+  rhetoric: RhetoricSchema.nullable().optional(),
 });
 
 export async function GET() {

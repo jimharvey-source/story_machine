@@ -4,9 +4,11 @@ You have a presentation to make. You have notes, an old deck, a report or a head
 
 It works in two stages.
 
-**Stage 1: Get your story straight.** The Big Idea, the audience, your intent, the argument in one sentence and a story in three acts. Free, with no sign-in.
+**Stage 1: Get your story straight.** The Big Idea, the audience, your intent, the argument in one sentence and a story in three acts.
 
-**Stage 2: Add interest and impact.** A first minute that grabs attention, a signpost into each act, a slide idea for each act, an ending with a clear action, the story in five lines, speaker notes, the words in full, a slide brief and a prompt for your own AI slide tool. Free with your first story when you sign in.
+**Stage 2: Add interest and impact.** A first minute that grabs attention, a signpost into each act, a slide idea for each act, an ending with a clear action, the story in five lines, speaker notes, the words in full, a slide brief and a prompt for your own AI slide tool.
+
+You press one button. If your notes leave something important open, the StoryMachine asks you up to three short questions first. Answer them or skip them. Then both stages arrive in one run, followed by notes on the rhetoric in your story: the devices you already use, and where one would make a line stronger. Your first story is free, start to finish.
 
 Each part arrives with a line saying why it is there, so you learn the method while it works.
 
@@ -173,29 +175,25 @@ Sign in to unlock Stage 2, the downloads, the quick edits and the strategist, an
 - Each code works once, for an hour. If you ask for another, use the newest email.
 - Nothing after a minute? Look in your junk folder and mark the email as safe.
 
-**Your stories are saved.** Everything saves as you work. Open **My stories** at the top of the page to return to any story. A story you started before signing in joins your account when you sign in.
+**Your stories are saved.** Everything saves as you work. Open **My stories** at the top of the page to return to any story.
 
 **Signing in also** adds you to the Presentation Guru list: one email a month from me. Unsubscribe any time.
 
 ## Choose a payment plan
 
-**Stage 1** is free, with no sign-in and no card: three stories a day, and more once you sign in.
-
-**Your first full story** (Stage 2 and all three downloads) is free when you sign in.
+**Your first story is free**, start to finish: both stages and all three downloads. Sign in with your email; there is no card. It includes one rerun from **Rework the notes** and five AI edits (the edit buttons and the strategist together). Edits by hand are always free.
 
 **After that**, press **Upgrade** at the top of the page:
 
 - one story, $4.99: that story, for as long as you keep it;
 - a month, $15.99: as many stories as you need, cancel any time;
-- lifetime, $99: every story you ever tell, in one payment.
+- a year, $99: as many stories as you need for twelve months.
 
-Launch offer: lifetime for $49 for the first five hundred, with the code LAUNCH49 at checkout.
-
-Once a story is unlocked, everything on it stays free for good: edits, the strategist, Stage 2 again and every download.
+A story you pay for, or one from a programme, has no limits: rerun it, edit it and argue with the strategist as often as you like, and download it again whenever you want.
 
 **On one of our programmes?** Use the link from your programme email. Sign in on that page and your twenty stories are added at once. You can also enter a programme code at any time under **Programme code** at the top of the page.
 
-**Billing.** Monthly subscribers manage or cancel from **Billing** at the top of the page. Payments go through Stripe.
+**Billing.** Monthly and yearly subscribers manage or cancel from **Billing** at the top of the page. Payments go through Stripe.
 
 ## Get help
 

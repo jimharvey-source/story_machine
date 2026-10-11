@@ -163,7 +163,7 @@ const STAGES = [
     n: "Stage 1",
     icon: "target" as IconName,
     name: "Get your story straight",
-    access: "Free. No sign-in.",
+    access: "Free with your first story.",
     steps: [
       ["Understand the audience", "Who is in the room, what they need to hear, what to leave out."],
       ["Set clear goals", "After my presentation, the audience will..."],
@@ -174,7 +174,7 @@ const STAGES = [
     n: "Stage 2",
     icon: "mic" as IconName,
     name: "Add interest and impact",
-    access: "Free with your first story.",
+    access: "Follows straight on, in the same run.",
     steps: [
       ["A confident start and a definite ending", "The first minute, and an ending with a clear action."],
       ["Headlines and signposts", "The lines they will remember, and the sentences that tell them the point has arrived."],

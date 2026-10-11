@@ -71,7 +71,7 @@ export async function allowRun(profile: Profile | null, unlimited: boolean, gues
 
 export function tooManyRuns() {
   return NextResponse.json(
-    { error: "That is the free stories for today. Sign in and buy a story, a month or lifetime to keep going, or come back tomorrow.", code: "limit" },
+    { error: "That is the stories for today on this account. Buy a story, a month or a year to keep going, or come back tomorrow.", code: "limit" },
     { status: 429 }
   );
 }

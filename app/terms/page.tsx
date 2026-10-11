@@ -36,15 +36,16 @@ export default function Terms() {
 
       <h2>Prices and payment</h2>
       <p>
-        Your first story after you sign in includes Stage 2 and the PDF free. After that you can buy one story, a
-        month, or lifetime access, at the prices shown on the site when you buy. Prices are in US dollars. We are not
+        Your first story is free: both stages and the downloads, with one rerun and five AI edits. After that you can
+        buy one story, a month or a year, at the prices shown on the site when you buy. Prices are in US dollars. We are not
         registered for VAT, so the price shown is the price you pay. Payments are taken by Stripe; we never see or
         store your card details.
       </p>
       <ul>
-        <li>One story unlocks Stage 2 and the PDF for that story, for as long as your account is open.</li>
+        <li>One story gives you that story, both stages and the downloads, for as long as your account is open.</li>
         <li>A month gives you as many stories as you need until you cancel. It renews each month. Cancel any time from Billing in your account; you keep access to the end of the month you have paid for.</li>
-        <li>Lifetime gives you as many stories as you need for as long as we run the StoryMachine.</li>
+        <li>A year gives you as many stories as you need for twelve months. It renews each year. Cancel any time from Billing in your account; you keep access to the end of the year you have paid for.</li>
+        <li>Lifetime access, sold until 11 October 2026, continues for those who bought it, for as long as we run the StoryMachine.</li>
         <li>A programme code from a {LEGAL.tradingAs} training programme adds the number of stories it states, free, until the date it states.</li>
       </ul>
       <p>
@@ -81,7 +82,7 @@ export default function Terms() {
       <h2>Availability and changes</h2>
       <p>
         We aim to keep the StoryMachine running and improving, but we cannot promise it will always be available or
-        free of faults. We may change how it works. If we ever close it, we will give lifetime and monthly users at
+        free of faults. We may change how it works. If we ever close it, we will give subscribers and lifetime users at
         least 30 days&apos; notice so they can download their stories.
       </p>
 

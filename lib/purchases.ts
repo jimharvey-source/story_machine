@@ -7,7 +7,7 @@ import { tagPurchase } from "./mailchimp";
 // Shared by the return-from-Stripe check and the webhook, so both apply a purchase the same way
 // and neither can apply it twice.
 
-/** A monthly subscription changed: keep the profile in step. Lifetime and programme plans are never downgraded. */
+/** A monthly or annual subscription changed: keep the profile in step. Lifetime and programme plans are never downgraded. */
 export async function applySubscription(sub: Stripe.Subscription) {
   const admin = supabaseAdmin();
   const customer = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
@@ -34,12 +34,16 @@ export async function applySubscription(sub: Stripe.Subscription) {
     update.plan = "free";
   }
   await admin.from("profiles").update(update).eq("id", profile.id);
-  if (active && profile.plan !== "pro" && profile.email) { const email = profile.email; after(() => tagPurchase(email, "monthly").then(() => {}, () => {})); }
+  if (active && profile.plan !== "pro" && profile.email) {
+    const email = profile.email;
+    const kind = item?.price?.recurring?.interval === "year" ? "annual" : "monthly";
+    after(() => tagPurchase(email, kind).then(() => {}, () => {}));
+  }
 }
 
 /**
  * Apply a completed checkout session. Returns true when the person now has what they paid for.
- * One-off payments (a story, lifetime) go through story.grant_purchase, which ignores a repeat.
+ * One-off payments (a story; lifetime until 11 October 2026) go through story.grant_purchase, which ignores a repeat.
  */
 export async function applyCheckoutSession(session: Stripe.Checkout.Session): Promise<boolean> {
   const userId = session.metadata?.user_id;

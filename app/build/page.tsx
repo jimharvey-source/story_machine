@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Landing, Story } from "@/lib/schema";
+import type { Landing, Question, Rhetoric, Story } from "@/lib/schema";
+import { RHETORIC_LEAD, RHETORIC_TITLE, hasRhetoric } from "@/lib/rhetoric";
 import { Editable, EditableList } from "@/components/Editable";
 import { Refine, type ChatMessage } from "@/components/Refine";
 import { AccountBar, Paywall, SignIn, type Me } from "@/components/Account";
@@ -15,6 +16,11 @@ import { KIND_KEYS, KINDS, kindOf, type Kind } from "@/lib/kinds";
 
 const DRAFT_KEY = "storymachine.draft";
 const CURRENT_KEY = "storymachine.current";
+// Set when a signed-out visitor presses Find my story: after sign-in the page carries straight on.
+const AUTOSTART_KEY = "storymachine.autostart";
+// The free story's allowance, shown on the page. Must match FREE_CAPS in lib/access.ts.
+const FREE_CAPS = { rerun: 1, edit: 5 } as const;
+type AiUsage = Partial<Record<"rerun" | "edit" | "land" | "rhetoric", number>>;
 
 type Register = "formal" | "business" | "conversational";
 const REGISTERS: Array<{ value: Register; label: string; hint: string }> = [
@@ -93,7 +99,11 @@ async function postJson<T>(url: string, body: unknown): Promise<T> {
       `The server replied with an error (${res.status}). ${text.slice(0, 120)}`,
     );
   }
-  if (!res.ok) throw new Error(data.error || "Something went wrong");
+  if (!res.ok) {
+    const err = new Error(data.error || "Something went wrong") as Error & { code?: string };
+    err.code = (data as { code?: string }).code;
+    throw err;
+  }
   return data as T;
 }
 
@@ -127,6 +137,15 @@ export default function Build() {
   const [showStories, setShowStories] = useState(false);
   const [storyId, setStoryId] = useState<string | null>(null);
   const [unlocked, setUnlocked] = useState(false);
+  // A free story is capped: one rerun and five AI edits (lib/access.ts). Counted on the server; shown here.
+  const [capped, setCapped] = useState(false);
+  const [aiUsage, setAiUsage] = useState<AiUsage>({});
+  // Ask back: up to three questions between pressing the button and the story.
+  const [questions, setQuestions] = useState<Question[] | null>(null);
+  const [answers, setAnswers] = useState<string[]>([]);
+  const [rhetoric, setRhetoric] = useState<Rhetoric | null>(null);
+  // A capped story that has used an allowance: the message, with an Upgrade button beside it.
+  const [capNotice, setCapNotice] = useState<string | null>(null);
   const [saveState, setSaveState] = useState<
     "idle" | "saving" | "saved" | "failed"
   >("idle");
@@ -139,6 +158,8 @@ export default function Build() {
   const [programme, setProgramme] = useState<string | null>(null);
   // Returning users sign in from the top of the page, without making a story first.
   const [showSignIn, setShowSignIn] = useState(false);
+  // Opened by Find my story rather than by "Already a user?": a new visitor, so the box speaks to them.
+  const [signInForStory, setSignInForStory] = useState(false);
   // The landing page's "Sign in" link arrives as /build#signin: open the sign-in box.
   useEffect(() => {
     if (window.location.hash !== "#signin") return;
@@ -176,6 +197,25 @@ export default function Build() {
       })
       .catch(() => setNotice(`Programme code ${code} could not be applied. Enter it under Programme code at the top of the page.`));
   }, [programme, me?.signedIn, loadMe]);
+
+  // Back from signing in after pressing Find my story: carry straight on with the draft they left.
+  const autostarted = useRef(false);
+  const startRef = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    if (!me?.signedIn || autostarted.current) return;
+    let pending = false;
+    try {
+      pending = localStorage.getItem(AUTOSTART_KEY) === "1";
+      localStorage.removeItem(AUTOSTART_KEY);
+    } catch {
+      // ignore
+    }
+    if (!pending) return;
+    autostarted.current = true;
+    // Give the draft a moment to come back from storage first.
+    const t = window.setTimeout(() => startRef.current?.(), 300);
+    return () => window.clearTimeout(t);
+  }, [me?.signedIn]);
 
   // On load: restore the draft (it survives the magic-link round trip), read the account, handle Stripe's return.
   useEffect(() => {
@@ -222,8 +262,8 @@ export default function Build() {
           .then((d) => {
             setNotice(
               d.ok
-                ? d.kind === "lifetime"
-                  ? "Payment received. The StoryMachine is yours for good."
+                ? d.kind === "annual"
+                  ? "Payment received. A year of stories starts now."
                   : d.kind === "monthly"
                     ? "Payment received. A month of stories starts now."
                     : "Payment received. Your next story is ready to start."
@@ -309,6 +349,7 @@ export default function Build() {
           register,
           story,
           landing,
+          rhetoric,
         });
         setStoryId(data.id);
         setSaveState("saved");
@@ -319,18 +360,26 @@ export default function Build() {
     return () => {
       if (saveTimer.current) window.clearTimeout(saveTimer.current);
     };
-  }, [signedIn, story, landing, notes, audience, intent, register, storyId]);
+  }, [signedIn, story, landing, rhetoric, notes, audience, intent, register, storyId]);
 
   function handleApiError(e: unknown, fallback: string) {
     const message = e instanceof Error ? e.message : fallback;
-    if (/Sign in to use/.test(message)) {
-      setError("Sign in first: the box is below the story.");
+    const code = (e as { code?: string } | null)?.code;
+    if (code === "signin") {
+      setShowSignIn(true);
+      setError(null);
+      window.scrollTo({ top: 0 });
       return;
     }
-    if (/free story is used/.test(message)) {
+    if (code === "buy") {
       setShowPaywall(true);
       setError(null);
       loadMe();
+      return;
+    }
+    if (code === "cap") {
+      setCapNotice(message);
+      setError(null);
       return;
     }
     setError(message);
@@ -349,7 +398,10 @@ export default function Build() {
         register: Register;
         story: Story;
         landing: Landing | null;
+        rhetoric?: Rhetoric | null;
         unlocked?: boolean;
+        capped?: boolean;
+        aiUsage?: AiUsage;
       };
       setNotes(s.notes);
       setAudience(s.audience);
@@ -362,6 +414,10 @@ export default function Build() {
       setLanding(s.landing);
       setStoryId(s.id);
       setUnlocked(Boolean(s.unlocked));
+      setCapped(Boolean(s.capped));
+      setAiUsage(s.aiUsage ?? {});
+      setRhetoric(s.rhetoric ?? null);
+      setCapNotice(null);
       setChat([]);
       setShowStories(false);
       if (!quiet) window.scrollTo({ top: 0 });
@@ -388,7 +444,7 @@ export default function Build() {
       const res = await fetch("/api/export", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: story.bigIdea, story, landing, storyId: storyId ?? undefined, format }),
+        body: JSON.stringify({ title: story.bigIdea, story, landing, rhetoric, storyId: storyId ?? undefined, format }),
       });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
@@ -418,53 +474,129 @@ export default function Build() {
     }
   }
 
-  // Stage 1 is free for everyone, signed in or not.
-  async function findStory() {
+  // Email first (11 October): one button, then up to three questions, then the whole story in one go.
+  // Signed out: open the sign-in box and carry on by ourselves once they are in.
+  async function start() {
+    setError(null);
+    setCapNotice(null);
+    if (!signedIn) {
+      try {
+        localStorage.setItem(AUTOSTART_KEY, "1");
+      } catch {
+        // storage unavailable; they press the button again after signing in
+      }
+      setSignInForStory(true);
+      setShowSignIn(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    // Finding a saved story again is a rerun: no questions, straight to the story.
+    if (storyId) return findStory([]);
+    setBusy("questions");
+    try {
+      const data = await postJson<{ questions: Question[] }>("/api/questions", {
+        notes,
+        audience,
+        intent,
+        kind: kind || undefined,
+      });
+      if (data.questions.length) {
+        setQuestions(data.questions);
+        setAnswers(data.questions.map(() => ""));
+        setBusy(null);
+        return;
+      }
+    } catch (e) {
+      const code = (e as { code?: string } | null)?.code;
+      if (code === "buy" || code === "signin") {
+        setBusy(null);
+        return handleApiError(e, "Something went wrong");
+      }
+      // The questions help; they are not essential. Carry on without them.
+    }
+    setBusy(null);
+    await findStory([]);
+  }
+
+  // Stage 1, then Stage 2 and the rhetoric notes straight after, with no button in between.
+  async function findStory(given: Array<{ question: string; answer: string }>) {
     setBusy("story");
     setError(null);
+    setCapNotice(null);
+    setQuestions(null);
     setStory(null);
     setLanding(null);
+    setRhetoric(null);
     setChat([]);
     setSaveState("idle");
+    let found: { id: string | null; story: Story } | null = null;
     try {
-      const data = await postJson<{ id: string | null; story: Story; meta: Meta }>("/api/story", {
+      const data = await postJson<{ id: string | null; story: Story; capped?: boolean; meta: Meta }>("/api/story", {
         notes,
         audience,
         intent,
         register,
         kind: kind || undefined,
         storyId: storyId ?? undefined,
+        answers: given.filter((g) => g.answer.trim()),
       });
       setKindChosenByMachine(!kind);
       if (data.id) setStoryId(data.id);
-      if (!storyId) setUnlocked(false);
-      setStory(normaliseStory(data.story));
+      if (storyId) setAiUsage((u) => ({ ...u, rerun: (u.rerun ?? 0) + 1 }));
+      else setAiUsage({});
+      setCapped(Boolean(data.capped));
+      setUnlocked(true);
+      const s = normaliseStory(data.story);
+      setStory(s);
       setShowPaywall(false);
-      loadMe();
       setMeta(data.meta);
       window.scrollTo({ top: 0 });
+      found = { id: data.id, story: s };
     } catch (e) {
       handleApiError(e, "Something went wrong");
     } finally {
       setBusy(null);
     }
+    loadMe();
+    if (found) await makeItLand(found.story, found.id);
   }
 
-  async function makeItLand() {
-    if (!story) return;
+  async function makeItLand(s: Story | null = story, id: string | null = storyId) {
+    if (!s) return;
     setBusy("land");
     setError(null);
+    let landed: Landing | null = null;
     try {
       const data = await postJson<{ landing: Landing; meta: Meta }>(
         "/api/land",
-        { notes, story, register, storyId: storyId ?? undefined },
+        { notes, story: s, register, storyId: id ?? undefined },
       );
       setUnlocked(true);
       setLanding(data.landing);
       setMeta(data.meta);
+      setAiUsage((u) => ({ ...u, land: (u.land ?? 0) + 1 }));
+      landed = data.landing;
       loadMe();
     } catch (e) {
       handleApiError(e, "Something went wrong");
+    } finally {
+      setBusy(null);
+    }
+    if (landed && id) await runRhetoric(s, landed, id);
+  }
+
+  // The rhetoric notes: what devices the story uses, and where one would help. Quiet on failure.
+  async function runRhetoric(s: Story | null = story, l: Landing | null = landing, id: string | null = storyId) {
+    if (!s || !l || !id) return;
+    setBusy("rhetoric");
+    try {
+      const data = await postJson<{ rhetoric: Rhetoric }>("/api/rhetoric", { notes, story: s, landing: l, storyId: id });
+      setRhetoric(data.rhetoric);
+      setAiUsage((u) => ({ ...u, rhetoric: (u.rhetoric ?? 0) + 1 }));
+    } catch (e) {
+      const code = (e as { code?: string } | null)?.code;
+      if (code === "cap") handleApiError(e, "");
+      // Otherwise leave it: the story is complete without the notes, and the link below runs them again.
     } finally {
       setBusy(null);
     }
@@ -550,17 +682,18 @@ export default function Build() {
           path,
           current,
           action,
+          storyId: storyId ?? undefined,
         });
         applyPath(path, data.value);
+        setAiUsage((u) => ({ ...u, edit: (u.edit ?? 0) + 1 }));
       } catch (e) {
-        setError(
-          e instanceof Error ? e.message : "That edit did not go through",
-        );
+        handleApiError(e, "That edit did not go through");
       } finally {
         setBusy(null);
       }
     },
-    [story, landing, notes, register],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [story, landing, notes, register, storyId],
   );
 
   async function refine(text: string) {
@@ -580,21 +713,27 @@ export default function Build() {
         landing: landing ?? undefined,
         register,
         messages: next,
+        storyId: storyId ?? undefined,
       });
       setStory(normaliseStory(data.story));
       if (data.landing) setLanding(data.landing);
       setChat([...next, { role: "assistant", content: data.reply }]);
+      setAiUsage((u) => ({ ...u, edit: (u.edit ?? 0) + 1 }));
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : "The strategist could not answer that",
-      );
+      handleApiError(e, "The strategist could not answer that");
       setChat(chat);
     } finally {
       setBusy(null);
     }
   }
 
+  useEffect(() => {
+    startRef.current = start;
+  });
+
   const gaps = landing ? landing.gaps : (story?.gaps ?? []);
+  const editsLeft = Math.max(0, FREE_CAPS.edit - (aiUsage.edit ?? 0));
+  const rerunsLeft = Math.max(0, FREE_CAPS.rerun - (aiUsage.rerun ?? 0));
   const chips = (path: string, current: string | string[]) =>
     signedIn ? (a: string) => edit(path, current, a) : undefined;
 
@@ -607,7 +746,10 @@ export default function Build() {
           {me && !me.signedIn && (
             <button
               type="button"
-              onClick={() => setShowSignIn((v) => !v)}
+              onClick={() => {
+                setSignInForStory(false);
+                setShowSignIn((v) => !v);
+              }}
               aria-expanded={showSignIn}
               className="text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink"
             >
@@ -617,11 +759,19 @@ export default function Build() {
         </div>
         {me && !me.signedIn && showSignIn && (
           <div className="mt-4">
-            <SignIn
-              title="Welcome back"
-              body="Enter the email you used before. We send you a six-digit code. Your stories are waiting."
-              programme={programme}
-            />
+            {signInForStory ? (
+              <SignIn
+                title="Your first story is free"
+                body="Start to finish, with the PDF. Enter your email and we send you a six-digit code. Type it here and your story starts straight away, from the notes you have pasted. No card, no password."
+                programme={programme}
+              />
+            ) : (
+              <SignIn
+                title="Welcome back"
+                body="Enter the email you used before. We send you a six-digit code. Your stories are waiting."
+                programme={programme}
+              />
+            )}
           </div>
         )}
         {me && (
@@ -664,14 +814,14 @@ export default function Build() {
       {!story && (
         <section className="panel space-y-6">
           <div>
-            <p className="eyebrow">Paste what you have. Answer two questions. Read the story as it arrives.</p>
+            <p className="eyebrow">Paste what you have. Answer a few questions. Read the whole story.</p>
             <h1 className="display mt-2 text-3xl leading-[1.05] sm:text-4xl">What do you want to say?</h1>
             <p className="mt-3 max-w-xl text-ink-2">
               Paste your notes, a deck, a paper or the rough thinking. It does not need to be neat.
             </p>
             {me && !me.signedIn && (
               <p className="mt-2 text-sm text-muted">
-                Stage 1 is free. Your first full story is free when you sign in.{" "}
+                Your first story is free, start to finish, with the PDF. Sign in with your email when you press the button. No card.{" "}
                 <Link href="/guide" className="underline decoration-rule underline-offset-4 hover:text-ink">How it works</Link>
               </p>
             )}
@@ -803,7 +953,11 @@ export default function Build() {
 
           {storyId && (
             <p className="text-sm text-muted">
-              Reworking the notes of a saved story. Finding it again is free.{" "}
+              {capped
+                ? rerunsLeft > 0
+                  ? "Reworking the notes of your free story. It includes one rerun. "
+                  : "Your free story has had its rerun. Edit any line by hand, or upgrade for unlimited reruns. "
+                : "Reworking the notes of a saved story. Finding it again is free. "}
               <button
                 type="button"
                 onClick={() => setStoryId(null)}
@@ -814,20 +968,84 @@ export default function Build() {
             </p>
           )}
 
-          <div className="flex flex-wrap items-center gap-4">
-            <button
-              onClick={findStory}
-              disabled={busy !== null || notes.trim().length < 40}
-              className="rounded-md bg-ink px-6 py-3 text-base font-medium text-paper disabled:opacity-40"
-            >
-              {busy === "story" ? "Finding your story..." : storyId ? "Find my story again" : "Find my story"}
-            </button>
-            {busy === "story" && (
-              <span className="text-sm text-muted">
-                Usually twenty to forty seconds.
-              </span>
-            )}
-          </div>
+          {questions && questions.length > 0 ? (
+            <div className="rounded-md border border-ink bg-paper-2 p-5 sm:p-6">
+              <p className="eyebrow">Before I write it</p>
+              <h2 className="display mt-2 text-2xl">
+                {questions.length === 1 ? "One question" : `${questions.length === 2 ? "Two" : "Three"} questions`} your notes leave open.
+              </h2>
+              <p className="mt-2 max-w-xl text-sm text-ink-2">
+                A line each is plenty. Skip any you cannot answer; the story will name it as a gap.
+              </p>
+              <ol className="mt-5 space-y-5">
+                {questions.map((q, i) => (
+                  <li key={i}>
+                    <label className="block text-sm">
+                      <span className="font-medium text-ink">{q.question}</span>
+                      <textarea
+                        value={answers[i] ?? ""}
+                        onChange={(e) => setAnswers((prev) => prev.map((a, j) => (j === i ? e.target.value : a)))}
+                        rows={2}
+                        maxLength={1500}
+                        placeholder={q.example ? `For example: ${q.example}` : ""}
+                        className="mt-1 w-full rounded-md border border-rule bg-paper p-3 text-base leading-relaxed outline-none focus:border-ink"
+                      />
+                    </label>
+                  </li>
+                ))}
+              </ol>
+              <div className="mt-5 flex flex-wrap items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => findStory(questions.map((q, i) => ({ question: q.question, answer: answers[i] ?? "" })))}
+                  disabled={busy !== null}
+                  className="rounded-md bg-ink px-6 py-3 text-base font-medium text-paper disabled:opacity-40"
+                >
+                  Write my story
+                </button>
+                <button
+                  type="button"
+                  onClick={() => findStory([])}
+                  disabled={busy !== null}
+                  className="text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink"
+                >
+                  Skip the questions
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center gap-4">
+              <button
+                onClick={start}
+                disabled={busy !== null || notes.trim().length < 40}
+                className="rounded-md bg-ink px-6 py-3 text-base font-medium text-paper disabled:opacity-40"
+              >
+                {busy === "questions"
+                  ? "Reading your notes..."
+                  : busy === "story"
+                    ? "Finding your story..."
+                    : storyId
+                      ? "Find my story again"
+                      : "Find my story"}
+              </button>
+              {busy === "questions" && <span className="text-sm text-muted">A few seconds.</span>}
+              {busy === "story" && (
+                <span className="text-sm text-muted">
+                  Usually twenty to forty seconds. Stage 2 follows straight after.
+                </span>
+              )}
+            </div>
+          )}
+          {capNotice && (
+            <p className="flex flex-wrap items-center gap-3 rounded-md bg-red-soft px-3 py-2 text-sm text-ink">
+              {capNotice}
+              {signedIn && (
+                <button type="button" onClick={() => setShowUpgrade(true)} className="rounded-md bg-red px-3 py-1.5 text-sm font-medium text-paper hover:opacity-90">
+                  Upgrade
+                </button>
+              )}
+            </p>
+          )}
           {error && <p className="text-sm text-red">{error}</p>}
         </section>
       )}
@@ -843,6 +1061,12 @@ export default function Build() {
               <span className="font-semibold text-red">2</span> Add interest and impact {landing && <span className="text-red">&#10003;</span>}
             </li>
           </ol>
+          {busy === "land" && (
+            <p className="rounded-md bg-panel px-4 py-3 text-sm text-ink-2" role="status">
+              Stage 1 is here. Now adding interest and impact: the first minute, signposts, slide ideas, the ending and
+              your speaker notes. About a minute. Read on while it works.
+            </p>
+          )}
           <section>
             <p className="eyebrow">Big Idea</p>
             <Why>The whole argument in one line people can repeat in the corridor. If they remember nothing else, they remember this.</Why>
@@ -1160,13 +1384,62 @@ export default function Build() {
             </section>
           )}
 
+          {landing && (busy === "rhetoric" || hasRhetoric(rhetoric) || storyId) && (
+            <section className="border-t border-rule pt-8">
+              <p className="eyebrow">{RHETORIC_TITLE}</p>
+              <p className="said mt-2 text-xl leading-snug text-ink">{RHETORIC_LEAD}</p>
+              {busy === "rhetoric" && <p className="mt-3 text-sm text-muted" role="status">Finding the rhetoric in your story...</p>}
+              {hasRhetoric(rhetoric) && (
+                <>
+                  <ul className="mt-4 space-y-4">
+                    {rhetoric.devices.map((d, i) => (
+                      <li key={i} className="border-l-2 border-rule pl-4">
+                        <p className="text-sm">
+                          <span className="font-semibold text-ink">{d.device}</span>
+                          <span className="text-muted"> &middot; {d.where} &middot; {d.source === "yours" ? "your words" : "added"}</span>
+                        </p>
+                        <p className="spoken mt-1 text-ink">{d.line}</p>
+                        <p className="mt-1 text-sm text-ink-2">{d.note}</p>
+                      </li>
+                    ))}
+                  </ul>
+                  {rhetoric.suggestions.length > 0 && (
+                    <div className="mt-6">
+                      <p className="eyebrow">Where a device would help</p>
+                      <ul className="mt-3 space-y-4">
+                        {rhetoric.suggestions.map((sg, i) => (
+                          <li key={i} className="border-l-2 border-red pl-4 text-sm">
+                            <p><span className="font-semibold text-ink">{sg.device}</span><span className="text-muted"> &middot; {sg.where}</span></p>
+                            <p className="mt-1 text-ink-2">Now: &ldquo;{sg.now}&rdquo;</p>
+                            <p className="mt-1 text-ink">Try: &ldquo;{sg.better}&rdquo;</p>
+                          </li>
+                        ))}
+                      </ul>
+                      <Why>Copy a line you like into the story above. Every edit by hand is free.</Why>
+                    </div>
+                  )}
+                </>
+              )}
+              {busy !== "rhetoric" && storyId && (
+                <button
+                  type="button"
+                  onClick={() => runRhetoric()}
+                  disabled={busy !== null}
+                  className="mt-4 text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink disabled:opacity-40"
+                >
+                  {hasRhetoric(rhetoric) ? "Check the rhetoric again after your edits" : "Point out the rhetoric in this story"}
+                </button>
+              )}
+            </section>
+          )}
+
           {!signedIn && (
             <section className="border-t border-rule pt-8">
               <SignIn
                 next={`/build?${new URLSearchParams({ ...(me?.guestId ? { claim: me.guestId } : {}), ...(storyId ? { story: storyId } : {}), ...(programme ? { programme } : {}) }).toString()}`}
                 programme={programme}
-                title={landing ? "Sign in to download the PDF" : "Stage 2 and the PDF are free with your first story"}
-                body="Stage 2 adds interest and impact: the first minute, signposts, slide ideas, the ending, speaker notes and a slide brief. Then the whole thing as a PDF. Sign in with your email and we send you a code. No card. No password. Your story is waiting when you come back."
+                title="Sign in to finish this story"
+                body="Your first story is free, start to finish: Stage 2 adds the first minute, signposts, slide ideas, the ending, speaker notes and a slide brief, then the whole thing as a PDF. Sign in with your email and we send you a code. No card. No password."
               />
             </section>
           )}
@@ -1187,13 +1460,13 @@ export default function Build() {
             )}
             {!landing && signedIn && !locked && (
               <button
-                onClick={makeItLand}
+                onClick={() => makeItLand()}
                 disabled={busy !== null}
                 className="rounded-md bg-ink px-6 py-3 text-base font-medium text-paper disabled:opacity-40"
               >
                 {busy === "land"
                   ? "Adding interest and impact..."
-                  : "Stage 2: add interest and impact"}
+                  : "Finish the story: add interest and impact"}
               </button>
             )}
             {signedIn && !locked && (
@@ -1232,8 +1505,22 @@ export default function Build() {
             {signedIn && !unlocked && me && !me.unlimited && (
               <span className="w-full text-sm text-muted">
                 {(me.storiesLeft ?? 0) > 0
-                  ? "Stage 2 and the PDF use your free story."
-                  : "Stage 1 stays free. Stage 2 and the downloads need a story, a month or lifetime."}
+                  ? "Finishing this story uses your free story."
+                  : "Finishing this story needs a story, a month or a year."}
+              </span>
+            )}
+            {capped && unlocked && (
+              <span className="w-full text-sm text-muted">
+                Your free story: {editsLeft} of {FREE_CAPS.edit} AI edits left
+                {rerunsLeft > 0 ? ", and one rerun from Rework the notes" : ", rerun used"}. Edits by hand are always free.
+              </span>
+            )}
+            {capNotice && (
+              <span className="flex w-full flex-wrap items-center gap-3 rounded-md bg-red-soft px-3 py-2 text-sm text-ink">
+                {capNotice}
+                <button type="button" onClick={() => setShowPaywall(true)} className="rounded-md bg-red px-3 py-1.5 text-sm font-medium text-paper hover:opacity-90">
+                  Upgrade
+                </button>
               </span>
             )}
             {pdf && !busy?.startsWith("export") && (
@@ -1277,6 +1564,11 @@ export default function Build() {
                 setChat([]);
                 setStoryId(null);
                 setUnlocked(false);
+                setCapped(false);
+                setAiUsage({});
+                setRhetoric(null);
+                setCapNotice(null);
+                setQuestions(null);
                 setSaveState("idle");
                 setNotes("");
                 setAudience("");

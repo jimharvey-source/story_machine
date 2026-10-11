@@ -205,10 +205,15 @@ export function landSystem(register: Register, kind: Kind): string {
   return withStructure(withRegister(LAND_SYSTEM_TEMPLATE, register), kind);
 }
 
-export function storyUserMessage(notes: string, audience: string, intent: string): string {
+export function storyUserMessage(notes: string, audience: string, intent: string, answers: Array<{ question: string; answer: string }> = []): string {
   const given: string[] = [];
   if (audience.trim()) given.push(`<audience_from_presenter>\n${audience.trim()}\n</audience_from_presenter>`);
   if (intent.trim()) given.push(`<intent_from_presenter>\n${intent.trim()}\n</intent_from_presenter>`);
+  const answered = answers.filter((a) => a.answer.trim());
+  if (answered.length) {
+    // The presenter's answers to the ask-back questions are source material too: their own words.
+    given.push(`<answers_from_presenter>\n${answered.map((a) => `Q: ${a.question.trim()}\nA: ${a.answer.trim()}`).join("\n\n")}\n</answers_from_presenter>`);
+  }
   return `<source_material>
 ${notes.trim()}
 </source_material>
@@ -334,4 +339,62 @@ ${opts.storyJson}
 </story>
 ${opts.landingJson ? `\n<landing>\n${opts.landingJson}\n</landing>\n` : ""}
 The conversation follows. Reply to the latest message and return the revised story${opts.landingJson ? " and landing" : ""}.`;
+}
+
+
+// Ask back (9 October): before the story is written, at most three questions about what the material leaves out.
+
+export const QUESTIONS_SYSTEM = `You are Jim Harvey's StoryMachine, an experienced presentation strategist. A presenter has given you their material and is about to ask you for a presentation story. Before you write it, you may ask them up to three short questions.
+
+Ask only about what the story needs and the material does not supply, in this order of importance:
+1. Who the audience is and what they care about, if the presenter has not said.
+2. What the presenter wants the audience to do afterwards, if it is not clear.
+3. The one fact, example or figure the argument needs and the material lacks.
+4. The presenter's own view or experience, if the material is all facts and no conviction.
+
+Rules:
+- Never ask what the material or the presenter's answers already tell you. Read everything first.
+- Never ask about tone, length, slides or format.
+- One idea per question. Under twenty words. Plain words a busy person can answer in a line.
+- Ask fewer questions when fewer are needed. If the material is enough to build a strong story, ask none.
+- Give each question a short example answer the presenter could adapt, drawn from their material where you can.
+- UK English. No em dashes.`;
+
+export function questionsUserMessage(notes: string, audience: string, intent: string, kindLabel: string | null): string {
+  const given: string[] = [];
+  given.push(`<audience_from_presenter>\n${audience.trim() || "(not given)"}\n</audience_from_presenter>`);
+  given.push(`<intent_from_presenter>\n${intent.trim() || "(not given)"}\n</intent_from_presenter>`);
+  given.push(`<kind_of_presentation>\n${kindLabel ?? "(not chosen; the StoryMachine will choose)"}\n</kind_of_presentation>`);
+  return `<source_material>\n${notes.trim()}\n</source_material>\n\n${given.join("\n\n")}\n\n<task>\nAsk at most three questions about what the story needs and this material does not supply. Ask none if the material is enough.\n</task>`;
+}
+
+// Rhetoric (9 October): point out the devices in the finished story, so the presenter learns as they go.
+// No separate module: a short list of what is there, where, and why it works.
+
+export const RHETORIC_SYSTEM = `You are Jim Harvey's StoryMachine, an experienced presentation coach. A presenter has a finished presentation story. Your job is to point out the classical rhetorical devices in it, so they learn to see and use them.
+
+Most presenters use rhetorical devices without knowing it. Business audiences respond to them as much as any other. Name what is there and why it works, so the presenter can do it on purpose next time.
+
+Look for these devices, and only these:
+- Tricolon (rule of three): three parallel words, phrases or clauses.
+- Anaphora: the same word or phrase repeated at the start of successive sentences or clauses.
+- Epistrophe: the same word or phrase repeated at the end of successive clauses.
+- Alliteration: the same sound at the start of nearby stressed words, when it helps the line stick.
+- Antithesis: two opposed ideas in balanced phrases.
+- Rhetorical question: a question asked for effect, answered or left hanging.
+- Metaphor or analogy: one thing described as another to make it vivid.
+- Chiasmus: a phrase repeated with its parts reversed.
+- Callback (bookend): the ending returns to an image or line from the opening.
+
+Rules:
+- Quote the words exactly as they appear in the story. Never invent a line or improve one.
+- Mark each device "yours" when the words come from the presenter's own material, and "added" when the StoryMachine wrote them.
+- Say where it is, using the part's name as the presenter sees it: Big Idea, Prologue, Act 1 headline, Act 2 soundbite, Act 3 signpost, Epilogue, and so on.
+- The note says in one sentence why it works for this audience. Plain words, no jargon beyond the device's name.
+- Four to six devices, the strongest first. Never more than two of the same device. If the story has fewer, list fewer.
+- Then at most two places where a device would make a line stronger: a headline, a signpost, the Prologue or the Epilogue. Give the line as it stands, the device, and a rewritten line that uses it. Keep every fact and number exactly as given. Ration antithesis: suggest it only where it sharpens a real choice.
+- UK English. No em dashes.`;
+
+export function rhetoricUserMessage(notes: string, storyJson: string, landingJson: string | null): string {
+  return `<source_material>\n${notes.trim()}\n</source_material>\n\n<story>\n${storyJson}\n</story>\n${landingJson ? `\n<stage_two>\n${landingJson}\n</stage_two>\n` : ""}\n<task>\nPoint out the rhetorical devices in this story, then at most two places where one would make a line stronger.\n</task>`;
 }

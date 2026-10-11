@@ -56,6 +56,8 @@ export async function generateStructured<T>(opts: {
   /** Prior conversation turns to place after the first user message (for refine). */
   history?: Anthropic.MessageParam[];
   voice?: VoiceOptions;
+  /** Skip the voice rules (dashes are still repaired). For text that quotes the story rather than writing it: rhetoric notes, ask-back questions. */
+  skipVoice?: boolean;
 }): Promise<GenerateResult<T>> {
   const anthropic = getClient();
   const format = zodOutputFormat(opts.schema);
@@ -110,6 +112,9 @@ export async function generateStructured<T>(opts: {
   const messages: Anthropic.MessageParam[] = [{ role: "user", content: opts.user }, ...(opts.history ?? [])];
   let attempts = 1;
   let { parsed, raw } = await call(messages);
+  if (opts.skipVoice) {
+    return { data: repairDashes(parsed), model: MODEL, attempts: 1, violationsBefore: 0, violationsAfter: 0, unresolved: [] };
+  }
   const before = voiceViolations(parsed, opts.voice);
   let violations = before;
 

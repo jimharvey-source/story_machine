@@ -13,7 +13,7 @@ export default function Refunds() {
       <ul>
         <li><strong>One story:</strong> a full refund within 14 days of buying it.</li>
         <li><strong>A month:</strong> a full refund of the first payment within 14 days. After that, cancel any time from Billing in your account and you will not be charged again; you keep access to the end of the month you have paid for.</li>
-        <li><strong>Lifetime:</strong> a full refund within 14 days of buying it. Your account then returns to the free plan.</li>
+        <li><strong>A year:</strong> a full refund of the first payment within 14 days. After that, cancel any time from Billing in your account and you will not be charged again; you keep access to the end of the year you have paid for.</li>
       </ul>
       <p>
         Refunds go back to the card you paid with, through Stripe. They usually reach your account within five to ten

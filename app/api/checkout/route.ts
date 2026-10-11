@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { currentProfile, signInRequired } from "@/lib/access";
 import { supabaseAdmin } from "@/lib/supabase/server";
-import { isPlan, priceId, siteUrl, stripe, type Plan } from "@/lib/stripe";
+import { isPlan, isSubscription, priceId, siteUrl, stripe, type Plan } from "@/lib/stripe";
 
 export const runtime = "nodejs";
 
-// story and lifetime are one-off payments; monthly is a subscription.
+// A story is a one-off payment; monthly and annual are subscriptions.
 export async function POST(req: Request) {
   const p = await currentProfile();
   if (!p) return signInRequired();
@@ -17,6 +17,9 @@ export async function POST(req: Request) {
     // default single story
   }
   if (p.plan === "lifetime") return NextResponse.json({ error: "You already have lifetime access." }, { status: 400 });
+  if (isSubscription(plan) && p.plan === "pro" && p.plan_source === "stripe" && p.stripe_subscription_id) {
+    return NextResponse.json({ error: "You already have a subscription. Change it from Billing." }, { status: 400 });
+  }
   try {
     const s = stripe();
     let customer = p.stripe_customer_id;
@@ -28,14 +31,14 @@ export async function POST(req: Request) {
     const base = siteUrl(req);
     const metadata = { user_id: p.id, product: "story-machine", kind: plan };
     const session = await s.checkout.sessions.create({
-      mode: plan === "monthly" ? "subscription" : "payment",
+      mode: isSubscription(plan) ? "subscription" : "payment",
       customer,
       line_items: [{ price: priceId(plan), quantity: 1 }],
       allow_promotion_codes: true,
       success_url: `${base}/build?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${base}/build?checkout=cancelled`,
       metadata,
-      ...(plan === "monthly"
+      ...(isSubscription(plan)
         ? { subscription_data: { metadata } }
         : { payment_intent_data: { metadata }, invoice_creation: { enabled: true } }),
     });

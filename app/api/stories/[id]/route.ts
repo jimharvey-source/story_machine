@@ -33,6 +33,9 @@ export async function GET(_req: Request, ctx: Ctx) {
     register: data.register,
     story: data.story,
     landing: data.landing,
+    rhetoric: data.rhetoric ?? null,
+    capped: Boolean(data.capped),
+    aiUsage: data.ai_usage ?? {},
     unlocked: Boolean(data.unlocked),
     updatedAt: data.updated_at,
   });

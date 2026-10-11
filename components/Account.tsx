@@ -22,20 +22,20 @@ export type Me = {
   guestId?: string | null;
 };
 
+// Lifetime stopped selling on 11 October 2026; the people who bought it keep it.
 export const PRICES = {
   story: { label: "One story", price: "$4.99", note: "This story, for as long as you keep it." },
   monthly: { label: "A month", price: "$15.99", note: "As many as you need. Cancel any time." },
-  lifetime: { label: "Lifetime", price: "$99", note: "Every story you ever tell. One payment." },
-  launch: "$49",
+  annual: { label: "A year", price: "$99", note: "As many as you need for twelve months. About $8.25 a month." },
 } as const;
 
-export type PlanKey = "story" | "monthly" | "lifetime";
+export type PlanKey = "story" | "monthly" | "annual";
 
 
 /** One line on where this person stands. */
 export function planLine(me: Me): string {
   if (me.plan === "lifetime") return "Lifetime";
-  if (me.unlimited) return me.planSource === "code" ? "Programme" : "Monthly";
+  if (me.unlimited) return me.planSource === "code" ? "Programme" : "Unlimited stories";
   const left = me.storiesLeft ?? 0;
   if (me.programme) return `${me.programme}: ${left} ${left === 1 ? "story" : "stories"} left`;
   if (left === 0) return "No stories left";
@@ -275,7 +275,7 @@ export function AccountBar({ me, onChange, onOpenStories, onUpgrade }: { me: Me;
 
 /**
  * Shown when the free story is used and the person starts another.
- * Three ways in: one story, a month, or lifetime. Programme codes underneath.
+ * Three ways in: one story, a month, or a year. Programme codes underneath.
  */
 export function Paywall({ me, onChange, onClose }: { me: Me; onChange: () => void; onClose?: () => void }) {
   const [busy, setBusy] = useState<string | null>(null);
@@ -302,16 +302,16 @@ export function Paywall({ me, onChange, onClose }: { me: Me; onChange: () => voi
           </button>
         )}
       </div>
-      <h2 className="display mt-2 text-2xl sm:text-3xl">The full story: Stage 2, the PDF, Word and PowerPoint.</h2>
+      <h2 className="display mt-2 text-2xl sm:text-3xl">Your next story, start to finish.</h2>
       <p className="mt-3 max-w-xl text-ink-2">
-        Stage 1 stays free. Upgrade for Stage 2: the first minute, signposts, slide ideas, the ending and speaker
-        notes. Download the whole story as a PDF or a Word file, and the slide outline as PowerPoint, ready for your
-        company template. The strategist and every edit come with it.
+        Both stages: the story straight, then the first minute, signposts, slide ideas, the ending and speaker notes.
+        Download it as a PDF or a Word file, and the slide outline as PowerPoint, ready for your company template.
+        Unlimited reruns, AI edits and the strategist come with it.
       </p>
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
-        {(["story", "monthly", "lifetime"] as PlanKey[]).map((k) => {
+        {(["story", "monthly", "annual"] as PlanKey[]).map((k) => {
           const p = PRICES[k];
-          const featured = k === "lifetime";
+          const featured = k === "annual";
           return (
             <button
               key={k}
@@ -330,7 +330,7 @@ export function Paywall({ me, onChange, onClose }: { me: Me; onChange: () => voi
           );
         })}
       </div>
-      <p className="mt-3 text-xs text-muted">Card payments through Stripe. Offer codes go in at checkout. Cancel a month from the billing page.</p>
+      <p className="mt-3 text-xs text-muted">Card payments through Stripe. Offer codes go in at checkout. Cancel a month or a year from the billing page.</p>
       <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-rule pt-4">
         <span className="text-sm text-muted">On a programme? Your code gives you your stories.</span>
         <CodeForm

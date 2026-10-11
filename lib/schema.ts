@@ -139,6 +139,35 @@ export const LandingInputSchema = LandingSchema.extend({
 
 export const RegisterSchema = z.enum(["formal", "business", "conversational"]).default("business");
 
+// Ask back: up to three questions before the story is written.
+
+export const AnswerSchema = z.object({
+  question: z.string().max(300),
+  answer: z.string().max(1500, "Keep each answer to a short paragraph."),
+});
+
+export const QuestionsSchema = z.object({
+  questions: z
+    .array(
+      z.object({
+        question: z.string().describe("One short question, under twenty words."),
+        example: z.string().describe("A short example answer the presenter could adapt, from their material where possible."),
+      })
+    )
+    .max(3)
+    .describe("At most three questions. Empty when the material is enough."),
+});
+
+export type Question = z.infer<typeof QuestionsSchema>["questions"][number];
+
+export const QuestionsRequestSchema = z.object({
+  notes: z.string().min(40, "Paste at least a few lines of notes").max(60000, "That is more than the StoryMachine can read at once. Cut anything that is not part of this story."),
+  audience: z.string().max(2000).optional().default(""),
+  intent: z.string().max(2000).optional().default(""),
+  kind: KindSchema.optional(),
+  storyId: z.string().uuid().optional(),
+});
+
 export const StoryRequestSchema = z.object({
   notes: z.string().min(40, "Paste at least a few lines of notes").max(60000, "That is more than the StoryMachine can read at once. Cut anything that is not part of this story."),
   audience: z.string().max(2000, "Keep the audience to a short paragraph: who they are and what matters to them.").optional().default(""),
@@ -148,6 +177,8 @@ export const StoryRequestSchema = z.object({
   kind: KindSchema.optional(),
   /** Rework an existing story rather than start a new one. */
   storyId: z.string().uuid().optional(),
+  /** The presenter's answers to the ask-back questions. Blank answers are skipped questions. */
+  answers: z.array(AnswerSchema).max(3).optional().default([]),
 });
 
 export const LandRequestSchema = z.object({
@@ -186,6 +217,8 @@ export const EditRequestSchema = z.object({
   current: z.union([z.string(), z.array(z.string())]),
   action: z.enum(["sharper", "simpler", "provocative", "senior", "another", "memorable", "clearer", "custom"]),
   instruction: z.string().max(600).optional().default(""),
+  /** The saved story, so a free story's AI edits can be counted. */
+  storyId: z.string().uuid().optional(),
 });
 
 export const EditTextSchema = z.object({ value: z.string() });
@@ -204,6 +237,8 @@ export const RefineRequestSchema = z.object({
   landing: LandingInputSchema.optional(),
   register: RegisterSchema,
   messages: z.array(RefineMessageSchema).min(1).max(30),
+  /** The saved story, so a free story's Refine turns can be counted with its edits. */
+  storyId: z.string().uuid().optional(),
 });
 
 export const RefineStoryResultSchema = z.object({
@@ -215,4 +250,40 @@ export const RefineFullResultSchema = z.object({
   reply: z.string(),
   story: StorySchema,
   landing: LandingSchema,
+});
+
+
+// Rhetoric: the devices in the finished story, and where one would help.
+
+export const RhetoricSchema = z.object({
+  devices: z
+    .array(
+      z.object({
+        device: z.string().describe("The device's name: Tricolon, Anaphora, Epistrophe, Alliteration, Antithesis, Rhetorical question, Metaphor, Analogy, Chiasmus or Callback."),
+        line: z.string().describe("The words, quoted exactly as they appear in the story."),
+        where: z.string().describe("The part of the story: Big Idea, Prologue, Act 1 headline, Act 2 soundbite, Epilogue..."),
+        source: z.enum(["yours", "added"]).describe('"yours" if the words come from the presenter\'s material; "added" if the StoryMachine wrote them.'),
+        note: z.string().describe("One sentence: why it works for this audience."),
+      })
+    )
+    .max(6),
+  suggestions: z
+    .array(
+      z.object({
+        where: z.string(),
+        device: z.string(),
+        now: z.string().describe("The line as it stands."),
+        better: z.string().describe("The line rewritten to use the device. Same facts and numbers."),
+      })
+    )
+    .max(2),
+});
+
+export type Rhetoric = z.infer<typeof RhetoricSchema>;
+
+export const RhetoricRequestSchema = z.object({
+  notes: z.string().min(40).max(60000),
+  story: StoryInputSchema,
+  landing: LandingInputSchema.optional(),
+  storyId: z.string().uuid(),
 });

@@ -4,7 +4,8 @@
 
 import { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun } from "docx";
 import { z } from "zod";
-import type { LandingInputSchema, StoryInputSchema } from "./schema";
+import type { LandingInputSchema, Rhetoric, StoryInputSchema } from "./schema";
+import { RHETORIC_LEAD, RHETORIC_TITLE, deviceLine, hasRhetoric, suggestionLine } from "./rhetoric";
 import { KINDS, kindOf } from "./kinds";
 import { LICENCE, METHOD, SIGN_OFF } from "./method";
 import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "./ownIt";
@@ -32,7 +33,7 @@ function timing(t: string): string {
   return `${n} words, about ${secs < 60 ? `${secs} seconds` : `${Math.round(secs / 60)} minute${secs >= 90 ? "s" : ""}`} spoken`;
 }
 
-export async function renderDocx(title: string, story: Story, landing: Landing | null): Promise<Buffer> {
+export async function renderDocx(title: string, story: Story, landing: Landing | null, rhetoric: Rhetoric | null = null): Promise<Buffer> {
   const kind = KINDS[kindOf(story.kind)];
   const out: Paragraph[] = [];
   const date = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
@@ -97,6 +98,16 @@ export async function renderDocx(title: string, story: Story, landing: Landing |
   for (const g of [...(landing ? landing.gaps : story.gaps), ...ownItAdvice(story, landing)]) out.push(bullet(g));
   if (/\d/.test(JSON.stringify([story.why, story.how, story.what]))) {
     out.push(p("Every figure here comes from your material. Check each one against its source before you present.", { small: true }));
+  }
+
+  if (landing && hasRhetoric(rhetoric)) {
+    out.push(h1(RHETORIC_TITLE));
+    out.push(p(RHETORIC_LEAD, { italic: true }));
+    for (const d of rhetoric.devices) out.push(bullet(deviceLine(d)));
+    if (rhetoric.suggestions.length) {
+      out.push(h2("Where a device would help"));
+      for (const s of rhetoric.suggestions) out.push(bullet(suggestionLine(s)));
+    }
   }
 
   if (landing) {

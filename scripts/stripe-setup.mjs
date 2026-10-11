@@ -1,4 +1,4 @@
-// Sets up Stripe for the Story Machine: product, three prices, launch coupon and code,
+// Sets up Stripe for the StoryMachine: product, three prices (story, month, year), retires lifetime and LAUNCH49,
 // webhook endpoint, and a customer portal configuration. Safe to run again: it finds
 // what already exists before creating anything.
 //
@@ -68,10 +68,10 @@ const PRODUCT_DESCRIPTION = "Jim Harvey's StoryMachine: turn rough notes into a 
 const PRICES = [
   { key: "story_machine_story", env: "STRIPE_PRICE_STORY", nickname: "One story", unit_amount: 499 },
   { key: "story_machine_monthly", env: "STRIPE_PRICE_MONTHLY", nickname: "A month", unit_amount: 1599, recurring: { interval: "month" } },
-  { key: "story_machine_lifetime", env: "STRIPE_PRICE_LIFETIME", nickname: "Lifetime", unit_amount: 9900 },
+  { key: "story_machine_annual", env: "STRIPE_PRICE_ANNUAL", nickname: "A year", unit_amount: 9900, recurring: { interval: "year" } },
 ];
-const COUPON_ID = CURRENCY === "usd" ? "story-machine-launch-49" : `story-machine-launch-49-${CURRENCY}`;
-const PROMO_CODE = "LAUNCH49";
+const RETIRED_LOOKUP_KEYS = ["story_machine_lifetime"];
+const RETIRED_PROMO_CODE = "LAUNCH49";
 const WEBHOOK_URL = `${SITE}/api/stripe/webhook`;
 const WEBHOOK_EVENTS = ["checkout.session.completed", "customer.subscription.created", "customer.subscription.updated", "customer.subscription.deleted"];
 
@@ -119,40 +119,20 @@ for (const p of PRICES) {
   out[p.env] = price.id;
 }
 
-// 3. Launch offer: $50 off lifetime, first 500, code LAUNCH49
-let coupon;
-try {
-  coupon = await stripe("GET", `coupons/${COUPON_ID}`);
-  console.log("coupon exists", coupon.id);
-} catch {
-  coupon = await stripe("POST", "coupons", {
-    id: COUPON_ID,
-    name: `Launch offer: lifetime for ${SYMBOL}49`,
-    amount_off: 5000,
-    currency: CURRENCY,
-    duration: "once",
-    max_redemptions: 500,
-    applies_to: { products: [product.id] },
-  });
-  console.log("created coupon", coupon.id);
-}
-let promo = (await stripe("GET", "promotion_codes", { code: PROMO_CODE, limit: 1 })).data[0];
-if (promo && (promo.coupon?.id ?? promo.promotion?.coupon) !== coupon.id) {
-  // The code points at a coupon in the old currency. Retire it so the code can be reissued.
-  await stripe("POST", `promotion_codes/${promo.id}`, { active: false });
-  console.log("retired promotion code on the old coupon");
-  promo = undefined;
-}
-if (!promo) {
-  // Newer API versions take promotion[coupon]; older ones take coupon. Try the new shape first.
-  try {
-    promo = await stripe("POST", "promotion_codes", { promotion: { type: "coupon", coupon: coupon.id }, code: PROMO_CODE, max_redemptions: 500 });
-  } catch (e) {
-    if (!/unknown parameter: promotion/i.test(String(e))) throw e;
-    promo = await stripe("POST", "promotion_codes", { coupon: coupon.id, code: PROMO_CODE, max_redemptions: 500 });
+// 3. Retired on 11 October 2026: the lifetime price and its LAUNCH49 launch code.
+// The coupon took $50 off anything on the product, so with lifetime gone it would have made a story
+// or a first month free and a first year $49. Both are switched off here; past payments still reconcile.
+for (const key of RETIRED_LOOKUP_KEYS) {
+  const old = (await stripe("GET", "prices", { lookup_keys: [key], limit: 1 })).data[0];
+  if (old?.active) {
+    await stripe("POST", `prices/${old.id}`, { active: false });
+    console.log(`retired price ${key}`, old.id);
   }
-  console.log("created promotion code", promo.code);
-} else console.log("promotion code exists", promo.code);
+}
+for (const promo of (await stripe("GET", "promotion_codes", { code: RETIRED_PROMO_CODE, active: true, limit: 10 })).data) {
+  await stripe("POST", `promotion_codes/${promo.id}`, { active: false });
+  console.log("retired promotion code", promo.code, promo.id);
+}
 
 // 4. Webhook endpoint. The signing secret is only returned on creation.
 let hook = (await stripe("GET", "webhook_endpoints", { limit: 100 })).data.find((w) => w.url === WEBHOOK_URL);

@@ -3,7 +3,8 @@ import PDFDocument from "pdfkit";
 import { z } from "zod";
 import { currentProfile, purchaseRequired, signInRequired, startStory } from "@/lib/access";
 import { unlockStory } from "@/lib/guest";
-import { LandingInputSchema, StoryInputSchema } from "@/lib/schema";
+import { LandingInputSchema, RhetoricSchema, StoryInputSchema, type Rhetoric } from "@/lib/schema";
+import { RHETORIC_LEAD, RHETORIC_TITLE, deviceLine, hasRhetoric, suggestionLine } from "@/lib/rhetoric";
 import { slideList, slidePrompt } from "@/lib/slides";
 import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "@/lib/ownIt";
 import { KINDS, kindOf } from "@/lib/kinds";
@@ -18,6 +19,8 @@ const ExportSchema = z.object({
   title: z.string().max(160).default("My story"),
   story: StoryInputSchema,
   landing: LandingInputSchema.nullable().default(null),
+  /** The rhetoric notes, when the page has them. */
+  rhetoric: RhetoricSchema.nullable().default(null),
   /** The saved story; the PDF unlocks it like stage 2 does. */
   storyId: z.string().uuid().optional(),
   /** pdf (default), docx (the same content as a Word document), pptx (the slide text, stage 2 only). */
@@ -46,19 +49,19 @@ export async function POST(req: Request) {
   }
   const parsed = ExportSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid" }, { status: 400 });
-  const { title, story, landing, storyId, format } = parsed.data;
+  const { title, story, landing, rhetoric, storyId, format } = parsed.data;
   if (format === "pptx" && !landing) {
     return NextResponse.json({ error: "The slides come with stage 2. Add interest and impact first." }, { status: 400 });
   }
 
-  // The PDF is part of what the free story, a credit, a month or lifetime buys. Same gate as stage 2.
+  // The downloads come with the story. Since 11 October a story is unlocked when it is made; older ones unlock here.
   const allowed = storyId ? await unlockStory(p, storyId) : await startStory(p);
   if (!allowed) return purchaseRequired();
 
   const buf =
-    format === "docx" ? await renderDocx(title, story, landing)
+    format === "docx" ? await renderDocx(title, story, landing, rhetoric)
     : format === "pptx" && landing ? await renderPptx(story, landing)
-    : await render(title, story, landing);
+    : await render(title, story, landing, rhetoric);
   // Trim the title at a word boundary, so the file name never ends mid-word.
   const words = title.replace(/[^\w\- ]+/g, "").trim().split(/\s+/).filter(Boolean);
   let safe = "";
@@ -83,7 +86,7 @@ export async function POST(req: Request) {
 type Story = z.infer<typeof StoryInputSchema>;
 type Landing = z.infer<typeof LandingInputSchema>;
 
-function render(title: string, story: Story, landing: Landing | null): Promise<Buffer> {
+function render(title: string, story: Story, landing: Landing | null, rhetoric: Rhetoric | null): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({
       size: "A4",
@@ -293,6 +296,19 @@ function render(title: string, story: Story, landing: Landing | null): Promise<B
       }
       ownIt([...landing.gaps, ...ownItAdvice(story, landing)]);
       sourceCheck();
+      if (hasRhetoric(rhetoric)) {
+        keep(120);
+        eyebrow(RHETORIC_TITLE);
+        doc.font("Times-Roman").fontSize(13).fillColor(INK).text(RHETORIC_LEAD, L, doc.y, { width: W, lineGap: 2 });
+        gap(2);
+        bullets(rhetoric.devices.map(deviceLine), 10, 2, 1);
+        if (rhetoric.suggestions.length) {
+          gap(1);
+          eyebrow("Where a device would help");
+          bullets(rhetoric.suggestions.map(suggestionLine), 10, 2, 1);
+        }
+        gap(2);
+      }
 
       // 2. Speech notes: what the presenter holds in the room
       const notes = landing.speechNotes;

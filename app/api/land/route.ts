@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { currentProfile, logGeneration, purchaseRequired, signInRequired, startStory } from "@/lib/access";
+import { capReached, currentProfile, logGeneration, purchaseRequired, refundAi, signInRequired, spendAi, startStory } from "@/lib/access";
 import { unlockStory } from "@/lib/guest";
 import { describeKey, generateStructured } from "@/lib/anthropic";
 import { landSystem, landUserMessage } from "@/lib/prompts";
@@ -27,9 +27,11 @@ export async function POST(req: Request) {
   }
   const { notes, story, register, storyId } = parsed.data;
 
-  // Stage 2 is where the free story, a credit, a month or lifetime is spent. Once a story is unlocked, it stays unlocked.
+  // Since 11 October a story is unlocked when it is made, so this rarely spends anything. Older locked stories
+  // are unlocked here. Once unlocked, it stays unlocked. A free story may run Stage 2 twice (first run and after its rerun).
   const allowed = storyId ? await unlockStory(profile, storyId) : await startStory(profile);
   if (!allowed) return purchaseRequired();
+  if (storyId && !(await spendAi(profile, storyId, "land"))) return capReached("land");
 
   try {
     const result = await generateStructured({
@@ -52,6 +54,7 @@ export async function POST(req: Request) {
       },
     });
   } catch (e) {
+    if (storyId) await refundAi(storyId, "land");
     const message = e instanceof Error ? e.message : "Unknown error";
     const hint = /authentication|api-key|api_key/i.test(message) ? ` (${describeKey()})` : "";
     console.error("[api/land]", message);

@@ -55,9 +55,9 @@ export async function subscribeToPresentationGuru(email: string): Promise<boolea
 
 /**
  * Mark what someone has bought, so the list can be segmented: story-machine-paid, plus one of
- * story-machine-story, story-machine-monthly, story-machine-lifetime. Never blocks the purchase.
+ * story-machine-story, story-machine-monthly, story-machine-annual (story-machine-lifetime for older buyers). Never blocks the purchase.
  */
-export async function tagPurchase(email: string, kind: "story" | "monthly" | "lifetime"): Promise<boolean> {
+export async function tagPurchase(email: string, kind: "story" | "monthly" | "annual" | "lifetime"): Promise<boolean> {
   const c = config();
   if (!c) return false;
   const res = await fetch(memberUrl(c, email) + "/tags", {

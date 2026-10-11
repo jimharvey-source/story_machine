@@ -75,7 +75,8 @@ export async function ensureProfile(user: { id: string; email: string }): Promis
 }
 
 /**
- * Unlimited stories: lifetime, or a monthly subscription (or programme code) whose period has not ended.
+ * Unlimited stories: lifetime (sold until 11 October 2026, still honoured), or a monthly or annual
+ * subscription (or programme month) whose period has not ended.
  * Everyone else has one free story plus any single-story credits they have bought.
  */
 export function isUnlimited(p: Profile | null): boolean {
@@ -90,6 +91,46 @@ export function isUnlimited(p: Profile | null): boolean {
 export function storiesLeft(p: Profile): number | null {
   if (isUnlimited(p)) return null;
   return Math.max(0, 1 + (p.story_credits ?? 0) - (p.stories_started ?? 0));
+}
+
+/**
+ * What the free story allows (Jim and John, 9 October). One full story, Stage 1 and 2 and the downloads,
+ * then: one rerun of the whole story, five AI edits (edit chips and Refine turns together), and enough
+ * Stage 2 and rhetoric runs to cover that rerun. Hand edits are always free. Paid, programme and
+ * unlimited stories are never capped.
+ */
+export const FREE_CAPS = { rerun: 1, edit: 5, land: 2, rhetoric: 3 } as const;
+export type AiKind = keyof typeof FREE_CAPS;
+
+/** How a new story was paid for, or null when the person must buy first. Spends the allowance. */
+export async function beginStory(p: Profile): Promise<"unlimited" | "paid" | "free" | null> {
+  const { data, error } = await supabaseAdmin().rpc("begin_story", { p_user: p.id });
+  if (error) throw new Error(`Could not check your allowance: ${error.message}`);
+  return (data as "unlimited" | "paid" | "free" | null) ?? null;
+}
+
+/** Count one AI action on a story. False when a capped (free) story has used its allowance of that kind. */
+export async function spendAi(p: Profile, storyId: string, kind: AiKind): Promise<boolean> {
+  const { data, error } = await supabaseAdmin().rpc("spend_ai", { p_story: storyId, p_user: p.id, p_kind: kind, p_limit: FREE_CAPS[kind] });
+  if (error) throw new Error(`Could not check your allowance: ${error.message}`);
+  return Boolean(data);
+}
+
+/** Give an AI action back when the call failed. Never throws. */
+export async function refundAi(storyId: string, kind: AiKind): Promise<void> {
+  const { error } = await supabaseAdmin().rpc("refund_ai", { p_story: storyId, p_kind: kind });
+  if (error) console.warn("[refund_ai]", error.message);
+}
+
+const CAP_MESSAGES: Record<AiKind, string> = {
+  rerun: "Your free story has had its rerun. Edit any line by hand, or upgrade for unlimited reruns.",
+  edit: "That is the five AI edits on your free story. Edit any line by hand, or upgrade for unlimited edits and the strategist.",
+  land: "Your free story has used its Stage 2 runs. Upgrade to run it again.",
+  rhetoric: "Your free story has used its rhetoric checks. Upgrade to run them again.",
+};
+
+export function capReached(kind: AiKind) {
+  return NextResponse.json({ error: CAP_MESSAGES[kind], code: "cap", kind }, { status: 402 });
 }
 
 /**
@@ -109,19 +150,19 @@ export async function refundStory(p: Profile): Promise<void> {
 }
 
 export function signInRequired() {
-  return NextResponse.json({ error: "Sign in to use the StoryMachine.", code: "signin" }, { status: 401 });
+  return NextResponse.json({ error: "Sign in to find your story. Your first story is free.", code: "signin" }, { status: 401 });
 }
 
 export function purchaseRequired() {
   return NextResponse.json(
-    { error: "Your free story is used. Buy this story, a month, or lifetime access to carry on.", code: "buy" },
+    { error: "Your free story is used. Buy a story, a month or a year to carry on.", code: "buy" },
     { status: 402 }
   );
 }
 
 export async function logGeneration(
   userId: string | null,
-  kind: "story" | "land" | "edit" | "refine" | "extract",
+  kind: "story" | "land" | "edit" | "refine" | "extract" | "questions" | "rhetoric",
   meta?: { attempts?: number; violationsBefore?: number; violationsAfter?: number }
 ) {
   try {

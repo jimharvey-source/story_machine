@@ -59,7 +59,7 @@ export default async function Landing({ searchParams }: Props) {
           </p>
           <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-3">
             <BuildButton />
-            <p className="text-sm text-muted">Free to start. No sign-in, no card.</p>
+            <p className="text-sm text-muted">Your first story is free. Just your email, no card.</p>
           </div>
           </div>
           <HeroStory />
@@ -75,10 +75,10 @@ export default async function Landing({ searchParams }: Props) {
             <IconTile name="tag" size="xl" />
           </div>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Price label="Stage 1" amount="Free" note="No sign-in, no card." />
-            <Price label="Your first full story" amount="Free" note="When you sign in with your email. No password." />
-            <Price label="After that, one story" amount="$4.99" note="A month $15.99. Lifetime $99." />
-            <Price label="Launch offer" amount="$49" note="Lifetime, for the first five hundred. Code LAUNCH49." strong />
+            <Price label="Your first story" amount="Free" note="Start to finish, with the PDF. Your email, no card, no password." strong />
+            <Price label="One story" amount="$4.99" note="That story, for as long as you keep it." />
+            <Price label="A month" amount="$15.99" note="As many stories as you need. Cancel any time." />
+            <Price label="A year" amount="$99" note="As many stories as you need for twelve months." />
           </div>
           <p className="mt-6 max-w-2xl text-ink-2">
             <span className="font-semibold text-ink">On one of our programmes?</span> Your programme link adds twenty stories

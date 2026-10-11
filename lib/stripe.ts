@@ -8,9 +8,14 @@ export function stripe(): Stripe {
   return client;
 }
 
-/** The three ways to pay: one story, a month of stories, or lifetime. */
-export type Plan = "story" | "monthly" | "lifetime";
-export const PLANS: Plan[] = ["story", "monthly", "lifetime"];
+/** The three ways to pay: one story, a month, or a year. Lifetime stopped selling on 11 October 2026. */
+export type Plan = "story" | "monthly" | "annual";
+export const PLANS: Plan[] = ["story", "monthly", "annual"];
+
+/** Monthly and annual are subscriptions; a story is a one-off payment. */
+export function isSubscription(plan: Plan): boolean {
+  return plan !== "story";
+}
 
 export function isPlan(v: unknown): v is Plan {
   return typeof v === "string" && (PLANS as string[]).includes(v);

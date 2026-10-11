@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { currentProfile, logGeneration, signInRequired } from "@/lib/access";
+import { capReached, currentProfile, isUnlimited, logGeneration, refundAi, signInRequired, spendAi } from "@/lib/access";
 import { generateStructured } from "@/lib/anthropic";
 import { EDIT_ACTIONS, editSystem, editUserMessage } from "@/lib/prompts";
 import { EditListSchema, EditRequestSchema, EditTextSchema } from "@/lib/schema";
@@ -10,7 +10,6 @@ export const maxDuration = 300;
 export async function POST(req: Request) {
   const profile = await currentProfile();
   if (!profile) return signInRequired();
-  await logGeneration(profile.id, "edit");
   let body: unknown;
   try {
     body = await req.json();
@@ -21,9 +20,13 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid request" }, { status: 400 });
   }
-  const { notes, story, landing, register, path, current, action, instruction } = parsed.data;
+  const { notes, story, landing, register, path, current, action, instruction, storyId } = parsed.data;
   const ask = action === "custom" ? instruction.trim() : EDIT_ACTIONS[action];
   if (!ask) return NextResponse.json({ error: "Say what you want changed" }, { status: 400 });
+  // AI edits are counted on the story, so a free story's five can be enforced. Unlimited plans skip the count.
+  if (!storyId && !isUnlimited(profile)) return NextResponse.json({ error: "Wait a moment for the story to save, then try again." }, { status: 409 });
+  if (storyId && !(await spendAi(profile, storyId, "edit"))) return capReached("edit");
+  await logGeneration(profile.id, "edit");
 
   const user = editUserMessage({
     notes,
@@ -56,6 +59,7 @@ export async function POST(req: Request) {
     });
     return NextResponse.json({ value: result.data.value, meta: { attempts: result.attempts } });
   } catch (e) {
+    if (storyId) await refundAi(storyId, "edit");
     const message = e instanceof Error ? e.message : "Unknown error";
     console.error("[api/edit]", message);
     return NextResponse.json({ error: "That edit did not go through. " + message }, { status: 502 });
