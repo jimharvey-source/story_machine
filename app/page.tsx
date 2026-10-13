@@ -61,6 +61,15 @@ export default async function Landing({ searchParams }: Props) {
             <BuildButton />
             <p className="text-sm text-muted">Your first story is free. Just your email, no card.</p>
           </div>
+          <ol className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-2" aria-label="How it works">
+            {["Your material", "Your audience", "Your email", "Your story"].map((step, i) => (
+              <li key={step} className="flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-ink text-xs font-semibold text-paper">{i + 1}</span>
+                {step}
+              </li>
+            ))}
+            <li className="text-muted">About twenty minutes.</li>
+          </ol>
           </div>
           <HeroStory />
         </section>

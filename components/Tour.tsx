@@ -26,16 +26,16 @@ export function Tour({ programme = false }: { programme?: boolean }) {
         </Section>
 
         {/* 3. How it works */}
-        <Section icon="acts" label="How it works" title="Three steps. About twenty minutes.">
+        <Section icon="acts" label="How it works" title="Four steps. About twenty minutes.">
           <ol className="mt-2 border-b border-rule">
-            {HOW.map(([head, body], i) => (
+            {(programme ? HOW_PROGRAMME : HOW).map(([head, body], i) => (
               <li key={head} className="grid grid-cols-[1.5rem_1fr_auto] items-start gap-3 border-t border-rule py-6">
                 <span className="text-base font-semibold text-red pt-0.5">{i + 1}</span>
                 <span>
                   <span className="block text-lg font-semibold text-ink">{head}</span>
                   <span className="mt-1 block text-ink-2">{body}</span>
                 </span>
-                <IconTile name={STEP_ICONS[i]} size="sm" />
+                <IconTile name={(programme ? STEP_ICONS_PROGRAMME : STEP_ICONS)[i]} size="sm" />
               </li>
             ))}
           </ol>
@@ -102,8 +102,9 @@ export function Tour({ programme = false }: { programme?: boolean }) {
         {/* 7. Your deck stays on your computer */}
         <Section icon="laptop" label="Confidential material" title="Your deck stays on your computer.">
           <p>
-            Upload a PowerPoint, Word file or PDF of any size. The StoryMachine reads the words on your own computer and
-            keeps only those. The file is never sent anywhere, so a confidential board deck stays where it belongs.
+            Upload a PowerPoint, Word file or PDF of any size. The StoryMachine reads the words on your own computer; the
+            file itself never leaves it. Only the words go to our servers and to the AI that writes your story. Your story
+            is saved to your account, and you can delete it at any time.
           </p>
         </Section>
 
@@ -143,19 +144,32 @@ export function Section({ icon, label, title, children }: { icon: IconName; labe
   );
 }
 
+// Four steps, in the order the public visitor meets them (13 October: sign-in is a step, so nobody is surprised by it).
 const HOW: Array<[string, string]> = [
   [
     "Bring what you have.",
     "Paste your notes, or upload the deck, the paper or the brief. Your file stays on your computer; only the words are read.",
   ],
   [
-    "Answer two questions.",
-    "Who is in the room? What do you want them to do when you sit down? Then choose the kind of presentation.",
+    "Tell it about your audience.",
+    "Who is in the room, and what do you want them to do when you sit down? Choose the kind of presentation. If something important is missing, it asks you up to three short questions.",
   ],
   [
-    "Read your story as it arrives.",
-    "Edit any line, ask for a sharper version, or argue with the strategist until it says what you mean.",
+    "Enter your email.",
+    "We send you a six-digit code. Type it on the page. No password, no card. Your first story is free.",
   ],
+  [
+    "Read your story and take it away.",
+    "Edit any line, ask for a sharper version, or argue with the strategist until it says what you mean. Then download it as a PDF, a Word file or a PowerPoint outline.",
+  ],
+];
+
+// On a programme welcome page the person signs in at the top first, so the email step comes first.
+const HOW_PROGRAMME: Array<[string, string]> = [
+  ["Sign in at the top of this page.", "Your work email and the six-digit code we send you. No password."],
+  HOW[0],
+  HOW[1],
+  HOW[3],
 ];
 
 const STAGES = [
@@ -194,4 +208,5 @@ const KINDS: Array<[string, IconName]> = [
   ["Something else", "quote"],
 ];
 
-const STEP_ICONS: IconName[] = ["notes", "questions", "acts"];
+const STEP_ICONS: IconName[] = ["notes", "questions", "mail", "acts"];
+const STEP_ICONS_PROGRAMME: IconName[] = ["mail", "notes", "questions", "acts"];

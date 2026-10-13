@@ -24,21 +24,9 @@ type AiUsage = Partial<Record<"rerun" | "edit" | "land" | "rhetoric", number>>;
 
 type Register = "formal" | "business" | "conversational";
 const REGISTERS: Array<{ value: Register; label: string; hint: string }> = [
-  {
-    value: "formal",
-    label: "Formal",
-    hint: "No contractions, no rhetorical questions",
-  },
-  {
-    value: "business",
-    label: "Business",
-    hint: "Direct. Spoken sections may use contractions",
-  },
-  {
-    value: "conversational",
-    label: "Conversational",
-    hint: "Plain, warm, short sentences",
-  },
+  { value: "formal", label: "Formal", hint: "Senior executives, government, legal settings. No contractions." },
+  { value: "business", label: "Business", hint: "Colleagues, clients and stakeholders. Direct and plain." },
+  { value: "conversational", label: "Conversational", hint: "Peers and friends. Warm, short sentences." },
 ];
 
 type Meta = {
@@ -66,6 +54,19 @@ function actsFor(kind: Kind): typeof ACTS {
 // Old stories have no kind or hero; give them the defaults so the page can show them.
 function normaliseStory(s: Story): Story {
   return { ...s, kind: kindOf(s.kind), hero: s.hero ?? { who: "", wants: "", obstacle: "" } };
+}
+
+/** A numbered step on the form: the number, the step's name, one line on what to do. */
+function StepHead({ n, title, sub }: { n: number; title: string; sub: string }) {
+  return (
+    <div className="flex items-start gap-3">
+      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red text-sm font-semibold text-paper">{n}</span>
+      <div>
+        <h2 className="display text-xl sm:text-2xl">{title}</h2>
+        <p className="mt-1 max-w-2xl text-sm text-ink-2">{sub}</p>
+      </div>
+    </div>
+  );
 }
 
 // The process explains itself as the story appears: one line under each part saying why it is there.
@@ -133,6 +134,7 @@ export default function Build() {
   const [chat, setChat] = useState<ChatMessage[]>([]);
   const [uploadNote, setUploadNote] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const signInBoxRef = useRef<HTMLDivElement>(null);
   const [me, setMe] = useState<Me | null>(null);
   const [showStories, setShowStories] = useState(false);
   const [storyId, setStoryId] = useState<string | null>(null);
@@ -508,7 +510,7 @@ export default function Build() {
       }
       setSignInForStory(true);
       setShowSignIn(true);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.setTimeout(() => signInBoxRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
       return;
     }
     setSignInForStory(false);
@@ -780,23 +782,14 @@ export default function Build() {
             </button>
           )}
         </div>
-        {me && !me.signedIn && showSignIn && (
+        {me && !me.signedIn && showSignIn && !signInForStory && (
           <div className="mt-4">
-            {signInForStory ? (
-              <SignIn
-                title="Your first story is free"
-                body="Start to finish, with the PDF. Enter your email and we send you a six-digit code. Type it here and your story starts straight away, from the notes you have pasted. No card, no password."
-                programme={programme}
-                onSignedIn={onSignedIn}
-              />
-            ) : (
-              <SignIn
-                title="Welcome back"
-                body="Enter the email you used before. We send you a six-digit code. Your stories are waiting."
-                programme={programme}
-                onSignedIn={onSignedIn}
-              />
-            )}
+            <SignIn
+              title="Welcome back"
+              body="Enter the email you used before. We send you a six-digit code. Your stories are waiting."
+              programme={programme}
+              onSignedIn={onSignedIn}
+            />
           </div>
         )}
         {me && (
@@ -837,39 +830,36 @@ export default function Build() {
       </header>
 
       {!story && (
-        <section className="panel space-y-6">
+        <section className="panel space-y-10">
           <div>
-            <p className="eyebrow">Paste what you have. Answer a few questions. Read the whole story.</p>
-            <h1 className="display mt-2 text-3xl leading-[1.05] sm:text-4xl">What do you want to say?</h1>
-            <p className="mt-3 max-w-xl text-ink-2">
-              Paste your notes, a deck, a paper or the rough thinking. It does not need to be neat.
+            <h1 className="display text-3xl leading-[1.05] sm:text-4xl">What do you want to say?</h1>
+            <p className="mt-3 max-w-2xl text-ink-2">
+              Give the StoryMachine your material and tell it about your audience. It builds the story, start to finish,
+              in about two minutes.
+              {me && !me.signedIn && " Your first story is free: just your email, no card, no password."}{" "}
+              <Link href="/guide" className="underline decoration-rule underline-offset-4 hover:text-ink">User guide</Link>
             </p>
-            {me && !me.signedIn && (
-              <p className="mt-2 text-sm text-muted">
-                Your first story is free, start to finish, with the PDF. Sign in with your email when you press the button. No card.{" "}
-                <Link href="/guide" className="underline decoration-rule underline-offset-4 hover:text-ink">How it works</Link>
-              </p>
-            )}
           </div>
+
           <div>
+            <StepHead n={1} title="Your material" sub="Paste your notes, an old deck, a paper or your rough thinking. It does not need to be neat." />
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              rows={14}
-              placeholder="Your notes, or the rough thinking, go here."
-              className="w-full rounded-md border border-rule bg-paper-2 p-4 text-base leading-relaxed outline-none focus:border-ink"
+              rows={12}
+              placeholder="Paste your notes here, or upload a file below."
+              className="mt-3 w-full rounded-md border border-rule bg-paper-2 p-4 text-base leading-relaxed outline-none focus:border-ink"
             />
-            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
                 disabled={busy !== null}
-                className="underline decoration-rule underline-offset-4 hover:text-ink disabled:opacity-40"
+                className="rounded-md border border-ink bg-paper-2 px-4 py-2 font-medium text-ink disabled:opacity-40"
               >
-                {busy === "upload"
-                  ? "Reading the file..."
-                  : "Or upload a file (PDF, Word, PowerPoint)"}
+                {busy === "upload" ? "Reading the file..." : "Upload a file"}
               </button>
+              <span>PDF, Word or PowerPoint. The file stays on your computer; only the words are read.</span>
               <input
                 ref={fileRef}
                 type="file"
@@ -880,101 +870,103 @@ export default function Build() {
                   if (f) upload(f);
                 }}
               />
-              {uploadNote && <span>{uploadNote}</span>}
+              {uploadNote && <span className="w-full text-ink">{uploadNote}</span>}
             </div>
           </div>
 
-          <label className="block text-sm">
-              <span className="text-muted">
-                Who is in the audience, and what matters to them? (optional)
-              </span>
+          <div className="space-y-6">
+            <StepHead n={2} title="Your audience" sub="The more you say here, the sharper the story. All four are optional." />
+            <label className="block text-sm">
+              <span className="font-medium text-ink">Who is in the room, and what matters to them?</span>
               <textarea
                 value={audience}
                 onChange={(e) => setAudience(e.target.value)}
-                rows={4}
-                placeholder="Who they are, how many, what they already think, and what they care about. For example: the executive committee, eight people, sceptical about cost, who care most about the pipeline number."
+                rows={3}
+                placeholder="For example: the executive committee, eight people, sceptical about cost, who care most about the pipeline number."
                 className="mt-1 w-full rounded-md border border-rule bg-paper-2 p-3 text-base leading-relaxed outline-none focus:border-ink"
               />
             </label>
 
-          <fieldset className="text-sm">
-            <legend className="eyebrow">What kind of presentation is it?</legend>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {KIND_KEYS.map((k) => (
-                <span key={k} className="group relative">
+            <label className="block text-sm">
+              <span className="font-medium text-ink">When you sit down, what should they know, think or do?</span>
+              <textarea
+                value={intent}
+                onChange={(e) => setIntent(e.target.value)}
+                rows={3}
+                placeholder="For example: understand why the process needs more structure, and approve the pilot budget."
+                className="mt-1 w-full rounded-md border border-rule bg-paper-2 p-3 text-base leading-relaxed outline-none focus:border-ink"
+              />
+            </label>
+
+            <fieldset className="text-sm">
+              <legend className="font-medium text-ink">What kind of presentation is it?</legend>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {KIND_KEYS.map((k) => (
+                  <span key={k} className="group relative">
+                    <button
+                      type="button"
+                      onClick={() => setKind(kind === k ? "" : k)}
+                      aria-pressed={kind === k}
+                      aria-describedby={`kind-help-${k}`}
+                      className={
+                        "rounded-md border px-3 py-1.5 " +
+                        (kind === k
+                          ? "border-ink bg-ink text-paper"
+                          : "border-rule bg-paper-2 text-ink-2 hover:border-ink")
+                      }
+                    >
+                      {KINDS[k].label}
+                    </button>
+                    {/* Hover or keyboard focus: what this kind helps you do. Touch screens see it under the buttons once chosen. */}
+                    <span
+                      id={`kind-help-${k}`}
+                      role="tooltip"
+                      className="pointer-events-none absolute bottom-full left-0 z-20 mb-2 hidden w-64 rounded-md bg-ink px-3 py-2 text-xs leading-snug text-paper shadow-lg group-hover:block group-focus-within:block"
+                    >
+                      {KINDS[k].helps}
+                    </span>
+                  </span>
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-muted">
+                {kind ? KINDS[kind].helps : "Not sure? Leave it, and the StoryMachine will choose from your notes."}
+              </p>
+            </fieldset>
+
+            <fieldset className="text-sm">
+              <legend className="font-medium text-ink">Tone of voice</legend>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {REGISTERS.map((r) => (
                   <button
+                    key={r.value}
                     type="button"
-                    onClick={() => setKind(kind === k ? "" : k)}
-                    aria-pressed={kind === k}
-                    aria-describedby={`kind-help-${k}`}
+                    onClick={() => setRegister(r.value)}
+                    aria-pressed={register === r.value}
                     className={
                       "rounded-md border px-3 py-1.5 " +
-                      (kind === k
+                      (register === r.value
                         ? "border-ink bg-ink text-paper"
                         : "border-rule bg-paper-2 text-ink-2 hover:border-ink")
                     }
                   >
-                    {KINDS[k].label}
+                    {r.label}
                   </button>
-                  {/* Hover or keyboard focus: what this kind helps you do. Touch screens see it under the buttons once chosen. */}
-                  <span
-                    id={`kind-help-${k}`}
-                    role="tooltip"
-                    className="pointer-events-none absolute bottom-full left-0 z-20 mb-2 hidden w-64 rounded-md bg-ink px-3 py-2 text-xs leading-snug text-paper shadow-lg group-hover:block group-focus-within:block"
-                  >
-                    {KINDS[k].helps}
-                  </span>
-                </span>
-              ))}
-            </div>
-            <p className="mt-2 text-xs text-muted">
-              {kind ? KINDS[kind].helps : "Not sure? Leave it, and the StoryMachine will choose from your notes."}
-            </p>
-          </fieldset>
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-muted">{REGISTERS.find((r) => r.value === register)?.hint}</p>
+            </fieldset>
+          </div>
 
-          <label className="block text-sm">
-              <span className="text-muted">
-                After I sit down, I want them to know, understand, do… (optional)
-              </span>
-              <span className="mt-0.5 block text-xs text-muted">
-                Good presenters explain, engage, inspire, influence, support change, clarify, reassure or motivate. Which is yours?
-              </span>
-              <textarea
-                value={intent}
-                onChange={(e) => setIntent(e.target.value)}
-                rows={4}
-                placeholder="What they should know, understand or do when you have finished. For example: understand why the process needs more structure, and approve the pilot budget."
-                className="mt-1 w-full rounded-md border border-rule bg-paper-2 p-3 text-base leading-relaxed outline-none focus:border-ink"
-              />
-            </label>
-
-          <fieldset className="text-sm">
-            <p className="mb-3 max-w-xl text-sm text-ink-2">
-              What is the tone of voice that you want for the presentation? Formal (senior executives, government
-              officials, court cases)? Business (internal and external presentations and speeches to professional
-              colleagues, clients, customers and stakeholders)? Conversational (presentations to friends, peers and
-              colleagues in a friendly manner)?
-            </p>
-            <legend className="eyebrow">Tone</legend>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {REGISTERS.map((r) => (
-                <button
-                  key={r.value}
-                  type="button"
-                  onClick={() => setRegister(r.value)}
-                  title={r.hint}
-                  className={
-                    "rounded-md border px-3 py-1.5 " +
-                    (register === r.value
-                      ? "border-ink bg-ink text-paper"
-                      : "border-rule bg-paper-2 text-ink-2 hover:border-ink")
-                  }
-                >
-                  {r.label}
-                </button>
-              ))}
-            </div>
-          </fieldset>
+          <div className="space-y-4">
+            <StepHead
+              n={3}
+              title={signedIn ? "Your story" : "Your email"}
+              sub={
+                signedIn
+                  ? "Press the button. If your notes leave something important open, you get up to three short questions first. Then the whole story arrives."
+                  : "Press Find my story and enter your email. We send you a six-digit code; type it here. Then step 4, your story, starts straight away. Everything you have typed stays on this page."
+              }
+            />
 
           {storyId && (
             <p className="text-sm text-muted">
@@ -991,6 +983,17 @@ export default function Build() {
                 Start a new story instead
               </button>
             </p>
+          )}
+
+          {me && !me.signedIn && showSignIn && signInForStory && (
+            <div ref={signInBoxRef}>
+              <SignIn
+                title="Enter your email to see your story"
+                body="Your first story is free, start to finish, with the PDF. We send you a six-digit code. Type it here and your story starts straight away. No card, no password."
+                programme={programme}
+                onSignedIn={onSignedIn}
+              />
+            </div>
           )}
 
           {questions && questions.length > 0 ? (
@@ -1038,7 +1041,7 @@ export default function Build() {
                 </button>
               </div>
             </div>
-          ) : (
+          ) : !(me && !me.signedIn && showSignIn && signInForStory) ? (
             <div className="flex flex-wrap items-center gap-4">
               <button
                 onClick={() => start()}
@@ -1053,6 +1056,9 @@ export default function Build() {
                       ? "Find my story again"
                       : "Find my story"}
               </button>
+              {busy === null && notes.trim().length < 40 && (
+                <span className="text-sm text-muted">Add a few lines of notes in step 1 first.</span>
+              )}
               {busy === "questions" && <span className="text-sm text-muted">A few seconds.</span>}
               {busy === "story" && (
                 <span className="text-sm text-muted">
@@ -1060,7 +1066,8 @@ export default function Build() {
                 </span>
               )}
             </div>
-          )}
+          ) : null}
+          </div>
           {capNotice && (
             <p className="flex flex-wrap items-center gap-3 rounded-md bg-red-soft px-3 py-2 text-sm text-ink">
               {capNotice}
