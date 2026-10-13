@@ -2,17 +2,18 @@
 
 You have a presentation to make. You have notes, an old deck, a report or a head full of rough thinking. The StoryMachine turns that material into a story built for the people in front of you, then gives you what you need to deliver it: the words for the first and last minute, speaker notes, and a brief for your slides.
 
-It works in two stages.
+It takes four steps and about twenty minutes:
 
-**Stage 1: Get your story straight.** The Big Idea, the audience, your intent, the argument in one sentence and a story in three acts.
+1. **Your material.** Paste your notes or upload a file.
+2. **Your audience.** Who is in the room, what you want them to do, and the kind of presentation.
+3. **Your email.** We send you a six-digit code. No password, no card.
+4. **Your story.** It arrives in one run, ready to edit and download.
 
-**Stage 2: Add interest and impact.** A first minute that grabs attention, a signpost into each act, a slide idea for each act, an ending with a clear action, the story in five lines, speaker notes, the words in full, a slide brief and a prompt for your own AI slide tool.
+Your first story is free, start to finish. Each part arrives with a line saying why it is there, so you learn the method while it works.
 
-You press one button. If your notes leave something important open, the StoryMachine asks you up to three short questions first. Answer them or skip them. Then both stages arrive in one run, followed by notes on the rhetoric in your story: the devices you already use, and where one would make a line stronger. Your first story is free, start to finish.
+## Step 1: Your material
 
-Each part arrives with a line saying why it is there, so you learn the method while it works.
-
-## Step 1: Upload or add your content
+*Upload or add your content.*
 
 Bring whatever you have. The StoryMachine works only from your material, so the more of your own thinking it has, the more the story sounds like you.
 
@@ -24,7 +25,7 @@ Good material includes:
 - an email that explains the situation;
 - a few lines on why this matters to you.
 
-**Paste** your notes into the large box, or **upload** a file: PowerPoint (.pptx), Word (.docx), PDF or plain text.
+**Paste** your notes into the large box, or press **Upload a file**: PowerPoint (.pptx), Word (.docx), PDF or plain text.
 
 Your file stays on your computer. The StoryMachine reads the words on your own machine and adds only those to the box. The file itself never leaves your computer. There is no size limit on the file.
 
@@ -32,19 +33,19 @@ Before you go on, read what landed in the box and cut anything that belongs to a
 
 A scanned PDF is a picture of text, so it has no words to read. Export it again with text, or paste the text in.
 
-## Step 2: Answer two questions to help us understand what you want to do
+## Step 2: Your audience
 
-**Who is in the audience?** Say who they are and what matters to them. "The executive committee, who approved last year's budget and want to know what it bought" gives the StoryMachine far more to work with than "senior managers".
+*Help us understand what you want to do.*
 
-**What is your intent?** Finish this sentence: *After my presentation, the audience will...* Be specific about what they should know, feel or do. "...approve the second phase and name an owner by Friday" will build a sharper story than "...understand the project".
+All four parts of this step are optional, but the more you say, the sharper the story.
+
+**Who is in the room, and what matters to them?** Say who they are and what they care about. "The executive committee, who approved last year's budget and want to know what it bought" gives the StoryMachine far more to work with than "senior managers".
+
+**When you sit down, what should they know, think or do?** Finish this sentence: *After my presentation, the audience will...* Be specific. "...approve the second phase and name an owner by Friday" will build a sharper story than "...understand the project".
 
 Each answer can run to a short paragraph. If you leave them out, the StoryMachine works them out from your material and tells you what it assumed.
 
-## Step 3: Choose the presentation type
-
-*Sales pitch, training session and five more.*
-
-Every story has a Prologue, three acts and an Epilogue. What changes is the job each act does. Pick the kind of presentation you are making and the StoryMachine gives each act the right job for that room.
+**What kind of presentation is it?** Every story has a Prologue, three acts and an Epilogue. What changes is the job each act does. Pick the kind of presentation you are making and the StoryMachine gives each act the right job for that room.
 
 | Kind | Act 1 | Act 2 | Act 3 |
 |---|---|---|---|
@@ -60,9 +61,33 @@ Hover over each button for a line on what it helps you do. If you choose nothing
 
 Whatever the kind, Act 3 carries the ask: the approval, the decision, the next step or the help available. The Epilogue then recaps it and ends on the Big Idea. For a **bad news** presentation, the StoryMachine always reminds you to take legal advice before you explain how it happened.
 
-**Tone.** Choose formal, business or conversational. Business suits most rooms.
+**Tone of voice.** Choose formal, business or conversational. A line under the buttons says which rooms each one suits. Business suits most.
 
-Then press **Find my story**. It takes a minute or two.
+## Step 3: Your email
+
+*Sign in with a six-digit code.*
+
+Press **Find my story**. If this is your first visit, a box opens beside the button. Enter your email and we send you a code from Jim Harvey's StoryMachine. Type it in the box. There is no password and no card.
+
+Everything you have typed stays on the page while you sign in. Once the code is accepted, the StoryMachine carries straight on.
+
+- The code works on any device.
+- Each code works once, for an hour. If you ask for another, use the newest email.
+- Nothing after a minute? Look in your junk folder and mark the email as safe.
+
+Already have an account? Use **Already a user? Sign in** at the top of the page. Your stories are waiting.
+
+Signing in also adds you to the Presentation Guru list: one email a month from me. Unsubscribe any time.
+
+## Step 4: Your story
+
+*Questions first, then the whole story in one run.*
+
+**Up to three questions.** If your material leaves something important open, the StoryMachine asks you up to three short questions before it writes: about the audience, the action you want, or the fact the argument needs. Each comes with an example answer. A line each is plenty. Press **Write my story**, or **Skip the questions** and the story will name what is missing as a gap.
+
+**The story.** Stage 1 arrives first, usually in twenty to forty seconds. Stage 2 follows straight on, in the same run, in about a minute. Read Stage 1 while Stage 2 is on its way. Then come notes on the rhetoric in your story.
+
+Everything saves as you work. Open **My stories** at the top of the page to return to any story.
 
 ## Stage 1: Get your story straight
 
@@ -89,27 +114,11 @@ Here is what arrives, from the top.
 
 **The gaps.** What your material does not say and only you can supply: the example, the number, the reason this matters to you. The StoryMachine never fills a gap with something plausible. It asks.
 
-## Make it your own
-
-*You can add or edit every section.*
-
-**Type.** Click any line and change it. Your edits save as you go.
-
-**Ask for a better version.** Each line has a row of quick edits: sharper, simpler, more provocative, more senior, a different version, more memorable, or clearer. You can also type your own instruction, such as "use the hospital example" or "make this about the customer". The StoryMachine rewrites that one line and keeps the rest of the story true to it.
-
-**Argue with the strategist.** Open the strategist to talk the story through. Tell it what feels wrong, push back on its choices, ask it to try a different angle. It explains its thinking and, when you agree, revises the story.
-
-**Run it again.** Change your material, your audience or your intent and press Find my story again. You can do this as often as you like.
-
-Signed-in users get the quick edits and the strategist. Anyone can type.
-
-Stage 2 ends with a panel headed **Make it your own: Jim's suggestions**: the gaps in your story, followed by my advice before you rehearse.
-
 ## Stage 2: Add interest and impact
 
 *Headlines, soundbites and signposts.*
 
-When the story is right, press **Stage 2: add interest and impact**. Your first full story is free when you sign in.
+Stage 2 arrives straight after Stage 1. There is nothing to press.
 
 **The Prologue: the golden minute.** Your opening, written as words to say. It earns attention in the first sentence, states the Big Idea, says why it matters now and tells the room what to expect. The word count and speaking time sit underneath. Aim for about a minute.
 
@@ -120,8 +129,6 @@ When the story is right, press **Stage 2: add interest and impact**. Your first 
 **The Epilogue: end with certainty.** Audiences need certainty. The Epilogue recaps your headlines and the actions from here, and ends on the Big Idea, so you send them away with the message ringing in their ears.
 
 **The story in five lines.** The whole talk in thirty seconds. If it works here, it works in the room.
-
-**Make it your own: Jim's suggestions.** The gaps in your story, followed by my advice before you rehearse. Do these before you present. An audience believes a speaker who sounds like themselves.
 
 **Speaker notes.** Short cues, in the order you say them. Speak from these. A cue reminds you what comes next; the words come from you in the room, so they sound like you. Word for word is for legal and political speeches only.
 
@@ -134,6 +141,30 @@ When the story is right, press **Stage 2: add interest and impact**. Your first 
 ### If you change the Big Idea after Stage 2
 
 The Epilogue ends on the Big Idea. If you change the Big Idea afterwards, a red panel appears above the Epilogue. Press **Rewrite the ending** and the StoryMachine rewrites the Epilogue, its line in the five lines and its speaker notes so they land on the new Big Idea. Your Prologue and your acts stay exactly as you left them.
+
+## Rhetoric in your story
+
+*The devices you use already, and where one would help.*
+
+Most presenters use rhetorical devices without knowing it, and business audiences respond to them as much as any other. After Stage 2, the StoryMachine points out the devices in your story: a tricolon, anaphora, a metaphor, a callback from the Epilogue to the Prologue. Each one shows the line, where it sits, whether the words are yours or added, and one sentence on why it works.
+
+Then it suggests up to two lines where a device would make the story stronger. Copy any you like into the story by hand. After you edit, press **Check the rhetoric again after your edits**. The notes print in the PDF and the Word file.
+
+## Make it your own
+
+*You can add or edit every section.*
+
+**Type.** Click any line and change it. Your edits save as you go.
+
+**Ask for a better version.** Each line has a row of quick edits: sharper, simpler, more provocative, more senior, a different version, more memorable, or clearer. You can also type your own instruction, such as "use the hospital example" or "make this about the customer". The StoryMachine rewrites that one line and keeps the rest of the story true to it.
+
+**Argue with the strategist.** Open the strategist to talk the story through. Tell it what feels wrong, push back on its choices, ask it to try a different angle. It explains its thinking and, when you agree, revises the story.
+
+**Run it again.** Press **Rework the notes**, change your material, your audience or your intent, and press **Find my story again**.
+
+**Your free story** includes one rerun and five AI edits (the quick edits and the strategist together). A line under the downloads shows what is left. Edits by hand are always free. A story you pay for, or one from a programme, has no limits.
+
+Every story ends with a panel headed **Make it your own: Jim's suggestions**: the gaps in your story, followed by my advice before you rehearse. Do these before you present. An audience believes a speaker who sounds like themselves.
 
 ## Create a set of visuals
 
@@ -151,6 +182,8 @@ Whichever route you take, keep the titles as written. Read in order, they tell y
 
 ## Rehearse from your speaker notes
 
+*Download your story in PDF or Word.*
+
 Download your story to rehearse from it.
 
 **PDF.** The whole story in one document: Stage 1, Stage 2, Jim's suggestions, speaker notes, the words in full, the slide brief, the prompt and a final page on the method. Use it to rehearse, to share with a colleague, or to keep.
@@ -165,23 +198,9 @@ Then:
 2. **Say the Prologue and Epilogue aloud.** Change any word that feels borrowed.
 3. **Rehearse from the speaker notes.** Talk it through to a colleague and ask three questions: What was my argument? What do I want you to do? What will you remember tomorrow? If the answers match your intent, the story works. If they do not, fix the story. Slides cannot repair a weak argument.
 
-## Sign in for more options
-
-Sign in to unlock Stage 2, the downloads, the quick edits and the strategist, and to save your stories.
-
-**Signing in.** Enter your email. We send you an email from Jim Harvey's StoryMachine with a six-digit code. Type it on the page. There is no password.
-
-- The code works on any device.
-- Each code works once, for an hour. If you ask for another, use the newest email.
-- Nothing after a minute? Look in your junk folder and mark the email as safe.
-
-**Your stories are saved.** Everything saves as you work. Open **My stories** at the top of the page to return to any story.
-
-**Signing in also** adds you to the Presentation Guru list: one email a month from me. Unsubscribe any time.
-
 ## Choose a payment plan
 
-**Your first story is free**, start to finish: both stages and all three downloads. Sign in with your email; there is no card. It includes one rerun from **Rework the notes** and five AI edits (the edit buttons and the strategist together). Edits by hand are always free.
+**Your first story is free**, start to finish: both stages and all three downloads. You need only your email; there is no card. It includes one rerun from **Rework the notes** and five AI edits (the edit buttons and the strategist together). Edits by hand are always free.
 
 **After that**, press **Upgrade** at the top of the page:
 
@@ -209,8 +228,14 @@ A story you pay for, or one from a programme, has no limits: rerun it, edit it a
 
 **The soundbites do not sound like me.** They are not meant to until you edit them. Put each one in your own words.
 
+**I have used my free rerun or my five AI edits.** You can still edit every line by hand, and download the story as often as you like. For more runs and edits, choose a plan under **Upgrade**.
+
+**I lost my notes when I signed in.** That should no longer happen: the page keeps everything while you sign in. If it does, write to us at the address below.
+
 **Can I use it for a client presentation?** Yes. The story is yours: your material, your conviction, your words.
 
-For anything else, or for training for you or your team in the method behind it: jim.harvey@themessagebusiness.com
+For anything else: storymachine@themessagebusiness.com
+
+For training for you or your team in the method behind it: jim.harvey@themessagebusiness.com
 
 Terms, privacy and refunds are linked at the foot of every page.
