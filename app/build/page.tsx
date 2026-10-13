@@ -200,7 +200,25 @@ export default function Build() {
 
   // Back from signing in after pressing Find my story: carry straight on with the draft they left.
   const autostarted = useRef(false);
-  const startRef = useRef<(() => void) | null>(null);
+  const startRef = useRef<((justSignedIn?: boolean) => void) | null>(null);
+  // The draft is restored from the browser once, on load. Until then, saving it would wipe it (13 October:
+  // Jim signed in after pasting his notes, the page reloaded, and the empty form overwrote the saved draft).
+  const draftRestored = useRef(false);
+
+  // Signed in by code from the box at the top: stay on the page, keep everything typed, and carry on.
+  async function onSignedIn() {
+    try {
+      localStorage.removeItem(AUTOSTART_KEY);
+    } catch {
+      // ignore
+    }
+    autostarted.current = true;
+    const wasForStory = signInForStory;
+    setShowSignIn(false);
+    setSignInForStory(false);
+    await loadMe();
+    if (wasForStory) startRef.current?.(true);
+  }
   useEffect(() => {
     if (!me?.signedIn || autostarted.current) return;
     let pending = false;
@@ -237,6 +255,8 @@ export default function Build() {
         if (typeof d.kind === "string" && (KIND_KEYS as readonly string[]).includes(d.kind)) setKind(d.kind as Kind);
       } catch {
         // storage unavailable; carry on
+      } finally {
+        draftRestored.current = true;
       }
     });
     const params = new URLSearchParams(window.location.search);
@@ -310,6 +330,7 @@ export default function Build() {
   }, [loadMe]);
 
   useEffect(() => {
+    if (!draftRestored.current) return;
     try {
       localStorage.setItem(
         DRAFT_KEY,
@@ -476,10 +497,10 @@ export default function Build() {
 
   // Email first (11 October): one button, then up to three questions, then the whole story in one go.
   // Signed out: open the sign-in box and carry on by ourselves once they are in.
-  async function start() {
+  async function start(justSignedIn = false) {
     setError(null);
     setCapNotice(null);
-    if (!signedIn) {
+    if (!signedIn && !justSignedIn) {
       try {
         localStorage.setItem(AUTOSTART_KEY, "1");
       } catch {
@@ -490,6 +511,8 @@ export default function Build() {
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
+    setSignInForStory(false);
+    setShowSignIn(false);
     // Finding a saved story again is a rerun: no questions, straight to the story.
     if (storyId) return findStory([]);
     setBusy("questions");
@@ -764,12 +787,14 @@ export default function Build() {
                 title="Your first story is free"
                 body="Start to finish, with the PDF. Enter your email and we send you a six-digit code. Type it here and your story starts straight away, from the notes you have pasted. No card, no password."
                 programme={programme}
+                onSignedIn={onSignedIn}
               />
             ) : (
               <SignIn
                 title="Welcome back"
                 body="Enter the email you used before. We send you a six-digit code. Your stories are waiting."
                 programme={programme}
+                onSignedIn={onSignedIn}
               />
             )}
           </div>
@@ -1016,7 +1041,7 @@ export default function Build() {
           ) : (
             <div className="flex flex-wrap items-center gap-4">
               <button
-                onClick={start}
+                onClick={() => start()}
                 disabled={busy !== null || notes.trim().length < 40}
                 className="rounded-md bg-ink px-6 py-3 text-base font-medium text-paper disabled:opacity-40"
               >

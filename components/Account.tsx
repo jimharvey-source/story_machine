@@ -50,7 +50,11 @@ export function needsUpgrade(me: Me): boolean {
   return left === 0 || !me.programme;
 }
 
-export function SignIn({ compact, title, body, next, programme }: { compact?: boolean; title?: string; body?: string; next?: string; programme?: string | null }) {
+/**
+ * onSignedIn: stay on this page once the code is accepted, rather than reloading it. The build page uses it so the
+ * notes, the answers and an uploaded file's words are still on screen and the story can start straight away.
+ */
+export function SignIn({ compact, title, body, next, programme, onSignedIn }: { compact?: boolean; title?: string; body?: string; next?: string; programme?: string | null; onSignedIn?: () => void }) {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -74,6 +78,11 @@ export function SignIn({ compact, title, body, next, programme }: { compact?: bo
     if (error) {
       setChecking(false);
       setError("That code did not work. Use the newest email, or send a new code. Each code works once, for an hour.");
+      return;
+    }
+    if (onSignedIn) {
+      setChecking(false);
+      onSignedIn();
       return;
     }
     window.location.assign(next ?? "/build");
