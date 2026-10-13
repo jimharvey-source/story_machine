@@ -160,7 +160,7 @@ export async function renderDocx(title: string, story: Story, landing: Landing |
     out.push(h2(name));
     out.push(p(text));
   }
-  out.push(p(LICENCE, { small: true }));
+  for (const para of LICENCE) out.push(p(para, { small: true }));
   out.push(new Paragraph({ alignment: AlignmentType.LEFT, children: [new TextRun({ text: SIGN_OFF, size: 18 })] }));
 
   const doc = new Document({

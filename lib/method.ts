@@ -9,8 +9,15 @@ export const METHOD: Array<[string, string]> = [
   ["Then the slides, last", "Slides come after the story, so every one has a job to do. Few, simple, one idea each."],
 ];
 
-export const LICENCE =
-  "The story in this document is yours: your material, your conviction, your words. The method that shaped it, the three-act structure, the Prologue and Epilogue, the tests each part has to pass, is the intellectual property of The Message Business and is licensed to you for your own presentations. Teach it to your team with our training, or use the StoryMachine as many times as you need.";
+/** Where people write for projects, training and organisation licences. Shown in the PDF and Word downloads. */
+export const CONTACT_EMAIL = "storymachine@themessagebusiness.com";
+
+/** The closing words of every download, in Jim's wording (12 October 2026). One string per paragraph. */
+export const LICENCE: string[] = [
+  "The story in this document is yours: your material, your conviction, your words. We have simply helped you shape and sharpen it based on our experience of helping clients sell their ideas, products and services all over the world for the last 35 years.",
+  `If you want help on specific projects, training for your team or to license the StoryMachine for your organisation to use, contact us at ${CONTACT_EMAIL}.`,
+  "The method that shaped StoryMachine is the intellectual property of The Message Business and is licensed to you for your own presentations.",
+];
 
 export const SIGN_OFF = "Jim Harvey  ·  The Message Business  ·  themessagebusiness.com  ·  presentation-guru.com";
 

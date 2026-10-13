@@ -418,7 +418,10 @@ function render(title: string, story: Story, landing: Landing | null, rhetoric: 
       gap(2);
     }
     rule();
-    body(LICENCE, 9.5, "#3d3a33");
+    LICENCE.forEach((para, i) => {
+      if (i) gap(1.5);
+      body(para, 9.5, "#3d3a33");
+    });
     gap(2);
     body(SIGN_OFF, 9, MUTED);
 
