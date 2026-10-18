@@ -55,15 +55,15 @@ export function Tour({ programme = false }: { programme?: boolean }) {
             presentation will emerge. The audience leaves with plenty of information, often too much information, but
             no clear message.
           </p>
-          <div className="my-8 space-y-4 border-l-2 border-red pl-6">
-            <p className="said text-2xl leading-snug text-ink sm:text-[1.7rem]">When has a great actor saved a terrible script? Never.</p>
+          <div className="my-8 border-l-2 border-red pl-6">
             <p className="said text-2xl leading-snug text-ink sm:text-[1.7rem]">
-              Going on stage with good presentation skills alone is like repainting the Titanic after it has hit the iceberg. The story is the problem.
+              In most poor presentations, the story is the problem. But after the presentation, the presenter gets the
+              blame. It&apos;s unfair, and it&apos;s easy to fix.
             </p>
           </div>
           <p>
-            The solution is to decide what you are saying, and to whom, before you build a single slide. That is what
-            StoryMachine does.
+            StoryMachine helps you build stronger stories. Stronger stories mean more confident presenters and more engaged
+            audiences. More engaged audiences mean better results.
           </p>
         </Section>
 
