@@ -8,6 +8,46 @@ import { Icon, IconTile, type IconName } from "@/components/Icon";
 export function Tour({ programme = false }: { programme?: boolean }) {
   return (
     <>
+        {/* 1b. Who we are (18 October): the "we" behind "our advice" and "65 years between us". */}
+        <section className="mt-20 border-t border-rule pt-16 sm:mt-28">
+          <p className="eyebrow">Who we are</p>
+          <h2 className="display mt-3 max-w-3xl text-3xl leading-tight sm:text-[2.6rem]">
+            Two people who have spent 65 years helping others make their case.
+          </h2>
+          <div className="mt-10 grid gap-5 md:grid-cols-2">
+            <div className="panel !p-7 sm:!p-9">
+              <p className="display text-2xl">Jim Harvey</p>
+              <p className="mt-4 text-lg leading-relaxed text-ink-2">
+                Jim started his first business 35 years ago and had to learn to sell as he built it. Before long, clients
+                were asking him to help them launch products, run conferences and train their people. Today his company, The
+                Message Business, works with teams at JP Morgan, Mercer, Ford, Rolls-Royce and many others in technology,
+                retail, consulting and finance. He has also written for television, done hundreds of gigs as a stand-up
+                comedian, and hosts conferences as a core part of his work.
+              </p>
+              <a href="https://www.themessagebusiness.com" className="mt-4 inline-block text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
+                The Message Business
+              </a>
+            </div>
+            <div className="panel !p-7 sm:!p-9">
+              <p className="display text-2xl">John Zimmer</p>
+              <p className="mt-4 text-lg leading-relaxed text-ink-2">
+                John is a lawyer who found public speaking and never looked back. He is a nine-time European Toastmasters
+                champion and a TEDx speaker. He teaches presentation skills on Executive MBA programmes in Geneva, Lausanne
+                and Barcelona. His blog, <em>Manner of Speaking</em>, has been one of the leading voices on public speaking
+                since 2009.
+              </p>
+              <a href="https://mannerofspeaking.org/the-face-behind-the-blog/" className="mt-4 inline-block text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
+                Manner of Speaking
+              </a>
+            </div>
+          </div>
+          <p className="mt-8 max-w-3xl text-lg leading-relaxed text-ink-2">
+            They met through a shared obsession with presentations, started{" "}
+            <a href="https://www.presentation-guru.com" className="underline decoration-rule underline-offset-4 hover:text-ink"><em>Presentation Guru</em></a>{" "}
+            together, and have worked side by side ever since.
+          </p>
+        </section>
+
         {/* 2. The problem */}
         <Section icon="backwards" label="The problem" title="Most presentations are built backwards.">
           <p>
