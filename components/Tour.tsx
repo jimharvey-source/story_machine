@@ -15,7 +15,10 @@ export function Tour({ programme = false }: { programme?: boolean }) {
             Two people who have spent 65 years helping others make their case.
           </h2>
           <div className="mt-10 grid gap-5 md:grid-cols-2">
-            <div className="panel !p-7 sm:!p-9">
+            <div className="panel overflow-hidden !p-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/team/jim.jpg" alt="Jim Harvey" width={640} height={800} loading="lazy" className="aspect-[5/4] w-full bg-ink object-cover object-top" />
+              <div className="p-7 sm:p-8">
               <p className="display text-2xl">Jim Harvey</p>
               <p className="mt-4 text-lg leading-relaxed text-ink-2">
                 Jim started his first business 35 years ago and had to learn to sell as he built it. Before long, clients
@@ -27,8 +30,12 @@ export function Tour({ programme = false }: { programme?: boolean }) {
               <a href="https://www.themessagebusiness.com" className="mt-4 inline-block text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
                 The Message Business
               </a>
+              </div>
             </div>
-            <div className="panel !p-7 sm:!p-9">
+            <div className="panel overflow-hidden !p-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/team/john.jpg" alt="John Zimmer" width={640} height={800} loading="lazy" className="aspect-[5/4] w-full bg-ink object-cover object-top" />
+              <div className="p-7 sm:p-8">
               <p className="display text-2xl">John Zimmer</p>
               <p className="mt-4 text-lg leading-relaxed text-ink-2">
                 John is a lawyer who found public speaking and never looked back. He is a nine-time European Toastmasters
@@ -39,6 +46,7 @@ export function Tour({ programme = false }: { programme?: boolean }) {
               <a href="https://mannerofspeaking.org/the-face-behind-the-blog/" className="mt-4 inline-block text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
                 Manner of Speaking
               </a>
+              </div>
             </div>
           </div>
           <p className="mt-8 max-w-3xl text-lg leading-relaxed text-ink-2">
