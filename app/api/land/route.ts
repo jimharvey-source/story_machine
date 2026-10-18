@@ -59,7 +59,7 @@ export async function POST(req: Request) {
     const hint = /authentication|api-key|api_key/i.test(message) ? ` (${describeKey()})` : "";
     console.error("[api/land]", message);
     return NextResponse.json(
-      { error: "The StoryMachine could not finish that. " + message + hint },
+      { error: "StoryMachine could not finish that. " + message + hint },
       { status: 502 }
     );
   }

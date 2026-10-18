@@ -123,8 +123,8 @@ export async function refundAi(storyId: string, kind: AiKind): Promise<void> {
 }
 
 const CAP_MESSAGES: Record<AiKind, string> = {
-  rerun: "Your free story has had its rerun. Edit any line by hand, or upgrade for unlimited reruns.",
-  edit: "That is the five AI edits on your free story. Edit any line by hand, or upgrade for unlimited edits and the strategist.",
+  rerun: "Your free story has had its rerun: one full rebuild from changed notes. Edit any line by hand, or upgrade for unlimited reruns.",
+  edit: "That is the five AI edits on your free story: line rewrites and exchanges with StoryMachine. Edit any line by hand, or upgrade for unlimited AI edits.",
   land: "Your free story has used its Stage 2 runs. Upgrade to run it again.",
   rhetoric: "Your free story has used its rhetoric checks. Upgrade to run them again.",
 };

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Icon, IconTile, type IconName } from "@/components/Icon";
 
 // The case for the StoryMachine, from the problem to the method. Shared by the landing page and the
@@ -10,23 +11,24 @@ export function Tour({ programme = false }: { programme?: boolean }) {
         {/* 2. The problem */}
         <Section icon="backwards" label="The problem" title="Most presentations are built backwards.">
           <p>
-            Most people open PowerPoint first. They gather old slides, add new ones, and hope a story appears. The
-            audience leaves with plenty of information and no message.
+            People start with PowerPoint. They gather old slides, add new ones, and hope that somehow, a coherent
+            presentation will emerge. The audience leaves with plenty of information, often too much information, but
+            no clear message.
           </p>
           <div className="my-8 space-y-4 border-l-2 border-red pl-6">
-            <p className="said text-2xl leading-snug text-ink sm:text-[1.7rem]">
-              Presentation skills training alone is like repainting the Titanic after it has hit the iceberg. The story is the problem.
-            </p>
             <p className="said text-2xl leading-snug text-ink sm:text-[1.7rem]">When has a great actor saved a terrible script? Never.</p>
+            <p className="said text-2xl leading-snug text-ink sm:text-[1.7rem]">
+              Going on stage with good presentation skills alone is like repainting the Titanic after it has hit the iceberg. The story is the problem.
+            </p>
           </div>
           <p>
-            The long-term fix is to decide what you are saying, and to whom, before you build a single slide. That is
-            what the StoryMachine does.
+            The solution is to decide what you are saying, and to whom, before you build a single slide. That is what
+            StoryMachine does.
           </p>
         </Section>
 
         {/* 3. How it works */}
-        <Section icon="acts" label="How it works" title="Four steps. About twenty minutes.">
+        <Section icon="acts" label="How it works" title="Five steps. About 20 minutes.">
           <ol className="mt-2 border-b border-rule">
             {(programme ? HOW_PROGRAMME : HOW).map(([head, body], i) => (
               <li key={head} className="grid grid-cols-[1.5rem_1fr_auto] items-start gap-3 border-t border-rule py-6">
@@ -44,7 +46,7 @@ export function Tour({ programme = false }: { programme?: boolean }) {
         {/* 4. What you get */}
         <section className="border-t border-rule pt-16 mt-20 sm:mt-28">
           <p className="eyebrow">What you get</p>
-          <h2 className="display mt-3 max-w-3xl text-3xl leading-tight sm:text-[2.6rem]">A detailed PDF you can use at once.</h2>
+          <h2 className="display mt-3 max-w-3xl text-3xl leading-tight sm:text-[2.6rem]">A compelling story that you can take to your audience.</h2>
           <div className="mt-8">
             <IconTile name="download" size="xl" />
           </div>
@@ -54,7 +56,8 @@ export function Tour({ programme = false }: { programme?: boolean }) {
                 <IconTile name={st.icon} />
                 <p className="tag mt-5 text-red">{st.n}</p>
                 <p className="display mt-1 text-2xl">{st.name}</p>
-                <p className="mt-1 text-sm text-muted">{programme ? "Included in your twenty stories." : st.access}</p>
+                <p className="mt-1 text-ink-2">{st.sub}</p>
+                <p className="mt-1 text-sm text-muted">{programme ? "Included in your 20 stories." : st.access}</p>
                 <ul className="mt-6 space-y-4">
                   {st.steps.map(([head, sub]) => (
                     <li key={head}>
@@ -66,18 +69,26 @@ export function Tour({ programme = false }: { programme?: boolean }) {
               </div>
             ))}
           </div>
-          <p className="mt-8 max-w-2xl text-lg text-ink-2">
-            Then download the lot as a PDF, a Word file, or a PowerPoint outline ready for your company template.
-          </p>
+          <div className="mt-5 grid gap-5 md:grid-cols-2">
+            {AFTER.map(([tag, head, sub, icon]) => (
+              <div key={head} className="flex items-start gap-4 rounded-md border border-rule bg-paper-2 p-6">
+                <IconTile name={icon} size="sm" />
+                <span>
+                  <span className="tag block text-red">{tag}</span>
+                  <span className="mt-1 block font-semibold text-ink">{head}</span>
+                  <span className="block text-ink-2">{sub}</span>
+                </span>
+              </div>
+            ))}
+          </div>
         </section>
 
-        {/* 5. Built for the room you face */}
-        <Section icon="grid" label="Presentation types" title="Tell it what kind of presentation it is.">
+        {/* 5. Presentation types */}
+        <Section icon="grid" label="Presentation types" title="Tell StoryMachine what kind of presentation it is.">
           <p>
-            A project update, a strategy recommendation, a sales pitch, choosing between options, a training session, bad
-            news, or something else. Each one gives the three acts the right job for that room. A sales pitch moves from
-            the need to the solution to the proof and the close. Bad news moves from what happened to putting it right to
-            where it ends for the people affected.
+            A project update, a strategy recommendation, a sales pitch, choosing between options, a training session, a
+            conference keynote, a scientific presentation, bad news, or something else. StoryMachine helps you create the
+            right story for any presentation.
           </p>
           <ul className="mt-8 flex flex-wrap gap-2">
             {KINDS.map(([k, icon]) => (
@@ -90,39 +101,46 @@ export function Tour({ programme = false }: { programme?: boolean }) {
         </Section>
 
         {/* 6. Make it your own */}
-        <Section icon="pen" label="It works only from what you give it" title="Make it your own.">
+        <Section icon="pen" label="StoryMachine works from what you give it" title="Make it your own.">
           <p>
-            Where your notes are silent, the StoryMachine asks. Every story ends with a panel headed{" "}
-            <span className="font-semibold text-ink">Make it your own: Jim&apos;s suggestions</span>: the example, the
-            number, the reason this matters to you, and my advice before you rehearse. An audience believes a speaker who
-            sounds like themselves.
+            StoryMachine only works from your notes, your documents and your ideas. If it needs more information,
+            StoryMachine will ask you questions. Every story ends with a panel headed{" "}
+            <span className="font-semibold text-ink">Make it your own</span>. Here, you add the example, the number, the
+            reason it matters to you. And you get advice before you rehearse. Audiences believe speakers who sound like
+            themselves.
           </p>
         </Section>
 
-        {/* 7. Your deck stays on your computer */}
-        <Section icon="laptop" label="Confidential material" title="Your deck stays on your computer.">
+        {/* 7. Your documents stay on your computer */}
+        <Section icon="laptop" label="Confidential material" title="Your documents stay on your computer.">
           <p>
-            Upload a PowerPoint, Word file or PDF of any size. The StoryMachine reads the words on your own computer; the
-            file itself never leaves it. Only the words go to our servers and to the AI that writes your story. Your story
-            is saved to your account, and you can delete it at any time.
+            Upload a Word file, PDF or PowerPoint of any size. StoryMachine reads the words, but the files never leave your
+            computer. Only the words go to our servers and to the AI that helps you write your story. Your story is saved
+            to your account. You can delete it, and all related material, at any time.
+          </p>
+          <p className="mt-4">
+            For more details on how your information is handled, please see the{" "}
+            <Link href="/guide" className="underline decoration-rule underline-offset-4 hover:text-ink">User Guide</Link>.
           </p>
         </Section>
 
         {/* 8. The method behind it */}
-        <Section icon="book" label="The method behind it" title="Thirty years of the same method, in one tool.">
+        <Section icon="book" label="The method behind it" title="65 years of the same method, in one tool.">
           <p>
-            We have used this method for thirty years with teams at JP Morgan, Mercer, Ford, Rolls-Royce, Givaudan, Puig,
-            Grifols, AstraZeneca, Mott MacDonald and many others.
+            Between us, we have used this method for 65 years with teams at AstraZeneca, Ford, Givaudan, Gore, Grifols, JP
+            Morgan, Mercer, Mott MacDonald, Nokia, Puig, Rolls-Royce, UEFA, the United Nations, Zalando and many others.
           </p>
           <p className="mt-4">
-            Each part of your story arrives with a line saying why it is there, so you learn the method while it works. The
-            PDF ends with the method on a page, so you can do it yourself next time.
+            Each part of your story has a line explaining why it is there, so you learn the method while you work with
+            StoryMachine. The PDF ends with a summary of the method, so you can do it yourself next time.
           </p>
           <p className="said mt-8 text-2xl leading-snug text-ink sm:text-[1.7rem]">
-            I have been doing this thirty years and I am not Churchill.
+            You don&apos;t have to be a superstar to speak and present well. Steve Jobs, Barack Obama, Nelson Mandela,
+            Mahatma Gandhi, all of the greats had speechwriters to help them.
           </p>
           <p className="mt-4">
-            The StoryMachine is a good coach at nine in the evening before the board meeting, which is when you need one.
+            StoryMachine will guide you through the maze of information and help you structure and articulate the good
+            ideas you already have.
           </p>
         </Section>
     </>
@@ -144,32 +162,37 @@ export function Section({ icon, label, title, children }: { icon: IconName; labe
   );
 }
 
-// Four steps, in the order the public visitor meets them (13 October: sign-in is a step, so nobody is surprised by it).
+// Five steps, in the order the public visitor meets them (John Zimmer's working draft 4, 18 October).
 const HOW: Array<[string, string]> = [
   [
-    "Bring what you have.",
-    "Paste your notes, or upload the deck, the paper or the brief. Your file stays on your computer; only the words are read.",
+    "Answer some key questions.",
+    "What kind of presentation is it? Who is your audience, and what do they think about the subject? What do you want them to do when you finish? What is your message, and why should they care?",
   ],
   [
-    "Tell it about your audience.",
-    "Who is in the room, and what do you want them to do when you sit down? Choose the kind of presentation. If something important is missing, it asks you up to three short questions.",
+    "Add what you have.",
+    "Paste or type your notes. Upload any relevant documents. Your files stay on your computer; StoryMachine only reads the words.",
   ],
   [
     "Enter your email.",
-    "We send you a six-digit code. Type it on the page. No password, no card. Your first story is free.",
+    "We will send you a six-digit code. Type it on the page. No credit card required. Your first story is free.",
   ],
   [
-    "Read your story and take it away.",
-    "Edit any line, ask for a sharper version, or argue with the strategist until it says what you mean. Then download it as a PDF, a Word file or a PowerPoint outline.",
+    "Read and revise your story.",
+    "Edit any line, ask for a sharper version, or argue with StoryMachine until it says what you mean. When you are satisfied, download it as a PDF or Word file.",
+  ],
+  [
+    "Add slides, if you need them.",
+    "StoryMachine can produce a PowerPoint outline, or give you a detailed prompt for your slides to use in your AI tool of choice.",
   ],
 ];
 
-// On a programme welcome page the person signs in at the top first, so the email step comes first.
+// On a programme welcome page the person signs in at the top first.
 const HOW_PROGRAMME: Array<[string, string]> = [
-  ["Sign in at the top of this page.", "Your work email and the six-digit code we send you. No password."],
+  ["Sign in at the top of this page.", "Your work email and the six-digit code we send you."],
   HOW[0],
   HOW[1],
   HOW[3],
+  HOW[4],
 ];
 
 const STAGES = [
@@ -177,25 +200,31 @@ const STAGES = [
     n: "Stage 1",
     icon: "target" as IconName,
     name: "Get your story straight",
+    sub: "The essential elements that form the backbone of your story.",
     access: "Free with your first story.",
     steps: [
       ["Understand the audience", "Who is in the room, what they need to hear, what to leave out."],
-      ["Set clear goals", "After my presentation, the audience will..."],
-      ["Build a three-act story", "Beginning, middle and end. Why, how, what."],
+      ["Set a clear goal", "After my presentation, the audience will..."],
+      ["Build a three-act story", "Beginning, middle, end."],
     ],
   },
   {
     n: "Stage 2",
     icon: "mic" as IconName,
     name: "Add interest and impact",
+    sub: "Refine and reinforce your story.",
     access: "Follows straight on, in the same run.",
     steps: [
-      ["A confident start and a definite ending", "The first minute, and an ending with a clear action."],
-      ["Headlines and signposts", "The lines they will remember, and the sentences that tell them the point has arrived."],
-      ["A simple set of visuals", "One idea per slide, with a brief and a prompt for the tool you use."],
-      ["Rehearse it into life", "Speaker notes, and the words in full. Say it aloud before you build anything."],
+      ["A confident start and a powerful ending", "The first minute, and a conclusion with a clear call to action."],
+      ["Headlines and signposts", "The lines the audience will remember, and the sentences that drive home the key points."],
     ],
   },
+];
+
+// After the two stages, two things of their own (18 October): rehearsal, then slides if you need them.
+const AFTER: Array<[string, string, string, IconName]> = [
+  ["Then", "Rehearse it into life", "Speaker notes, and the words in full. Say it aloud before you build anything.", "acts"],
+  ["Finally, if you need them", "The outline for powerful visuals", "One idea per slide, with a brief and a prompt for your own AI tool.", "slides"],
 ];
 
 const KINDS: Array<[string, IconName]> = [
@@ -204,9 +233,11 @@ const KINDS: Array<[string, IconName]> = [
   ["Sales pitch", "pitch"],
   ["Choosing between options", "options"],
   ["Training session", "training"],
+  ["Conference keynote", "mic"],
+  ["Scientific presentation", "science"],
   ["Bad news", "badnews"],
   ["Something else", "quote"],
 ];
 
-const STEP_ICONS: IconName[] = ["notes", "questions", "mail", "acts"];
-const STEP_ICONS_PROGRAMME: IconName[] = ["mail", "notes", "questions", "acts"];
+const STEP_ICONS: IconName[] = ["questions", "notes", "mail", "acts", "slides"];
+const STEP_ICONS_PROGRAMME: IconName[] = ["mail", "questions", "notes", "acts", "slides"];

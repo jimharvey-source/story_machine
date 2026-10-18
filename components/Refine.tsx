@@ -38,7 +38,7 @@ export function Refine({ messages, busy, onSend }: Props) {
     <section className="border-t border-rule pt-8">
       <p className="eyebrow">Refine the story</p>
       <p className="mt-2 max-w-xl text-ink-2">
-        Talk to the strategist. Say what is wrong, what the room is like, or what the real point is. The story
+        Argue with StoryMachine. Say what is wrong, what the room is like, or what the real point is. The story
         above changes as you go.
       </p>
 
@@ -62,13 +62,13 @@ export function Refine({ messages, busy, onSend }: Props) {
         <ol className="mt-5 space-y-4">
           {messages.map((m, i) => (
             <li key={i} className={m.role === "user" ? "pl-0" : "border-l-2 border-red pl-4"}>
-              <p className="eyebrow">{m.role === "user" ? "You" : "Strategist"}</p>
+              <p className="eyebrow">{m.role === "user" ? "You" : "StoryMachine"}</p>
               <p className="mt-1 whitespace-pre-wrap text-ink">{m.content}</p>
             </li>
           ))}
           {busy && (
             <li className="border-l-2 border-red pl-4">
-              <p className="eyebrow">Strategist</p>
+              <p className="eyebrow">StoryMachine</p>
               <p className="mt-1 text-muted">Reworking the story...</p>
             </li>
           )}

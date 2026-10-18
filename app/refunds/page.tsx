@@ -7,7 +7,7 @@ export default function Refunds() {
   return (
     <LegalPage title="Refunds">
       <p>
-        If the StoryMachine has not done what you needed, email <Mail /> within 14 days of paying and we will refund you
+        If StoryMachine has not done what you needed, email <Mail /> within 14 days of paying and we will refund you
         in full. You do not need to give a reason, and you keep the stories and PDFs you have made.
       </p>
       <ul>

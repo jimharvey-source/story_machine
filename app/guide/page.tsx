@@ -10,7 +10,7 @@ import { Icon, IconTile, type IconName } from "@/components/Icon";
 // [links](/x), bullet and numbered lists, and one table.
 
 export const metadata: Metadata = {
-  title: "User guide | Jim Harvey's StoryMachine",
+  title: "User Guide | Jim Harvey's StoryMachine",
   description: "How to use Jim Harvey's StoryMachine, step by step.",
 };
 
@@ -76,17 +76,17 @@ function Inline({ text }: { text: string }) {
 
 // One icon per section of the guide, from the StoryMachine icon set.
 const ICONS: Record<string, IconName> = {
-  "Meet the StoryMachine": "clipboard",
-  "Step 1: Your material": "upload",
-  "Step 2: Your audience": "questions",
+  "Meet StoryMachine": "clipboard",
+  "Step 1: Key questions": "questions",
+  "Step 2: Your material": "upload",
   "Step 3: Your email": "key",
   "Step 4: Your story": "acts",
   "Stage 1: Get your story straight": "target",
   "Stage 2: Add interest and impact": "mic",
-  "Rhetoric in your story": "quote",
+  "Add power to your language": "quote",
   "Make it your own": "pen",
-  "Create a set of visuals": "slides",
   "Rehearse from your speaker notes": "download",
+  "Add slides, if you need them": "slides",
   "Choose a payment plan": "tag",
   "Get help": "help",
 };
@@ -128,8 +128,8 @@ export default function Guide() {
 
         <article className="min-w-0 max-w-3xl">
           <IconTile name="book" size="lg" />
-          <p className="eyebrow mt-5">User guide</p>
-          <h1 className="display mt-3 text-4xl leading-[1.05] sm:text-5xl">How to use the StoryMachine</h1>
+          <p className="eyebrow mt-5">User Guide</p>
+          <h1 className="display mt-3 text-4xl leading-[1.05] sm:text-5xl">How to use StoryMachine</h1>
           <div className="mt-10 space-y-5 text-[1.0625rem] leading-relaxed text-ink-2">
             {blocks.map((b, i) => {
               switch (b.t) {

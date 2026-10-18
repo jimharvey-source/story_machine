@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     const session = await s.checkout.sessions.create({
       mode: isSubscription(plan) ? "subscription" : "payment",
       customer,
-      line_items: [{ price: priceId(plan), quantity: 1 }],
+      line_items: [{ price: await priceId(plan), quantity: 1 }],
       allow_promotion_codes: true,
       success_url: `${base}/build?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${base}/build?checkout=cancelled`,

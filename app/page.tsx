@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { Lockup } from "@/components/Logo";
 import { Icon, IconTile } from "@/components/Icon";
 import { Tour } from "@/components/Tour";
+import { CONTACT_EMAIL } from "@/lib/method";
 
 // The front door. Signed-out visitors read the case and press "Build your first story"; the tool lives at /build.
 // Copy: claude/storymachine-landing-page.md. Lines in quotation marks there are Jim's, word for word.
@@ -30,18 +31,18 @@ export default async function Landing({ searchParams }: Props) {
     }
     redirect(`/build?${q.toString()}`);
   }
-  // A signed-in visitor goes straight to the tool. The session cookie is enough to decide; /build checks it properly.
+  // A signed-in visitor sees the page too (18 October: the tool's Home link comes here), with a way back to the tool.
   const jar = await cookies();
-  if (jar.getAll().some((c) => c.name.startsWith("sb-") && c.name.includes("-auth-token"))) redirect("/build");
+  const signedIn = jar.getAll().some((c) => c.name.startsWith("sb-") && c.name.includes("-auth-token"));
 
   return (
     <>
       <header className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-5 pt-6 lg:px-10">
         <Lockup href={null} />
         <nav className="ml-auto flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
-          <Link href="/guide" className="text-ink-2 hover:text-ink">User guide</Link>
-          <Link href="/build#signin" className="text-ink-2 hover:text-ink">Sign in</Link>
-          <BuildButton small />
+          <Link href="/guide" className="text-ink-2 hover:text-ink">User Guide</Link>
+          {!signedIn && <Link href="/build#signin" className="text-ink-2 hover:text-ink">Sign in</Link>}
+          <BuildButton small signedIn={signedIn} />
         </nav>
       </header>
 
@@ -53,23 +54,14 @@ export default async function Landing({ searchParams }: Props) {
             Start with the story, not with the slides.
           </h1>
           <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink-2 sm:text-xl">
-            You have a big presentation to make. The audience is tough, and the subject is complex. After thirty years of
-            helping the biggest businesses do this, my advice is: start with the story, not the slides. Now there is a
-            machine that walks you through it.
+            You have a big presentation to make. The subject is complex and the stakes are high. After 65 years between us
+            helping the biggest businesses get their message across, our advice is: start with the story, not the slides.
           </p>
+          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink-2 sm:text-xl">And now there is a tool that walks you through it.</p>
           <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-3">
-            <BuildButton />
-            <p className="text-sm text-muted">Your first story is free. Just your email, no card.</p>
+            <BuildButton signedIn={signedIn} />
+            <p className="text-sm text-muted">Your first story is free. Just your email, no credit card.</p>
           </div>
-          <ol className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-2" aria-label="How it works">
-            {["Your material", "Your audience", "Your email", "Your story"].map((step, i) => (
-              <li key={step} className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-ink text-xs font-semibold text-paper">{i + 1}</span>
-                {step}
-              </li>
-            ))}
-            <li className="text-muted">About twenty minutes.</li>
-          </ol>
           </div>
           <HeroStory />
         </section>
@@ -84,36 +76,32 @@ export default async function Landing({ searchParams }: Props) {
             <IconTile name="tag" size="xl" />
           </div>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Price label="Your first story" amount="Free" note="Start to finish, with the PDF. Your email, no card, no password." strong />
-            <Price label="One story" amount="$4.99" note="That story, for as long as you keep it." />
-            <Price label="A month" amount="$15.99" note="As many stories as you need. Cancel any time." />
-            <Price label="A year" amount="$99" note="As many stories as you need for twelve months." />
+            <Price label="Your first story" amount="Free" note="Start to finish, with the PDF. Just your email, no credit card." strong />
+            <Price label="Each additional story" amount="$9.99" note="Edit as often as you like." />
+            <Price label="One month" amount="$19.99" note="As many stories as you like for one month. Cancel any time." />
+            <Price label="One year" amount="$149.99" note="As many stories as you like for one year. Cancel any time." />
           </div>
-          <p className="mt-6 max-w-2xl text-ink-2">
-            <span className="font-semibold text-ink">On one of our programmes?</span> Your programme link adds twenty stories
-            when you sign in.
-          </p>
         </section>
 
         {/* 10. Close */}
         <section className="panel mt-20 sm:mt-28 !p-8 sm:!p-14">
           <Icon name="quote" className="!h-12 !w-12" />
           <h2 className="display mt-6 max-w-2xl text-3xl leading-tight sm:text-[2.6rem]">
-            Try it on the presentation you are worried about.
+            Try it for your next presentation.
           </h2>
           <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
-            <BuildButton />
+            <BuildButton signedIn={signedIn} />
             <p className="text-sm text-muted">
-              New here? Read the{" "}
-              <Link href="/guide" className="underline decoration-rule underline-offset-4 hover:text-ink">user guide</Link>.
+              For more information, read the{" "}
+              <Link href="/guide" className="underline decoration-rule underline-offset-4 hover:text-ink">User Guide</Link>.
             </p>
           </div>
         </section>
 
         <p className="mt-12 text-sm text-muted">
-          For training for you or your team:{" "}
-          <a href="mailto:jim.harvey@themessagebusiness.com" className="underline decoration-rule underline-offset-4 hover:text-ink">
-            jim.harvey@themessagebusiness.com
+          For bespoke training for you or your team:{" "}
+          <a href={`mailto:${CONTACT_EMAIL}`} className="underline decoration-rule underline-offset-4 hover:text-ink">
+            {CONTACT_EMAIL}
           </a>
         </p>
       </main>
@@ -157,14 +145,14 @@ function HeroStory() {
         </div>
         <div className="mt-5 flex items-center gap-2 border-t border-rule pt-4 text-sm text-muted">
           <Icon name="mic" className="!h-[18px] !w-[18px]" />
-          Prologue, signposts, Epilogue, speaker notes
+          Prologue, signposts, three acts, Epilogue, speaker notes
         </div>
       </div>
     </div>
   );
 }
 
-function BuildButton({ small = false }: { small?: boolean }) {
+function BuildButton({ small = false, signedIn = false }: { small?: boolean; signedIn?: boolean }) {
   return (
     <Link
       href="/build"
@@ -173,7 +161,7 @@ function BuildButton({ small = false }: { small?: boolean }) {
         (small ? "px-4 py-2 text-sm" : "px-7 py-3.5 text-base")
       }
     >
-      Build your first story
+      {signedIn ? "Go to my stories" : "Build your first story"}
     </Link>
   );
 }

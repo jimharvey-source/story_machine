@@ -9,7 +9,6 @@ import { RHETORIC_LEAD, RHETORIC_TITLE, deviceLine, hasRhetoric, suggestionLine 
 import { KINDS, kindOf } from "./kinds";
 import { LICENCE, METHOD, SIGN_OFF } from "./method";
 import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "./ownIt";
-import { slideList, slidePrompt } from "./slides";
 
 type Story = z.infer<typeof StoryInputSchema>;
 type Landing = z.infer<typeof LandingInputSchema>;
@@ -77,7 +76,6 @@ export async function renderDocx(title: string, story: Story, landing: Landing |
     for (const pt of act.supportingPoints) out.push(bullet(pt));
     if (landing) {
       out.push(label("Signpost, spoken", landing[key].signpost));
-      out.push(label("Slide idea", landing[key].visualIdea));
     }
   }
 
@@ -139,19 +137,6 @@ export async function renderDocx(title: string, story: Story, landing: Landing |
     ] as const) {
       out.push(h2(name));
       out.push(p(text));
-    }
-
-    out.push(h1("Slide brief", true));
-    const slides = slideList(story, landing);
-    slides.forEach(([name, text, serves], i) => {
-      out.push(h2(`Slide ${i + 1}, ${name}, serves ${serves}`));
-      out.push(p(text));
-    });
-
-    out.push(h1("Make the slides with your own AI tool", true));
-    out.push(p("Copy the prompt below into the AI tool you use for slides.", { italic: true }));
-    for (const line of slidePrompt(story, landing, slides).split("\n")) {
-      out.push(new Paragraph({ children: [new TextRun({ text: line, font: "Courier New", size: 18 })] }));
     }
   }
 

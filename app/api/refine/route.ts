@@ -70,6 +70,6 @@ export async function POST(req: Request) {
     if (storyId) await refundAi(storyId, "edit");
     const message = e instanceof Error ? e.message : "Unknown error";
     console.error("[api/refine]", message);
-    return NextResponse.json({ error: "The strategist could not answer that. " + message }, { status: 502 });
+    return NextResponse.json({ error: "StoryMachine could not answer that. " + message }, { status: 502 });
   }
 }

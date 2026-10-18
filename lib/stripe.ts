@@ -21,7 +21,22 @@ export function isPlan(v: unknown): v is Plan {
   return typeof v === "string" && (PLANS as string[]).includes(v);
 }
 
-export function priceId(plan: Plan): string {
+// The price for each plan is found by its lookup key, so a new price made by scripts/stripe-setup.mjs
+// (for example the 18 October prices: $9.99, $19.99, $149.99) takes effect without touching Vercel.
+// The STRIPE_PRICE_* variables are the fallback if the lookup fails.
+const LOOKUP: Record<Plan, string> = {
+  story: "story_machine_story",
+  monthly: "story_machine_monthly",
+  annual: "story_machine_annual",
+};
+
+export async function priceId(plan: Plan): Promise<string> {
+  try {
+    const found = await stripe().prices.list({ lookup_keys: [LOOKUP[plan]], active: true, limit: 1 });
+    if (found.data[0]?.id) return found.data[0].id;
+  } catch (e) {
+    console.warn("[stripe] price lookup failed", plan, e instanceof Error ? e.message : e);
+  }
   const name = `STRIPE_PRICE_${plan.toUpperCase()}`;
   const id = process.env[name] ?? "";
   if (!id) throw new Error(`${name} is not set`);

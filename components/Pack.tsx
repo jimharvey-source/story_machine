@@ -5,13 +5,13 @@ import type { Landing, Story } from "@/lib/schema";
 import { slideList, slidePrompt } from "@/lib/slides";
 import { KINDS, kindOf } from "@/lib/kinds";
 
-// Everything the PDF adds after stage two, shown on the page as well, in the same order.
+// After Stage 2: rehearsal on the story page, slides on their own (18 October: the slides come last, on a separate view).
 
 function Why({ children }: { children: React.ReactNode }) {
   return <p className="mt-1 mb-3 text-xs leading-relaxed text-muted">{children}</p>;
 }
 
-export function Pack({ story, landing }: { story: Story; landing: Landing }) {
+export function Rehearse({ story, landing }: { story: Story; landing: Landing }) {
   const notes = landing.speechNotes ?? { prologue: [], why: [], how: [], what: [], epilogue: [] };
   const acts = KINDS[kindOf(story.kind)].acts;
   const beats: Array<[string, string[], string]> = [
@@ -22,20 +22,7 @@ export function Pack({ story, landing }: { story: Story; landing: Landing }) {
     ["Epilogue", notes.epilogue, "end with certainty"],
   ];
   const hasNotes = beats.some(([, cues]) => cues.length > 0);
-  const slides = slideList(story, landing);
-  const prompt = slidePrompt(story, landing, slides);
-  const [copied, setCopied] = useState(false);
   const [showScript, setShowScript] = useState(false);
-
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(prompt);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setCopied(false);
-    }
-  }
 
   const script: Array<[string, string]> = [
     ["Prologue", landing.prologue],
@@ -47,8 +34,12 @@ export function Pack({ story, landing }: { story: Story; landing: Landing }) {
 
   return (
     <>
+      <section className="border-t border-rule pt-8">
+        <p className="eyebrow text-red">Rehearse it into life</p>
+        <p className="said mt-2 text-xl leading-snug text-ink">Say it aloud before you build anything. Speak from the notes; read only if you must.</p>
+      </section>
       {hasNotes && (
-        <section className="border-t border-rule pt-8">
+        <section>
           <p className="eyebrow">Speaker notes</p>
           <Why>Speak from these. Never from a script. One cue per line, in the order you say them; the words come from you in the room, so they sound like you.</Why>
           <div className="grid gap-6 sm:grid-cols-2">
@@ -92,6 +83,44 @@ export function Pack({ story, landing }: { story: Story; landing: Landing }) {
         )}
       </section>
 
+    </>
+  );
+}
+
+/** The slides view: what good slides look like, the brief, the prompt for an AI tool. The PowerPoint button sits on the page. */
+export function Slides({ story, landing }: { story: Story; landing: Landing }) {
+  const slides = slideList(story, landing);
+  const prompt = slidePrompt(story, landing, slides);
+  const [copied, setCopied] = useState(false);
+  // The presenter said the talk has no slides: every act's slide idea says so.
+  const wordsAlone = (["why", "how", "what"] as const).every((k) => /\bno (visual|slide)s?\b|without slides|words alone/i.test(landing[k]?.visualIdea ?? ""));
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(prompt);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  return (
+    <>
+      {wordsAlone && (
+        <section className="rounded-md bg-red-soft px-5 py-4 text-ink">
+          Your talk is built for words alone, and that is a strength. If you do want slides, here is a brief that serves the story.
+        </section>
+      )}
+      <section>
+        <p className="eyebrow">What great slides do</p>
+        <ul className="mt-3 space-y-2 text-ink-2">
+          <li className="border-l-2 border-red pl-4">One idea per slide. The slide illustrates; your words explain.</li>
+          <li className="border-l-2 border-red pl-4">The three-second rule: if the audience cannot take it in at a glance, it is too much.</li>
+          <li className="border-l-2 border-red pl-4">The titles tell the story. Read in order, they are your argument.</li>
+          <li className="border-l-2 border-red pl-4">Words large, one picture at most, no bullet lists.</li>
+        </ul>
+      </section>
       <section className="border-t border-rule pt-8">
         <p className="eyebrow">Slide brief</p>
         <Why>One idea per slide. The words carry the story; the slide reinforces it. Build the deck from this list, in this order, and nothing else goes on the slide.</Why>

@@ -24,9 +24,9 @@ export type Me = {
 
 // Lifetime stopped selling on 11 October 2026; the people who bought it keep it.
 export const PRICES = {
-  story: { label: "One story", price: "$4.99", note: "This story, for as long as you keep it." },
-  monthly: { label: "A month", price: "$15.99", note: "As many as you need. Cancel any time." },
-  annual: { label: "A year", price: "$99", note: "As many as you need for twelve months. About $8.25 a month." },
+  story: { label: "Each additional story", price: "$9.99", note: "Edit as often as you like." },
+  monthly: { label: "One month", price: "$19.99", note: "As many stories as you like for one month. Cancel any time." },
+  annual: { label: "One year", price: "$149.99", note: "As many stories as you like for one year. Cancel any time. About $12.50 a month." },
 } as const;
 
 export type PlanKey = "story" | "monthly" | "annual";
@@ -313,9 +313,9 @@ export function Paywall({ me, onChange, onClose }: { me: Me; onChange: () => voi
       </div>
       <h2 className="display mt-2 text-2xl sm:text-3xl">Your next story, start to finish.</h2>
       <p className="mt-3 max-w-xl text-ink-2">
-        Both stages: the story straight, then the first minute, signposts, slide ideas, the ending and speaker notes.
-        Download it as a PDF or a Word file, and the slide outline as PowerPoint, ready for your company template.
-        Unlimited reruns, AI edits and the strategist come with it.
+        Both stages: the story straight, then the first minute, signposts, the ending and speaker notes. Download it as
+        a PDF or a Word file, and, if you need slides, an outline in PowerPoint ready for your company template.
+        Unlimited reruns and AI edits come with it.
       </p>
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
         {(["story", "monthly", "annual"] as PlanKey[]).map((k) => {

@@ -5,7 +5,6 @@ import { currentProfile, purchaseRequired, signInRequired, startStory } from "@/
 import { unlockStory } from "@/lib/guest";
 import { LandingInputSchema, RhetoricSchema, StoryInputSchema, type Rhetoric } from "@/lib/schema";
 import { RHETORIC_LEAD, RHETORIC_TITLE, deviceLine, hasRhetoric, suggestionLine } from "@/lib/rhetoric";
-import { slideList, slidePrompt } from "@/lib/slides";
 import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "@/lib/ownIt";
 import { KINDS, kindOf } from "@/lib/kinds";
 import { LICENCE, METHOD, SIGN_OFF } from "@/lib/method";
@@ -265,9 +264,6 @@ function render(title: string, story: Story, landing: Landing | null, rhetoric: 
         keep(70);
         eyebrow("Signpost, spoken");
         spoken(land.signpost);
-        gap(3);
-        eyebrow("Slide idea");
-        body(land.visualIdea, 10, "#3d3a33");
       }
     }
 
@@ -368,39 +364,8 @@ function render(title: string, story: Story, landing: Landing | null, rhetoric: 
         gap(2);
       }
 
-      // 4. Slide brief
-      doc.addPage();
-      pageTitle(
-        "Slide brief",
-        "One idea per slide. The words carry the story; the slide reinforces it.",
-        "Build the deck from this list, in this order. Each line gives the words on the slide, the picture, and the act it serves. Nothing else goes on the slide."
-      );
-      const slides = slideList(story, landing);
-      slides.forEach(([name, text, serves], i) => {
-        keep(60);
-        rule();
-        doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(`SLIDE ${i + 1}  ·  ${name.toUpperCase()}  ·  SERVES ${serves.toUpperCase()}`, L, doc.y, { characterSpacing: 1.2, width: W });
-        gap(1.5);
-        body(text, 10.5);
-      });
-
-      // 5. A prompt for the presenter's own AI tool
-      doc.addPage();
-      pageTitle(
-        "Make the slides with your own AI tool",
-        "Copy the prompt below into the AI tool you use for slides.",
-        "It carries our rules for slides and your slide brief. The tool will give you a plain, television-quality deck: one idea per slide, big words, one picture. Add the build animations in your slide software afterwards, one item at a time."
-      );
-      const prompt = slidePrompt(story, landing, slides);
-      const boxTop = doc.y;
-      doc.font("Courier").fontSize(8.5).fillColor(INK).text(prompt, L + 10, boxTop + 10, { width: W - 20, lineGap: 2 });
-      const boxBottom = doc.y + 10;
-      // Draw the frame after the text so page breaks inside the text are handled by pdfkit.
-      if (boxBottom > boxTop) {
-        doc.rect(L, boxTop, W, Math.min(boxBottom, bottom()) - boxTop).lineWidth(0.5).strokeColor(RULE).stroke();
-      }
-      doc.x = L;
-      doc.y = boxBottom + 6;
+      // The slide brief and the prompt live on the slides page and in the PowerPoint outline (18 October):
+      // the story document is the story.
     }
 
     if (!landing) ownIt([...story.gaps, ...ownItAdvice(story, null)]);

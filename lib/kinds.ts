@@ -1,10 +1,10 @@
-// The seven kinds of presentation, from Jim's Six Speech Structures (2013 outline, 2016 rewrite).
+// The nine kinds of presentation, from Jim's Six Speech Structures (2013 outline, 2016 rewrite).
 // Buttons use the words people use at work; the PDF carries the book's name.
 // Every kind keeps Prologue, three acts and Epilogue. Only the job of each part changes.
 // The act jobs are Jim's rewrite of 3 October, benchmarked and approved. Act 3 carries the ask for every kind.
 // Shared by the page, the prompts and the PDF.
 
-export const KIND_KEYS = ["progress", "strategy", "sales", "decision", "training", "badnews", "other"] as const;
+export const KIND_KEYS = ["progress", "strategy", "sales", "decision", "training", "keynote", "science", "badnews", "other"] as const;
 export type Kind = (typeof KIND_KEYS)[number];
 
 export type KindInfo = {
@@ -85,6 +85,30 @@ export const KINDS: Record<Kind, KindInfo> = {
     act2: "The knowledge, skills, attitudes and habits it takes, step by step.",
     act3: "Practice, testing and feedback, and how to keep learning.",
     epilogue: "Why it matters, in a sentence or two; the first thing to practise; how to keep learning.",
+  },
+  keynote: {
+    label: "Conference keynote",
+    book: "The Conference Keynote",
+    line: "Why your talk matters to this conference, where the field stands, and where it goes next.",
+    helps: "Bring your idea to a wide audience and get them interested.",
+    acts: ["Why it matters", "The present", "The future"],
+    prologue: "Why this talk, for this conference and this audience, now: the Big Idea in a sentence.",
+    act1: "How your talk fits the conference and the audience, and why it matters to them.",
+    act2: "How you and your organisation are navigating the field now.",
+    act3: "What happens next, what it means, and what you want from this audience.",
+    epilogue: "The headlines recapped, what you want the audience to do or think, and the Big Idea last.",
+  },
+  science: {
+    label: "Scientific presentation",
+    book: "The Scientific Presentation",
+    line: "Why the experts should care, what remains unsolved, and what you ask of them.",
+    helps: "Turn all that data and all those details into a meaningful message.",
+    acts: ["Why the experts should care", "The challenges", "The ask"],
+    prologue: "The finding or question in a sentence, and why it matters to this audience now.",
+    act1: "The implications of the latest developments in your field, and why these experts should care.",
+    act2: "What remains unsolved, and what it means for the field and for society.",
+    act3: "What you are doing, how the audience can benefit from your insights, and what you ask of them.",
+    epilogue: "The finding and the ask recapped, and the Big Idea last.",
   },
   badnews: {
     label: "Bad news",

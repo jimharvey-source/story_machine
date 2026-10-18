@@ -3,16 +3,18 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Landing, Question, Rhetoric, Story } from "@/lib/schema";
-import { RHETORIC_LEAD, RHETORIC_TITLE, hasRhetoric } from "@/lib/rhetoric";
+import { RHETORIC_LEAD, RHETORIC_TITLE, hasRhetoric, pathLabel } from "@/lib/rhetoric";
 import { Editable, EditableList } from "@/components/Editable";
 import { Refine, type ChatMessage } from "@/components/Refine";
 import { AccountBar, Paywall, SignIn, type Me } from "@/components/Account";
 import { clearPendingProgramme, normaliseCode, readPendingProgramme, savePendingProgramme } from "@/lib/pendingProgramme";
 import { StoriesPanel } from "@/components/Stories";
 import { Lockup } from "@/components/Logo";
-import { Pack } from "@/components/Pack";
 import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "@/lib/ownIt";
 import { KIND_KEYS, KINDS, kindOf, type Kind } from "@/lib/kinds";
+import { KEY_QUESTIONS, composeAnswers, splitAnswers } from "@/lib/keyQuestions";
+import { Rehearse, Slides } from "@/components/Pack";
+import { RhetoricNotes } from "@/components/RhetoricNotes";
 
 const DRAFT_KEY = "storymachine.draft";
 const CURRENT_KEY = "storymachine.current";
@@ -24,7 +26,7 @@ type AiUsage = Partial<Record<"rerun" | "edit" | "land" | "rhetoric", number>>;
 
 type Register = "formal" | "business" | "conversational";
 const REGISTERS: Array<{ value: Register; label: string; hint: string }> = [
-  { value: "formal", label: "Formal", hint: "Senior executives, government, legal settings. No contractions." },
+  { value: "formal", label: "Formal", hint: "Senior executives and government representatives. No contractions." },
   { value: "business", label: "Business", hint: "Colleagues, clients and stakeholders. Direct and plain." },
   { value: "conversational", label: "Conversational", hint: "Peers and friends. Warm, short sentences." },
 ];
@@ -38,7 +40,7 @@ type Meta = {
 };
 type ActKey = "why" | "how" | "what";
 const ACTS: Array<{ key: ActKey; n: string; word: string; job: string; why: string }> = [
-  { key: "why", n: "Act 1", word: "Why", job: "the hook", why: "The problem, and why it matters to this audience now. Until they feel the problem, the answer is noise." },
+  { key: "why", n: "Act 1", word: "Why", job: "the hook", why: "The issue, and why it matters to this audience now. Until they feel it, the answer is just noise." },
   { key: "how", n: "Act 2", word: "How", job: "the response", why: "The insight or the answer. Only the evidence that carries the point; the rest goes in a handout." },
   { key: "what", n: "Act 3", word: "What", job: "the ask", why: "What you want them to think, feel or do next. Say it plainly, once." },
 ];
@@ -120,8 +122,9 @@ function setIn<T>(obj: T, path: string[], value: unknown): T {
 
 export default function Build() {
   const [notes, setNotes] = useState("");
-  const [audience, setAudience] = useState("");
-  const [intent, setIntent] = useState("");
+  // The four key questions (lib/keyQuestions.ts). They travel as the audience and intent fields.
+  const [keys, setKeys] = useState<string[]>(["", "", "", ""]);
+  const { audience, intent } = composeAnswers(keys);
   const [register, setRegister] = useState<Register>("business");
   // The kind of presentation. Empty: the StoryMachine chooses, and says so.
   const [kind, setKind] = useState<Kind | "">("");
@@ -146,6 +149,8 @@ export default function Build() {
   const [questions, setQuestions] = useState<Question[] | null>(null);
   const [answers, setAnswers] = useState<string[]>([]);
   const [rhetoric, setRhetoric] = useState<Rhetoric | null>(null);
+  // The finished story, or the slides made from it (18 October: the slides come last, on a view of their own).
+  const [view, setView] = useState<"story" | "slides">("story");
   // A capped story that has used an allowance: the message, with an Upgrade button beside it.
   const [capNotice, setCapNotice] = useState<string | null>(null);
   const [saveState, setSaveState] = useState<
@@ -246,8 +251,8 @@ export default function Build() {
         if (!raw) return;
         const d = JSON.parse(raw);
         if (typeof d.notes === "string") setNotes(d.notes);
-        if (typeof d.audience === "string") setAudience(d.audience);
-        if (typeof d.intent === "string") setIntent(d.intent);
+        if (Array.isArray(d.keys)) setKeys([0, 1, 2, 3].map((i) => (typeof d.keys[i] === "string" ? d.keys[i] : "")));
+        else if (typeof d.audience === "string" || typeof d.intent === "string") setKeys(splitAnswers(d.audience ?? "", d.intent ?? ""));
         if (
           d.register === "formal" ||
           d.register === "business" ||
@@ -285,10 +290,10 @@ export default function Build() {
             setNotice(
               d.ok
                 ? d.kind === "annual"
-                  ? "Payment received. A year of stories starts now."
+                  ? "Payment received, thank you. Your year of stories starts now."
                   : d.kind === "monthly"
-                    ? "Payment received. A month of stories starts now."
-                    : "Payment received. Your next story is ready to start."
+                    ? "Payment received, thank you. Your month of stories starts now."
+                    : "Payment received, thank you. Your next story is ready to start."
                 : "Payment is being confirmed. Reload in a moment if it has not appeared.",
             );
             return loadMe();
@@ -298,7 +303,7 @@ export default function Build() {
         setNotice("Checkout cancelled. Your story is still here.");
         loadMe();
       } else if (params.get("joined")) {
-        setNotice("You are in. Paste your notes below to find your first story.");
+        setNotice("Welcome, you are in! Answer the questions below and add your material to find your first story.");
         loadMe();
       } else if (params.get("joinerror")) {
         setNotice(
@@ -336,12 +341,12 @@ export default function Build() {
     try {
       localStorage.setItem(
         DRAFT_KEY,
-        JSON.stringify({ notes, audience, intent, register, kind }),
+        JSON.stringify({ notes, keys, register, kind }),
       );
     } catch {
       // ignore
     }
-  }, [notes, audience, intent, register, kind]);
+  }, [notes, keys, register, kind]);
 
   useEffect(() => {
     try {
@@ -427,8 +432,7 @@ export default function Build() {
         aiUsage?: AiUsage;
       };
       setNotes(s.notes);
-      setAudience(s.audience);
-      setIntent(s.intent);
+      setKeys(splitAnswers(s.audience ?? "", s.intent ?? ""));
       setRegister(s.register);
       const opened = normaliseStory(s.story);
       setStory(opened);
@@ -440,6 +444,7 @@ export default function Build() {
       setCapped(Boolean(s.capped));
       setAiUsage(s.aiUsage ?? {});
       setRhetoric(s.rhetoric ?? null);
+      setView("story");
       setCapNotice(null);
       setChat([]);
       setShowStories(false);
@@ -552,6 +557,7 @@ export default function Build() {
     setStory(null);
     setLanding(null);
     setRhetoric(null);
+    setView("story");
     setChat([]);
     setSaveState("idle");
     let found: { id: string | null; story: Story } | null = null;
@@ -563,7 +569,8 @@ export default function Build() {
         register,
         kind: kind || undefined,
         storyId: storyId ?? undefined,
-        answers: given.filter((g) => g.answer.trim()),
+        // Blank answers go too: a blank means "I don't know yet", and the story names it as a gap.
+        answers: given,
       });
       setKindChosenByMachine(!kind);
       if (data.id) setStoryId(data.id);
@@ -745,7 +752,7 @@ export default function Build() {
       setChat([...next, { role: "assistant", content: data.reply }]);
       setAiUsage((u) => ({ ...u, edit: (u.edit ?? 0) + 1 }));
     } catch (e) {
-      handleApiError(e, "The strategist could not answer that");
+      handleApiError(e, "StoryMachine could not answer that");
       setChat(chat);
     } finally {
       setBusy(null);
@@ -761,13 +768,20 @@ export default function Build() {
   const rerunsLeft = Math.max(0, FREE_CAPS.rerun - (aiUsage.rerun ?? 0));
   const chips = (path: string, current: string | string[]) =>
     signedIn ? (a: string) => edit(path, current, a) : undefined;
+  // The rhetoric notes for one line, under it. "Use this line" is an edit by hand: free.
+  const notesFor = (path: string, current: string) => (
+    <RhetoricNotes rhetoric={rhetoric} path={path} current={current} onUse={(p, t) => applyPath(p, t)} />
+  );
+  const legacyRhetoric = rhetoric ? { devices: rhetoric.devices.filter((d) => !d.path), suggestions: rhetoric.suggestions.filter((x) => !x.path) } : null;
+  const inPlaceCount = rhetoric ? rhetoric.devices.filter((d) => d.path).length + rhetoric.suggestions.filter((x) => x.path).length : 0;
 
   return (
     <main className="mx-auto w-full max-w-3xl px-5 pb-24 pt-10 sm:pt-16 lg:max-w-5xl lg:px-10 2xl:max-w-6xl">
       <header className={story ? "mb-10" : "mb-6"}>
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <Lockup />
-          <Link href="/guide" className="ml-auto text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">User guide</Link>
+          <Link href="/?home=1" className="ml-auto text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">Home</Link>
+          <Link href="/guide" className="text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">User Guide</Link>
           {me && !me.signedIn && (
             <button
               type="button"
@@ -834,70 +848,19 @@ export default function Build() {
           <div>
             <h1 className="display text-3xl leading-[1.05] sm:text-4xl">What do you want to say?</h1>
             <p className="mt-3 max-w-2xl text-ink-2">
-              Give the StoryMachine your material and tell it about your audience. It builds the story, start to finish,
-              in about two minutes.
-              {me && !me.signedIn && " Your first story is free: just your email, no card, no password."}{" "}
-              <Link href="/guide" className="underline decoration-rule underline-offset-4 hover:text-ink">User guide</Link>
+              Answer some key questions about your presentation, your audience, your objective and your message. Add any
+              relevant material. StoryMachine builds the story, start to finish.
+              {me && !me.signedIn && " Your first story is free. Just your email, no credit card."}{" "}
+              <Link href="/guide" className="underline decoration-rule underline-offset-4 hover:text-ink">User Guide</Link>
             </p>
           </div>
 
-          <div>
-            <StepHead n={1} title="Your material" sub="Paste your notes, an old deck, a paper or your rough thinking. It does not need to be neat." />
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={12}
-              placeholder="Paste your notes here, or upload a file below."
-              className="mt-3 w-full rounded-md border border-rule bg-paper-2 p-4 text-base leading-relaxed outline-none focus:border-ink"
-            />
-            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">
-              <button
-                type="button"
-                onClick={() => fileRef.current?.click()}
-                disabled={busy !== null}
-                className="rounded-md border border-ink bg-paper-2 px-4 py-2 font-medium text-ink disabled:opacity-40"
-              >
-                {busy === "upload" ? "Reading the file..." : "Upload a file"}
-              </button>
-              <span>PDF, Word or PowerPoint. The file stays on your computer; only the words are read.</span>
-              <input
-                ref={fileRef}
-                type="file"
-                accept=".pdf,.docx,.pptx,.txt,.md"
-                className="hidden"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) upload(f);
-                }}
-              />
-              {uploadNote && <span className="w-full text-ink">{uploadNote}</span>}
-            </div>
-          </div>
-
           <div className="space-y-6">
-            <StepHead n={2} title="Your audience" sub="The more you say here, the sharper the story. All four are optional." />
-            <label className="block text-sm">
-              <span className="font-medium text-ink">Who is in the room, and what matters to them?</span>
-              <textarea
-                value={audience}
-                onChange={(e) => setAudience(e.target.value)}
-                rows={3}
-                placeholder="For example: the executive committee, eight people, sceptical about cost, who care most about the pipeline number."
-                className="mt-1 w-full rounded-md border border-rule bg-paper-2 p-3 text-base leading-relaxed outline-none focus:border-ink"
-              />
-            </label>
-
-            <label className="block text-sm">
-              <span className="font-medium text-ink">When you sit down, what should they know, think or do?</span>
-              <textarea
-                value={intent}
-                onChange={(e) => setIntent(e.target.value)}
-                rows={3}
-                placeholder="For example: understand why the process needs more structure, and approve the pilot budget."
-                className="mt-1 w-full rounded-md border border-rule bg-paper-2 p-3 text-base leading-relaxed outline-none focus:border-ink"
-              />
-            </label>
-
+            <StepHead
+              n={1}
+              title="Key questions"
+              sub="Think carefully about the questions below and answer them as thoroughly as you can. They are the foundations of your presentation. The more you say here, the sharper your story will be. If you don't know an answer yet, leave it blank: StoryMachine will name it as a gap."
+            />
             <fieldset className="text-sm">
               <legend className="font-medium text-ink">What kind of presentation is it?</legend>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -929,10 +892,23 @@ export default function Build() {
                 ))}
               </div>
               <p className="mt-2 text-xs text-muted">
-                {kind ? KINDS[kind].helps : "Not sure? Leave it, and the StoryMachine will choose from your notes."}
+                {kind ? KINDS[kind].helps : "Not sure? Leave it, and StoryMachine will choose from your notes."}
               </p>
             </fieldset>
 
+            {KEY_QUESTIONS.map((q, i) => (
+              <label key={q.tag} className="block text-sm">
+                <span className="font-medium text-ink">{q.question}</span>
+                <textarea
+                  value={keys[i]}
+                  onChange={(e) => setKeys((prev) => prev.map((v, j) => (j === i ? e.target.value : v)))}
+                  rows={3}
+                  maxLength={1500}
+                  placeholder={q.hint}
+                  className="mt-1 w-full rounded-md border border-rule bg-paper-2 p-3 text-base leading-relaxed outline-none focus:border-ink"
+                />
+              </label>
+            ))}
             <fieldset className="text-sm">
               <legend className="font-medium text-ink">Tone of voice</legend>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -957,14 +933,47 @@ export default function Build() {
             </fieldset>
           </div>
 
+          <div>
+            <StepHead n={2} title="Your material" sub="Paste your notes or rough thinking. Upload your documents. It does not have to be neat." />
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={12}
+              placeholder="Paste your notes here, or upload a file below."
+              className="mt-3 w-full rounded-md border border-rule bg-paper-2 p-4 text-base leading-relaxed outline-none focus:border-ink"
+            />
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                disabled={busy !== null}
+                className="rounded-md border border-ink bg-paper-2 px-4 py-2 font-medium text-ink disabled:opacity-40"
+              >
+                {busy === "upload" ? "Reading the file..." : "Upload a file"}
+              </button>
+              <span>PDF, Word or PowerPoint. The files stay on your computer; only the words are read.</span>
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".pdf,.docx,.pptx,.txt,.md"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) upload(f);
+                }}
+              />
+              {uploadNote && <span className="w-full text-ink">{uploadNote}</span>}
+            </div>
+          </div>
+
           <div className="space-y-4">
             <StepHead
               n={3}
               title={signedIn ? "Your story" : "Your email"}
               sub={
                 signedIn
-                  ? "Press the button. If your notes leave something important open, you get up to three short questions first. Then the whole story arrives."
-                  : "Press Find my story and enter your email. We send you a six-digit code; type it here. Then step 4, your story, starts straight away. Everything you have typed stays on this page."
+                  ? "Press the button. If something important is still open, StoryMachine asks you up to two more questions. Then the whole story arrives."
+                  : "Press Find my story and enter your email. We send you a six-digit code to type here. Then you get the complete story for your presentation, to edit and refine. Everything you have typed stays on this page."
               }
             />
 
@@ -972,7 +981,7 @@ export default function Build() {
             <p className="text-sm text-muted">
               {capped
                 ? rerunsLeft > 0
-                  ? "Reworking the notes of your free story. It includes one rerun. "
+                  ? "Reworking the notes of your free story. It includes one rerun: a full rebuild from your changed notes. "
                   : "Your free story has had its rerun. Edit any line by hand, or upgrade for unlimited reruns. "
                 : "Reworking the notes of a saved story. Finding it again is free. "}
               <button
@@ -989,7 +998,7 @@ export default function Build() {
             <div ref={signInBoxRef}>
               <SignIn
                 title="Enter your email to see your story"
-                body="Your first story is free, start to finish, with the PDF. We send you a six-digit code. Type it here and your story starts straight away. No card, no password."
+                body="Your first story is free, start to finish, with the PDF. We send you a six-digit code. Type it here and your story starts straight away. No credit card. Signing in adds you to the Presentation Guru list: one useful email a month. Unsubscribe any time."
                 programme={programme}
                 onSignedIn={onSignedIn}
               />
@@ -1000,10 +1009,11 @@ export default function Build() {
             <div className="rounded-md border border-ink bg-paper-2 p-5 sm:p-6">
               <p className="eyebrow">Before I write it</p>
               <h2 className="display mt-2 text-2xl">
-                {questions.length === 1 ? "One question" : `${questions.length === 2 ? "Two" : "Three"} questions`} your notes leave open.
+                {questions.length === 1 ? "One question" : "Two questions"} your notes leave open.
               </h2>
               <p className="mt-2 max-w-xl text-sm text-ink-2">
-                A line each is plenty. Skip any you cannot answer; the story will name it as a gap.
+                One or two lines each is plenty, but the more detail you add, the more useful it is. If you can&apos;t answer
+                one, leave it blank: StoryMachine will name it as a gap.
               </p>
               <ol className="mt-5 space-y-5">
                 {questions.map((q, i) => (
@@ -1031,14 +1041,7 @@ export default function Build() {
                 >
                   Write my story
                 </button>
-                <button
-                  type="button"
-                  onClick={() => findStory([])}
-                  disabled={busy !== null}
-                  className="text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink"
-                >
-                  Skip the questions
-                </button>
+
               </div>
             </div>
           ) : !(me && !me.signedIn && showSignIn && signInForStory) ? (
@@ -1057,12 +1060,12 @@ export default function Build() {
                       : "Find my story"}
               </button>
               {busy === null && notes.trim().length < 40 && (
-                <span className="text-sm text-muted">Add a few lines of notes in step 1 first.</span>
+                <span className="text-sm text-muted">Add a few lines of material in step 2 first.</span>
               )}
               {busy === "questions" && <span className="text-sm text-muted">A few seconds.</span>}
               {busy === "story" && (
                 <span className="text-sm text-muted">
-                  Usually twenty to forty seconds. Stage 2 follows straight after.
+                  Usually under 45 seconds. Stage 2 follows straight after.
                 </span>
               )}
             </div>
@@ -1083,7 +1086,48 @@ export default function Build() {
       )}
 
 
-      {story && (
+      {story && landing && view === "slides" && (
+        <article className="panel rise space-y-10">
+          <button
+            type="button"
+            onClick={() => { setView("story"); window.scrollTo({ top: 0 }); }}
+            className="text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink"
+          >
+            Back to your story
+          </button>
+          <div>
+            <p className="eyebrow">Step 5</p>
+            <h1 className="display mt-2 text-3xl leading-[1.05] sm:text-4xl">Add slides, if you need them.</h1>
+            <p className="mt-3 max-w-2xl text-ink-2">
+              You have done the important thinking. Now the slides can support the story rather than replace it. Take the
+              prompt to your own AI tool, download the PowerPoint outline and build it in your company template, or make
+              the slides yourself from the brief.
+            </p>
+            <p className="said mt-4 text-xl text-ink">{story.bigIdea}</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <button
+              type="button"
+              onClick={() => exportFile("pptx")}
+              disabled={busy !== null || locked}
+              title="The slide words in title placeholders and the picture briefs in content placeholders, with the speaker notes. Apply your company template in PowerPoint."
+              className="rounded-md bg-ink px-6 py-3 text-base font-medium text-paper disabled:opacity-40"
+            >
+              {busy === "export-pptx" ? "Making the outline..." : "Download the PowerPoint outline"}
+            </button>
+            <span className="text-sm text-muted">Story-led headlines, ready for your own template. Add the pictures, data and detail.</span>
+            {pdf && !busy?.startsWith("export") && (
+              <a href={pdf.url} download={pdf.name} className="text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink">
+                Nothing downloaded? Save {pdf.name}
+              </a>
+            )}
+          </div>
+          {error && <p className="text-sm text-red">{error}</p>}
+          <Slides story={story} landing={landing} />
+        </article>
+      )}
+
+      {story && view === "story" && (
         <article className="panel rise space-y-14">
           <ol className="stages">
             <li data-done="true" aria-current={landing ? undefined : "step"}>
@@ -1095,13 +1139,13 @@ export default function Build() {
           </ol>
           {busy === "land" && (
             <p className="rounded-md bg-panel px-4 py-3 text-sm text-ink-2" role="status">
-              Stage 1 is here. Now adding interest and impact: the first minute, signposts, slide ideas, the ending and
-              your speaker notes. About a minute. Read on while it works.
+              Stage 1 is here. Now adding interest and impact: the first minute, signposts, the ending and your speaker
+              notes. About a minute. Read on while it works.
             </p>
           )}
           <section>
             <p className="eyebrow">Big Idea</p>
-            <Why>The whole argument in one line people can repeat in the corridor. If they remember nothing else, they remember this.</Why>
+            <Why>The whole presentation in one line that people can repeat in the corridor. If they remember nothing else, they will remember this.</Why>
             <Editable
               as="h2"
               value={story.bigIdea}
@@ -1111,11 +1155,12 @@ export default function Build() {
               className="said mt-3 text-4xl leading-[1.08] sm:text-5xl"
               label="Big Idea"
             />
+            {notesFor("bigIdea", story.bigIdea)}
             <p className="mt-4 text-sm text-muted">
               <span className="eyebrow mr-2">Structure</span>
               {KINDS[story.kind].label}: {KINDS[story.kind].line}
               {kindChosenByMachine && (
-                <> The StoryMachine chose this from your notes. To use another, choose Rework the notes, pick the kind and find your story again.</>
+                <> StoryMachine chose this from your notes. To use another, choose Rework the notes, pick the kind and find your story again.</>
               )}
             </p>
           </section>
@@ -1124,7 +1169,7 @@ export default function Build() {
             <div className="space-y-4">
               <div>
                 <p className="eyebrow">Audience</p>
-                <Why>Every story starts with who is listening. A message for everyone lands with no one.</Why>
+                <Why>Every story starts with the people listening. A message for everyone lands with no one.</Why>
                 <Editable
                   value={story.audience.who}
                   onChange={(v) => applyPath("audience.who", v)}
@@ -1150,7 +1195,7 @@ export default function Build() {
               {story.hero.who && (
                 <div>
                   <p className="eyebrow">The hero</p>
-                  <Why>The audience is the hero. You are the faithful friend who believes in them and tells them the truth.</Why>
+                  <Why>The audience is the hero. You are the faithful friend who believes in them and tells them the truth they need to hear.</Why>
                   <Editable
                     value={story.hero.who}
                     onChange={(v) => applyPath("hero.who", v)}
@@ -1174,7 +1219,7 @@ export default function Build() {
             <div className="space-y-4">
               <div>
                 <p className="eyebrow">Statement of intent</p>
-                <Why>After my presentation, the audience will... If this sentence will not finish, the presentation is not ready.</Why>
+                <Why>&ldquo;After my presentation, the audience will...&rdquo; If you can&apos;t finish this sentence, the presentation is not ready.</Why>
                 <Editable
                   value={story.intent}
                   busy={busy === "intent"}
@@ -1186,7 +1231,7 @@ export default function Build() {
               </div>
               <div>
                 <p className="eyebrow">The argument</p>
-                <Why>Your case in one sentence a sceptic could test. Everything in the three acts has to serve it.</Why>
+                <Why>Your case in one sentence. Everything in the three acts supports the argument.</Why>
                 <Editable
                   value={story.argument}
                   busy={busy === "argument"}
@@ -1204,7 +1249,7 @@ export default function Build() {
               <p className="eyebrow">
                 Prologue &middot; spoken &middot; the golden minute
               </p>
-              <Why>The first minute earns the rest. It states the Big Idea, says why now, and tells the room what you need from them.</Why>
+              <Why>The first minute that earns the rest. It states the Big Idea, says why now, and tells the audience what you need from them.</Why>
               <div className="mt-4">
                 <Editable
                   value={landing.prologue}
@@ -1214,6 +1259,7 @@ export default function Build() {
                   className="spoken"
                   label="Prologue"
                 />
+                {notesFor("landing.prologue", landing.prologue)}
               </div>
             </section>
           )}
@@ -1242,6 +1288,7 @@ export default function Build() {
                     className="display text-2xl leading-snug sm:text-[1.75rem]"
                     label={`${n} headline`}
                   />
+                  {notesFor(`${key}.headline`, act.headline)}
                   <Editable
                     value={act.coreMessage}
                     busy={busy === `${key}.coreMessage`}
@@ -1256,6 +1303,7 @@ export default function Build() {
                     ]}
                     className="text-lg"
                   />
+                  {notesFor(`${key}.coreMessage`, act.coreMessage)}
                   <div
                     className={
                       "border-l-2 pl-4 " +
@@ -1283,6 +1331,7 @@ export default function Build() {
                       actions={["sharper", "memorable", "another"]}
                       className="said mt-1 text-xl"
                     />
+                    {notesFor(`${key}.soundbite.text`, act.soundbite.text)}
                   </div>
                   <EditableList
                     items={act.supportingPoints}
@@ -1296,42 +1345,19 @@ export default function Build() {
                     )}
                   />
                   {land && (
-                    <div className="grid gap-5 rounded-md bg-panel p-5 sm:grid-cols-2">
-                      <div>
-                        <p className="eyebrow">Signpost &middot; spoken</p>
-                        <Why>One spoken sentence that tells the room the important idea has arrived.</Why>
-                        <div className="mt-2">
-                          <Editable
-                            value={land.signpost}
-                            busy={busy === `landing.${key}.signpost`}
-                            onChange={(v) =>
-                              applyPath(`landing.${key}.signpost`, v)
-                            }
-                            onAction={chips(
-                              `landing.${key}.signpost`,
-                              land.signpost,
-                            )}
-                            actions={["sharper", "memorable", "another"]}
-                            className="spoken text-base"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <p className="eyebrow">Slide idea</p>
-                        <Why>One slide, one idea. It illustrates; your words explain.</Why>
+                    <div className="rounded-md bg-panel p-5">
+                      <p className="eyebrow">Signpost &middot; spoken</p>
+                      <Why>The sentence that tells the room the important idea has arrived.</Why>
+                      <div className="mt-2">
                         <Editable
-                          value={land.visualIdea}
-                          busy={busy === `landing.${key}.visualIdea`}
-                          onChange={(v) =>
-                            applyPath(`landing.${key}.visualIdea`, v)
-                          }
-                          onAction={chips(
-                            `landing.${key}.visualIdea`,
-                            land.visualIdea,
-                          )}
-                          actions={["simpler", "another"]}
-                          className="mt-2 text-sm text-ink-2"
+                          value={land.signpost}
+                          busy={busy === `landing.${key}.signpost`}
+                          onChange={(v) => applyPath(`landing.${key}.signpost`, v)}
+                          onAction={chips(`landing.${key}.signpost`, land.signpost)}
+                          actions={["sharper", "memorable", "another"]}
+                          className="spoken text-base"
                         />
+                        {notesFor(`landing.${key}.signpost`, land.signpost)}
                       </div>
                     </div>
                   )}
@@ -1346,7 +1372,7 @@ export default function Build() {
                 <p className="eyebrow">
                   Epilogue &middot; spoken &middot; end with certainty
                 </p>
-                <Why>Audiences need certainty. End by recapping your headlines and the actions from here. Send them away with the message ringing in their ears.</Why>
+                <Why>Audiences need certainty. End by recapping your headlines and the actions from here. Send them away with your message ringing in their ears.</Why>
                 {story && !endsOnBigIdea(landing.epilogue, story.bigIdea) && (
                   <div className="mt-4 flex flex-wrap items-center gap-3 rounded-md border border-red bg-red-soft px-4 py-3">
                     <p className="text-sm text-ink">
@@ -1371,11 +1397,12 @@ export default function Build() {
                     className="spoken"
                     label="Epilogue"
                   />
+                  {notesFor("landing.epilogue", landing.epilogue)}
                 </div>
               </section>
               <section className="rounded-md bg-panel p-6 sm:p-8">
                 <p className="eyebrow">The story in five lines</p>
-                <Why>The whole talk in thirty seconds. If it works here, it works in the room.</Why>
+                <Why>The whole talk in 30 seconds. If it works here, it will work with your audience.</Why>
                 <ol className="mt-4 space-y-3">
                   {(
                     ["prologue", "why", "how", "what", "epilogue"] as const
@@ -1384,7 +1411,7 @@ export default function Build() {
                       <span className="eyebrow pt-1.5">
                         {k === "why" || k === "how" || k === "what"
                           ? KINDS[story.kind].acts[["why", "how", "what"].indexOf(k)]
-                          : k}
+                          : k === "prologue" ? "Prologue" : "Epilogue"}
                       </span>
                       <Editable
                         value={landing.fiveLineStory[k]}
@@ -1397,7 +1424,7 @@ export default function Build() {
                   ))}
                 </ol>
               </section>
-              <Pack story={story} landing={landing} />
+              <Rehearse story={story} landing={landing} />
             </>
           )}
 
@@ -1418,39 +1445,30 @@ export default function Build() {
 
           {landing && (busy === "rhetoric" || hasRhetoric(rhetoric) || storyId) && (
             <section className="border-t border-rule pt-8">
-              <p className="eyebrow">{RHETORIC_TITLE}</p>
+              <p className="eyebrow text-red">{RHETORIC_TITLE}</p>
               <p className="said mt-2 text-xl leading-snug text-ink">{RHETORIC_LEAD}</p>
               {busy === "rhetoric" && <p className="mt-3 text-sm text-muted" role="status">Finding the rhetoric in your story...</p>}
-              {hasRhetoric(rhetoric) && (
-                <>
-                  <ul className="mt-4 space-y-4">
-                    {rhetoric.devices.map((d, i) => (
-                      <li key={i} className="border-l-2 border-rule pl-4">
-                        <p className="text-sm">
-                          <span className="font-semibold text-ink">{d.device}</span>
-                          <span className="text-muted"> &middot; {d.where} &middot; {d.source === "yours" ? "your words" : "added"}</span>
-                        </p>
-                        <p className="spoken mt-1 text-ink">{d.line}</p>
-                        <p className="mt-1 text-sm text-ink-2">{d.note}</p>
-                      </li>
-                    ))}
-                  </ul>
-                  {rhetoric.suggestions.length > 0 && (
-                    <div className="mt-6">
-                      <p className="eyebrow">Where a device would help</p>
-                      <ul className="mt-3 space-y-4">
-                        {rhetoric.suggestions.map((sg, i) => (
-                          <li key={i} className="border-l-2 border-red pl-4 text-sm">
-                            <p><span className="font-semibold text-ink">{sg.device}</span><span className="text-muted"> &middot; {sg.where}</span></p>
-                            <p className="mt-1 text-ink-2">Now: &ldquo;{sg.now}&rdquo;</p>
-                            <p className="mt-1 text-ink">Try: &ldquo;{sg.better}&rdquo;</p>
-                          </li>
-                        ))}
-                      </ul>
-                      <Why>Copy a line you like into the story above. Every edit by hand is free.</Why>
-                    </div>
-                  )}
-                </>
+              {busy !== "rhetoric" && inPlaceCount > 0 && (
+                <p className="mt-3 text-sm text-muted">
+                  Look for the notes headed Rhetoric and Add power under the lines above. Copy any line you like, or press Use this line. Every edit by hand is free.
+                </p>
+              )}
+              {hasRhetoric(legacyRhetoric) && (
+                <ul className="mt-4 space-y-4">
+                  {legacyRhetoric.devices.map((d, i) => (
+                    <li key={`d${i}`} className="border-l-2 border-rule pl-4 text-sm">
+                      <p><span className="font-semibold text-ink">{d.device}</span><span className="text-muted"> &middot; {d.where || pathLabel(d.path, story.kind)}</span></p>
+                      <p className="spoken mt-1 text-ink">{d.line}</p>
+                      <p className="mt-1 text-ink-2">{d.note}</p>
+                    </li>
+                  ))}
+                  {legacyRhetoric.suggestions.map((sg, i) => (
+                    <li key={`s${i}`} className="border-l-2 border-red pl-4 text-sm">
+                      <p><span className="font-semibold text-ink">{sg.device}</span><span className="text-muted"> &middot; {sg.where}</span></p>
+                      <p className="mt-1 text-ink">Try: &ldquo;{sg.better}&rdquo;</p>
+                    </li>
+                  ))}
+                </ul>
               )}
               {busy !== "rhetoric" && storyId && (
                 <button
@@ -1459,9 +1477,27 @@ export default function Build() {
                   disabled={busy !== null}
                   className="mt-4 text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink disabled:opacity-40"
                 >
-                  {hasRhetoric(rhetoric) ? "Check the rhetoric again after your edits" : "Point out the rhetoric in this story"}
+                  {hasRhetoric(rhetoric) ? "Check the rhetoric again after your edits" : "Find the rhetoric in this story"}
                 </button>
               )}
+            </section>
+          )}
+
+          {landing && signedIn && !locked && (
+            <section className="rounded-md bg-ink px-6 py-8 text-paper sm:px-10 sm:py-10">
+              <p className="eyebrow text-paper/70">Your story is finished</p>
+              <h2 className="display mt-2 text-3xl leading-tight">Congratulations, you&apos;ve finished your story.</h2>
+              <p className="mt-3 max-w-2xl text-paper/80">
+                You have done the hard work. Download it as a PDF or a Word file below. If you need slides, StoryMachine
+                gives you a slide brief, a PowerPoint outline and a prompt for your own AI tool.
+              </p>
+              <button
+                type="button"
+                onClick={() => { setView("slides"); window.scrollTo({ top: 0 }); }}
+                className="mt-6 rounded-md bg-paper px-6 py-3 text-base font-medium text-ink hover:opacity-90"
+              >
+                Now make your slides
+              </button>
             </section>
           )}
 
@@ -1471,7 +1507,7 @@ export default function Build() {
                 next={`/build?${new URLSearchParams({ ...(me?.guestId ? { claim: me.guestId } : {}), ...(storyId ? { story: storyId } : {}), ...(programme ? { programme } : {}) }).toString()}`}
                 programme={programme}
                 title="Sign in to finish this story"
-                body="Your first story is free, start to finish: Stage 2 adds the first minute, signposts, slide ideas, the ending, speaker notes and a slide brief, then the whole thing as a PDF. Sign in with your email and we send you a code. No card. No password."
+                body="Your first story is free, start to finish: Stage 2 adds the first minute, signposts, the ending and speaker notes, then the whole thing as a PDF. Sign in with your email and we send you a code. No credit card."
               />
             </section>
           )}
@@ -1508,7 +1544,7 @@ export default function Build() {
                 disabled={busy !== null}
                 className="rounded-md border border-ink bg-paper-2 px-5 py-3 text-base font-medium text-ink disabled:opacity-40"
               >
-                {busy === "export-pdf" ? "Making the PDF..." : landing ? "Download the PDF (stages 1 and 2)" : "Download the PDF (stage 1 so far)"}
+                {busy === "export-pdf" ? "Making the PDF..." : landing ? "Download your story as a PDF" : "Download the PDF (stage 1 so far)"}
               </button>
             )}
             {signedIn && !locked && (
@@ -1519,19 +1555,8 @@ export default function Build() {
                   disabled={busy !== null}
                   className="underline decoration-rule underline-offset-4 hover:text-ink disabled:opacity-40"
                 >
-                  {busy === "export-docx" ? "Making the Word file..." : "Word"}
+                  {busy === "export-docx" ? "Making the Word file..." : "or as a Word file"}
                 </button>
-                {landing && (
-                  <button
-                    type="button"
-                    onClick={() => exportFile("pptx")}
-                    disabled={busy !== null}
-                    title="The slide words in title placeholders and the picture briefs in content placeholders, with the speech notes. Apply your company template in PowerPoint."
-                    className="underline decoration-rule underline-offset-4 hover:text-ink disabled:opacity-40"
-                  >
-                    {busy === "export-pptx" ? "Making the slides..." : "Slides for PowerPoint"}
-                  </button>
-                )}
               </span>
             )}
             {signedIn && !unlocked && me && !me.unlimited && (
@@ -1543,8 +1568,8 @@ export default function Build() {
             )}
             {capped && unlocked && (
               <span className="w-full text-sm text-muted">
-                Your free story: {editsLeft} of {FREE_CAPS.edit} AI edits left
-                {rerunsLeft > 0 ? ", and one rerun from Rework the notes" : ", rerun used"}. Edits by hand are always free.
+                Your free story: {editsLeft} of {FREE_CAPS.edit} AI edits left (each line StoryMachine rewrites, and each reply when you argue with it)
+                {rerunsLeft > 0 ? ", and one rerun (a full rebuild from Rework the notes)" : ", rerun used"}. Edits by hand are always free.
               </span>
             )}
             {capNotice && (
@@ -1603,8 +1628,7 @@ export default function Build() {
                 setQuestions(null);
                 setSaveState("idle");
                 setNotes("");
-                setAudience("");
-                setIntent("");
+                setKeys(["", "", "", ""]);
                 setKind("");
                 setUploadNote(null);
                 window.scrollTo({ top: 0 });

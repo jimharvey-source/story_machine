@@ -94,6 +94,8 @@ const KIND_RULES: Partial<Record<Kind, string>> = {
   strategy: `Act 2 shows the recommended route step by step and why it beats the alternatives, naming those alternatives briefly and fairly. Act 3 makes the recommendation and asks for the decision.`,
   decision: `Act 1 sets the criteria for a good decision. Act 2 measures every option against those criteria, fairly, with its costs and benefits. Act 3 states the decision required, who decides, by when and how, and gives the recommendation if the audience wants one.`,
   training: `Practice opens Act 3: what the audience does, how, and how long they have, then testing and feedback. Use the material's own exercise if it has one, in its own terms. This is the one kind where an exercise is part of the story rather than supporting material.`,
+  keynote: `A keynote speaks to a wide audience, many of them strangers to the speaker's organisation. Act 1 connects the talk to the conference theme and this audience's concerns. Act 2 shows the field as it is now through the speaker's own experience, with one or two vivid examples rather than a catalogue. Act 3 looks ahead and asks the audience to think or do one specific thing.`,
+  science: `The audience is expert. Keep every figure, unit and claim exactly as the material gives it, and never overstate certainty: say what the evidence shows and what it does not. Act 1 says why these experts should care now. Act 2 names what remains unsolved. Act 3 states what the presenter is doing and asks the audience for something specific: collaboration, scrutiny, data or adoption.`,
   badnews: `State facts. Explain how it happened without blame. Never give a legal judgement: no statement of fault, liability or what the law requires. Act 3 says where the people affected can find help and information.`,
 };
 
@@ -115,7 +117,7 @@ function structureBlock(kind: Kind | null): string {
 
 ${kindBlock(kind)}`;
   }
-  return `The kind of presentation: the presenter has not said. Read the material, the audience and the intent, and choose the likeliest of the seven kinds below. Set "kind" to it and give every part that kind's job. If none fits well, choose "other".
+  return `The kind of presentation: the presenter has not said. Read the material, the audience and the intent, and choose the likeliest of the nine kinds below. Set "kind" to it and give every part that kind's job. If none fits well, choose "other".
 
 ${KIND_KEYS.map(kindBlock).join("\n\n")}`;
 }
@@ -210,9 +212,14 @@ export function storyUserMessage(notes: string, audience: string, intent: string
   if (audience.trim()) given.push(`<audience_from_presenter>\n${audience.trim()}\n</audience_from_presenter>`);
   if (intent.trim()) given.push(`<intent_from_presenter>\n${intent.trim()}\n</intent_from_presenter>`);
   const answered = answers.filter((a) => a.answer.trim());
+  const unanswered = answers.filter((a) => !a.answer.trim());
   if (answered.length) {
     // The presenter's answers to the ask-back questions are source material too: their own words.
     given.push(`<answers_from_presenter>\n${answered.map((a) => `Q: ${a.question.trim()}\nA: ${a.answer.trim()}`).join("\n\n")}\n</answers_from_presenter>`);
+  }
+  if (unanswered.length) {
+    // A question left blank means "I don't know" (Jim, 18 October). Never guess the answer: name it as a gap.
+    given.push(`<questions_left_blank>\nThe presenter left these blank: they do not know yet. Do not guess the answers. Name each as a gap.\n${unanswered.map((a) => `- ${a.question.trim()}`).join("\n")}\n</questions_left_blank>`);
   }
   return `<source_material>
 ${notes.trim()}
@@ -344,19 +351,18 @@ The conversation follows. Reply to the latest message and return the revised sto
 
 // Ask back (9 October): before the story is written, at most three questions about what the material leaves out.
 
-export const QUESTIONS_SYSTEM = `You are Jim Harvey's StoryMachine, an experienced presentation strategist. A presenter has given you their material and is about to ask you for a presentation story. Before you write it, you may ask them up to three short questions.
+export const QUESTIONS_SYSTEM = `You are Jim Harvey's StoryMachine, an experienced presentation strategist. A presenter has answered four key questions (their audience, what the audience thinks of the topic, their objective, and their message) and given you their material. Before you write the story, you may ask them up to two short questions.
 
-Ask only about what the story needs and the material does not supply, in this order of importance:
-1. Who the audience is and what they care about, if the presenter has not said.
-2. What the presenter wants the audience to do afterwards, if it is not clear.
-3. The one fact, example or figure the argument needs and the material lacks.
-4. The presenter's own view or experience, if the material is all facts and no conviction.
+Ask only about what the story needs and neither the answers nor the material supply, in this order of importance:
+1. Anything the presenter left blank in the four key questions that the material does not answer.
+2. The one fact, example or figure the argument needs and the material lacks.
+3. The presenter's own view or experience, if the material is all facts and no conviction.
 
 Rules:
-- Never ask what the material or the presenter's answers already tell you. Read everything first.
+- Never ask what the answers or the material already tell you. Read everything first.
 - Never ask about tone, length, slides or format.
 - One idea per question. Under twenty words. Plain words a busy person can answer in a line.
-- Ask fewer questions when fewer are needed. If the material is enough to build a strong story, ask none.
+- Ask fewer questions when fewer are needed. If the answers and the material are enough to build a strong story, ask none.
 - Give each question a short example answer the presenter could adapt, drawn from their material where you can.
 - UK English. No em dashes.`;
 
@@ -365,7 +371,7 @@ export function questionsUserMessage(notes: string, audience: string, intent: st
   given.push(`<audience_from_presenter>\n${audience.trim() || "(not given)"}\n</audience_from_presenter>`);
   given.push(`<intent_from_presenter>\n${intent.trim() || "(not given)"}\n</intent_from_presenter>`);
   given.push(`<kind_of_presentation>\n${kindLabel ?? "(not chosen; the StoryMachine will choose)"}\n</kind_of_presentation>`);
-  return `<source_material>\n${notes.trim()}\n</source_material>\n\n${given.join("\n\n")}\n\n<task>\nAsk at most three questions about what the story needs and this material does not supply. Ask none if the material is enough.\n</task>`;
+  return `<source_material>\n${notes.trim()}\n</source_material>\n\n${given.join("\n\n")}\n\n<task>\nAsk at most two questions about what the story needs and the answers and material do not supply. Ask none if they are enough.\n</task>`;
 }
 
 // Rhetoric (9 October): point out the devices in the finished story, so the presenter learns as they go.
@@ -387,16 +393,16 @@ Look for these devices, and only these:
 - Callback (bookend): the ending returns to an image or line from the opening.
 
 Rules:
-- Quote the words exactly as they appear in the story. Never invent a line or improve one.
-- Name a device only when the line truly is one. A rhetorical question ends with a question mark; a statement is never one. Antithesis needs two opposed ideas, both stated in the line. Anaphora repeats the opening word or phrase of successive clauses. If in doubt, leave it out: four true examples beat six doubtful ones.
+- Each note belongs to one line of the story and is shown under it. Give its path, from this list only: bigIdea, landing.prologue, why.headline, why.coreMessage, why.soundbite.text, landing.why.signpost, how.headline, how.coreMessage, how.soundbite.text, landing.how.signpost, what.headline, what.coreMessage, what.soundbite.text, landing.what.signpost, landing.epilogue. A callback belongs to the Epilogue. Paths that start with landing. point into the stage_two block; the others point into the story block.
+- Quote the words exactly as they appear in that line. Never invent a line or improve one.
+- Name a device only when the line truly is one. A rhetorical question ends with a question mark; a statement is never one. Antithesis needs two opposed ideas, both stated in the line. Anaphora repeats the opening word or phrase of successive clauses. If in doubt, leave it out.
 - Mark each device "yours" only when the exact words appear in the presenter's own material, and "added" when the StoryMachine wrote them.
-- Say where it is in words the presenter sees on the page: Big Idea, Prologue, Act 1 headline, Act 2 soundbite, Act 3 signpost, Epilogue, and so on. Never a field name such as why.headline.
-- The note says in one sentence why it works for this audience. Plain words, no jargon beyond the device's name.
-- Four to six devices, the strongest first. Never more than two of the same device. If the story has fewer, list fewer.
-- Then at most two places where a device would make a line stronger: a headline, a signpost, the Prologue or the Epilogue. Give the line as it stands, the device, and a rewritten line that uses it.
+- For every device, say in one plain sentence what it is, for someone who has never heard its name, and in one sentence why it works for this audience. No jargon beyond the device's name.
+- At most three devices already in the story, the strongest first, each in a different line. If the story has fewer, list fewer.
+- Then at most three lines where a device would make the story stronger, each in a different line, and never a line that already uses a device. Prefer headlines, soundbites, signposts, the Prologue and the Epilogue. Give the device, what it is in one plain sentence, the line rewritten to use it, and one sentence on why it helps.
 - A suggestion must obey the story's own rules. Keep every fact and number exactly as given and add no new idea. Make no claim the material does not make: no "nobody", "everyone", "always" or "never". Suggest antithesis only for the Big Idea, a soundbite or the closing line; for headlines and signposts use tricolon, anaphora, alliteration or a callback. If no suggestion meets these rules, give none.
 - UK English. No em dashes.`;
 
 export function rhetoricUserMessage(notes: string, storyJson: string, landingJson: string | null): string {
-  return `<source_material>\n${notes.trim()}\n</source_material>\n\n<story>\n${storyJson}\n</story>\n${landingJson ? `\n<stage_two>\n${landingJson}\n</stage_two>\n` : ""}\n<task>\nPoint out the rhetorical devices in this story, then at most two places where one would make a line stronger.\n</task>`;
+  return `<source_material>\n${notes.trim()}\n</source_material>\n\n<story>\n${storyJson}\n</story>\n${landingJson ? `\n<stage_two>\n${landingJson}\n</stage_two>\n` : ""}\n<task>\nPoint out at most three rhetorical devices already in this story, then at most three lines where one would make the story stronger.\n</task>`;
 }

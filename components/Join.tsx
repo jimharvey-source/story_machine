@@ -42,26 +42,26 @@ function Shell({ children, wide = false }: { children: React.ReactNode; wide?: b
   );
 }
 
-/** What happens next: Jim's wording of 4 October, on every open welcome page. */
+/** What happens next: Jim's wording of 4 October, as John Zimmer revised it in working draft 4 (18 October). */
 const STEPS: Array<[string, string]> = [
   [
     "Get your story straight",
-    "Paste your notes or upload an old deck. Answer two simple questions then let StoryMachine find your Big Idea, your three-act story and any gaps that need filling.",
+    "Answer some questions. Paste your notes and upload your documents. Then let StoryMachine find your Big Idea, your three-act story and any gaps that need filling.",
   ],
   [
     "Add interest and impact",
-    "A strong start (Prologue) and a clear, confident ending (Epilogue), memorable headlines, key message signposts and quotable soundbites, with suggestions from Jim along the way to help you make your point with even more impact.",
+    "A strong start (Prologue) and a clear, confident ending (Epilogue), memorable headlines, key message signposts and quotable soundbites, with suggestions along the way to help you make your point with even more impact.",
   ],
   [
     "Take it with you",
-    "Download the story as PDF or Word documents to share. Draft slides as PowerPoint, ready for your company template. Or a detailed AI slide design prompt.",
+    "Download your story as a PDF or Word document to share. Draft slides in PowerPoint, ready for your company template. Or a detailed AI slide design prompt.",
   ],
 ];
 
 function Steps() {
   return (
     <aside className="lg:pt-14">
-      <p className="eyebrow mb-4">In under thirty minutes</p>
+      <p className="eyebrow mb-4">In under 30 minutes</p>
       <ol className="border-b border-rule">
         {STEPS.map(([head, sub], i) => (
           <li key={head} className="grid grid-cols-[2.5rem_1fr] gap-3 border-t border-rule py-5">
@@ -126,16 +126,16 @@ function OpenWelcome({ invitation, tour }: { invitation: Extract<Invitation, { s
           <p className="eyebrow">Your invitation</p>
           <h1 className="display mt-4 text-[2.5rem] leading-[1.05] tracking-[-0.035em] sm:text-6xl sm:leading-none">{invitation.greeting}</h1>
           <p className="mt-6 text-lg text-ink-2 sm:text-xl">
-            {storiesInWords(invitation.stories)} waiting for you{invitation.until ? `, free until ${invitation.until}` : ", free"}.
+            {storiesInWords(invitation.stories)} waiting for you{invitation.until ? `. Join by ${invitation.until}.` : ", free."}
           </p>
           <div className="mt-8">
             <DoorSignIn programme={invitation.code} next="/build?joined=1" />
           </div>
           {tour && (
             <p className="mt-5 text-sm text-ink-2">
-              New to the StoryMachine?{" "}
+              New to StoryMachine?{" "}
               <a href="#how" className="underline decoration-rule underline-offset-4 hover:text-ink">See how it works</a>, or read the{" "}
-              <Link href="/guide" className="underline decoration-rule underline-offset-4 hover:text-ink">user guide</Link>.
+              <Link href="/guide" className="underline decoration-rule underline-offset-4 hover:text-ink">User Guide</Link>.
             </p>
           )}
         </section>
@@ -146,9 +146,9 @@ function OpenWelcome({ invitation, tour }: { invitation: Extract<Invitation, { s
           <div id="how" className="scroll-mt-8">{tour}</div>
           {/* The close: back to the door. */}
           <section className="panel mt-20 !p-8 sm:mt-28 sm:!p-14">
-            <h2 className="display max-w-2xl text-3xl leading-tight sm:text-[2.6rem]">Try it on the presentation you are worried about.</h2>
+            <h2 className="display max-w-2xl text-3xl leading-tight sm:text-[2.6rem]">Try it for your next presentation.</h2>
             <p className="mt-4 text-lg text-ink-2">
-              {storiesInWords(invitation.stories)} waiting for you{invitation.until ? `, free until ${invitation.until}` : ", free"}.
+              {storiesInWords(invitation.stories)} waiting for you{invitation.until ? `. Join by ${invitation.until}.` : ", free."}
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
               <a href="#signin" className="inline-flex items-center justify-center rounded-md bg-ink px-7 py-3.5 text-base font-medium text-paper hover:opacity-90">
@@ -156,7 +156,7 @@ function OpenWelcome({ invitation, tour }: { invitation: Extract<Invitation, { s
               </a>
               <p className="text-sm text-muted">
                 Questions? Read the{" "}
-                <Link href="/guide" className="underline decoration-rule underline-offset-4 hover:text-ink">user guide</Link> or email <Mail />.
+                <Link href="/guide" className="underline decoration-rule underline-offset-4 hover:text-ink">User Guide</Link> or email <Mail />.
               </p>
             </div>
           </section>
@@ -249,11 +249,11 @@ function DoorSignIn({ programme, next }: { programme?: string; next: string }) {
     return (
       <div className="panel">
         <p className="eyebrow">Signed in</p>
-        <p className="mt-2 text-lg text-ink">{after ?? "Opening the StoryMachine..."}</p>
+        <p className="mt-2 text-lg text-ink">{after ?? "Opening StoryMachine..."}</p>
         {error && (
           <>
             <p className="mt-3 text-sm text-red">{error}</p>
-            <Link href="/build" className="mt-4 inline-block text-ink underline decoration-rule underline-offset-4">Carry on to the StoryMachine</Link>
+            <Link href="/build" className="mt-4 inline-block text-ink underline decoration-rule underline-offset-4">Carry on to StoryMachine</Link>
           </>
         )}
       </div>

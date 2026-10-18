@@ -107,6 +107,12 @@ const PATHS = {
       <circle cx="18" cy="3" r="1.4" className={R} fill="currentColor" />
     </>
   ),
+  science: (
+    <>
+      <path d="M9 3h6M10 3v6l-5.5 9.5A1.6 1.6 0 0 0 5.9 21h12.2a1.6 1.6 0 0 0 1.4-2.5L14 9V3" />
+      <path d="M7.5 15h9" className={R} />
+    </>
+  ),
   badnews: (
     <>
       <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" />
