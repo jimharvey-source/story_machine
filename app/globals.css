@@ -41,6 +41,10 @@
 
 html {
   background: var(--paper);
+  /* The whole page is sized in rem, so this one line scales it to the screen.
+     16px up to a 1600px-wide window (laptops and phones unchanged), then 1% of
+     the width, to 28px on the largest screens. */
+  font-size: clamp(16px, 1vw, 28px);
 }
 
 body {
