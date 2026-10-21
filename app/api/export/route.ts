@@ -1,15 +1,11 @@
 import { NextResponse } from "next/server";
-import PDFDocument from "pdfkit";
 import { z } from "zod";
 import { currentProfile, purchaseRequired, signInRequired, startStory } from "@/lib/access";
 import { unlockStory } from "@/lib/guest";
-import { LandingInputSchema, RhetoricSchema, StoryInputSchema, type Rhetoric } from "@/lib/schema";
-import { RHETORIC_LEAD, RHETORIC_TITLE, deviceLine, hasRhetoric, suggestionLine } from "@/lib/rhetoric";
-import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "@/lib/ownIt";
-import { KINDS, kindOf } from "@/lib/kinds";
-import { LICENCE, METHOD, SIGN_OFF } from "@/lib/method";
+import { LandingInputSchema, RhetoricSchema, StoryInputSchema } from "@/lib/schema";
 import { renderDocx } from "@/lib/exportDocx";
 import { renderPptx } from "@/lib/exportPptx";
+import { renderPdf } from "@/lib/exportPdf";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -32,10 +28,6 @@ const TYPES = {
   pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
 } as const;
 
-const INK = "#16140f";
-const MUTED = "#7a766c";
-const RED = "#b3261e";
-const RULE = "#e6e2d8";
 
 export async function POST(req: Request) {
   const p = await currentProfile();
@@ -60,7 +52,7 @@ export async function POST(req: Request) {
   const buf =
     format === "docx" ? await renderDocx(title, story, landing, rhetoric)
     : format === "pptx" && landing ? await renderPptx(story, landing)
-    : await render(title, story, landing, rhetoric);
+    : await renderPdf(title, story, landing, rhetoric);
   // Trim the title at a word boundary, so the file name never ends mid-word.
   const words = title.replace(/[^\w\- ]+/g, "").trim().split(/\s+/).filter(Boolean);
   let safe = "";
@@ -71,7 +63,7 @@ export async function POST(req: Request) {
   safe = safe || "story";
   const name =
     format === "pptx" ? `${safe}-slides.pptx`
-    : `${safe}-${landing ? "stage-2-interest-and-impact" : "stage-1-story-straight"}.${format}`;
+    : `${safe}-${landing ? "presentation-story" : "story-first-draft"}.${format}`;
   console.log(JSON.stringify({ tag: "export", format, landed: Boolean(landing), bytes: buf.length, name }));
   return new NextResponse(new Uint8Array(buf), {
     headers: {
@@ -82,329 +74,3 @@ export async function POST(req: Request) {
   });
 }
 
-type Story = z.infer<typeof StoryInputSchema>;
-type Landing = z.infer<typeof LandingInputSchema>;
-
-function render(title: string, story: Story, landing: Landing | null, rhetoric: Rhetoric | null): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({
-      size: "A4",
-      margins: { top: 64, bottom: 64, left: 60, right: 60 },
-      bufferPages: true,
-      info: { Title: title, Author: "Jim Harvey's StoryMachine", Subject: landing ? "Stage 2: Add interest and impact" : "Stage 1: Get your story straight" },
-    });
-    const chunks: Buffer[] = [];
-    doc.on("data", (c: Buffer) => chunks.push(c));
-    doc.on("end", () => resolve(Buffer.concat(chunks)));
-    doc.on("error", reject);
-
-    const L = doc.page.margins.left;
-    const W = doc.page.width - doc.page.margins.left - doc.page.margins.right;
-    const bottom = () => doc.page.height - doc.page.margins.bottom;
-
-    // One vertical rhythm for the whole document: 6pt unit.
-    const gap = (units: number) => {
-      doc.y += units * 6;
-    };
-    // Start a new page when less than `need` points remain, so a section never splits at its heading.
-    const keep = (need: number) => {
-      if (doc.y + need > bottom()) doc.addPage();
-    };
-    const eyebrow = (t: string, colour = MUTED) => {
-      doc.font("Helvetica").fontSize(7.5).fillColor(colour).text(t.toUpperCase(), L, doc.y, { characterSpacing: 1.6, width: W });
-      gap(1);
-    };
-    const display = (t: string, size = 20) => {
-      doc.font("Times-Roman").fontSize(size).fillColor(INK).text(t, L, doc.y, { width: W, lineGap: 2 });
-    };
-    const body = (t: string, size = 10.5, colour = INK) => {
-      doc.font("Helvetica").fontSize(size).fillColor(colour).text(t, L, doc.y, { width: W, lineGap: 2.5 });
-    };
-    const spoken = (t: string) => {
-      const y = doc.y;
-      doc.font("Times-Roman").fontSize(18).fillColor(RED).text("“", L, y - 2, { lineBreak: false });
-      doc.font("Times-Italic").fontSize(11.5).fillColor(INK).text(t, L + 16, y, { width: W - 16, lineGap: 3.5 });
-      doc.x = L;
-    };
-    const rule = () => {
-      gap(3);
-      doc.moveTo(L, doc.y).lineTo(L + W, doc.y).lineWidth(0.5).strokeColor(RULE).stroke();
-      gap(3);
-    };
-    const words = (t: string) => t.trim().split(/\s+/).filter(Boolean).length;
-    // Spoken sections carry a length, because the golden minute is a minute.
-    const timing = (t: string) => {
-      const n = words(t);
-      const secs = Math.round((n / 140) * 60);
-      return `${n} words, about ${secs < 60 ? `${secs} seconds` : `${Math.round(secs / 60)} minute${secs >= 90 ? "s" : ""}`} spoken`;
-    };
-    const small = (t: string) => {
-      gap(1);
-      doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(t, L, doc.y, { width: W });
-    };
-    const bullets = (items: string[], size = 10, lineGap = 2, between = 1) => {
-      for (const it of items) {
-        const y = doc.y;
-        doc.rect(L, y + 3, 1.5, size - 1).fillColor(RULE).fill();
-        doc.font("Helvetica").fontSize(size).fillColor("#3d3a33").text(it, L + 12, y, { width: W - 12, lineGap });
-        doc.x = L;
-        gap(between);
-      }
-    };
-    // Figures come from the presenter's material. The tool never checks them, so it says so.
-    const hasFigures = /\d/.test(JSON.stringify([story.why, story.how, story.what]));
-    const sourceCheck = () => {
-      if (!hasFigures) return;
-      gap(2);
-      small("Every figure here comes from your material. Check each one against its source before you present.");
-      gap(2);
-    };
-    // "Make it your own": the coach's advice, set apart in the accent colour so nobody skips it.
-    const ownIt = (items: string[]) => {
-      rule();
-      keep(160);
-      const top = doc.y;
-      doc.x = L;
-      doc.y = top + 12;
-      const inner = (t: string, font: string, size: number, colour: string, x = L + 14, w = W - 28) =>
-        doc.font(font).fontSize(size).fillColor(colour).text(t, x, doc.y, { width: w, lineGap: 2.5 });
-      doc.font("Helvetica").fontSize(7.5).fillColor(RED).text(OWN_IT_TITLE.toUpperCase(), L + 14, doc.y, { characterSpacing: 1.6, width: W - 28 });
-      gap(1);
-      inner(OWN_IT_LEAD, "Times-Roman", 13, INK);
-      gap(2);
-      for (const it of items) {
-        const y = doc.y;
-        doc.rect(L + 14, y + 3, 1.5, 9).fillColor(RED).fill();
-        inner(it, "Helvetica", 10, "#3d3a33", L + 26, W - 40);
-        gap(1);
-      }
-      gap(1);
-      const end = doc.y;
-      if (end > top) doc.rect(L, top, W, end - top).lineWidth(0.75).strokeColor(RED).stroke();
-      doc.x = L;
-      gap(2);
-    };
-    const pageTitle = (kicker: string, t: string, intro?: string) => {
-      eyebrow(kicker);
-      display(t, 18);
-      if (intro) {
-        gap(2);
-        body(intro, 10, "#3d3a33");
-      }
-      gap(3);
-    };
-
-    // 1. The story
-    eyebrow("Jim Harvey's StoryMachine");
-    doc.font("Helvetica").fontSize(9).fillColor(MUTED).text(
-      `${landing ? "Stage 2: Add interest and impact" : "Stage 1: Get your story straight"}  ·  ${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}`,
-      L,
-      doc.y,
-      { width: W }
-    );
-    // The structure: the book's name and its one line. Old stories were all Why, How, What.
-    const kind = KINDS[kindOf(story.kind)];
-    gap(1);
-    doc.font("Helvetica").fontSize(9).fillColor(MUTED).text(`Structure: ${kind.book}. ${kind.line}`, L, doc.y, { width: W });
-    gap(6);
-    eyebrow("Big Idea");
-    display(story.bigIdea, 26);
-    rule();
-    eyebrow("Audience");
-    body(story.audience.who);
-    gap(1);
-    body("They need to hear: " + story.audience.needToHear, 10, "#3d3a33");
-    gap(1);
-    body("Leave out: " + story.audience.doNotNeedToHear, 10, "#3d3a33");
-    if (story.hero?.who) {
-      gap(3);
-      eyebrow("The hero");
-      body(story.hero.who);
-      gap(1);
-      body("What they want: " + story.hero.wants, 10, "#3d3a33");
-      gap(1);
-      body("What stands in the way: " + story.hero.obstacle, 10, "#3d3a33");
-    }
-    gap(3);
-    eyebrow("Statement of intent");
-    body(story.intent);
-    gap(3);
-    eyebrow("The argument");
-    body(story.argument);
-
-    if (landing) {
-      rule();
-      keep(170);
-      eyebrow("Prologue, spoken, the golden minute");
-      spoken(landing.prologue);
-      small(timing(landing.prologue));
-    }
-
-    const acts: Array<[keyof Pick<Story, "why" | "how" | "what">, string]> = [
-      ["why", `Act 1, ${kind.acts[0]}`],
-      ["how", `Act 2, ${kind.acts[1]}`],
-      ["what", `Act 3, ${kind.acts[2]}`],
-    ];
-    for (const [key, label] of acts) {
-      const act = story[key];
-      rule();
-      keep(landing ? 240 : 200);
-      eyebrow(label);
-      display(act.headline, 16);
-      gap(2);
-      body(act.coreMessage, 11);
-      gap(3);
-      eyebrow(act.soundbite.source === "material" ? "Soundbite, from your notes" : "Soundbite, proposed", act.soundbite.source === "material" ? RED : MUTED);
-      doc.font("Times-Roman").fontSize(13).fillColor(INK).text("“" + act.soundbite.text + "”", L, doc.y, { width: W });
-      gap(3);
-      bullets(act.supportingPoints);
-      if (landing) {
-        const land = landing[key];
-        gap(2);
-        keep(70);
-        eyebrow("Signpost, spoken");
-        spoken(land.signpost);
-      }
-    }
-
-    if (landing) {
-      rule();
-      keep(170);
-      eyebrow("Epilogue, spoken, end with certainty");
-      spoken(landing.epilogue);
-      small(timing(landing.epilogue));
-      rule();
-      keep(150);
-      eyebrow("The story in five lines");
-      const lines: Array<[string, string]> = [
-        ["Prologue", landing.fiveLineStory.prologue],
-        [kind.acts[0], landing.fiveLineStory.why],
-        [kind.acts[1], landing.fiveLineStory.how],
-        [kind.acts[2], landing.fiveLineStory.what],
-        ["Epilogue", landing.fiveLineStory.epilogue],
-      ];
-      for (const [k, v] of lines) {
-        const y = doc.y;
-        doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(k.toUpperCase(), L, y + 3, { width: 60, characterSpacing: 1.2 });
-        doc.font("Times-Roman").fontSize(12).fillColor(INK).text(v, L + 66, y, { width: W - 66, lineGap: 2 });
-        doc.x = L;
-        gap(2);
-      }
-      ownIt([...landing.gaps, ...ownItAdvice(story, landing)]);
-      sourceCheck();
-      if (hasRhetoric(rhetoric)) {
-        keep(120);
-        eyebrow(RHETORIC_TITLE);
-        doc.font("Times-Roman").fontSize(13).fillColor(INK).text(RHETORIC_LEAD, L, doc.y, { width: W, lineGap: 2 });
-        gap(2);
-        bullets(rhetoric.devices.map(deviceLine), 10, 2, 1);
-        if (rhetoric.suggestions.length) {
-          gap(1);
-          eyebrow("Where a device would help");
-          bullets(rhetoric.suggestions.map(suggestionLine), 10, 2, 1);
-        }
-        gap(2);
-      }
-
-      // 2. Speech notes: what the presenter holds in the room
-      const notes = landing.speechNotes;
-      const beats: Array<[string, string[], string]> = [
-        ["Prologue", notes.prologue, "the golden minute"],
-        [`Act 1, ${kind.acts[0]}`, notes.why, story.why.headline],
-        [`Act 2, ${kind.acts[1]}`, notes.how, story.how.headline],
-        [`Act 3, ${kind.acts[2]}`, notes.what, story.what.headline],
-        ["Epilogue", notes.epilogue, "end with certainty"],
-      ];
-      const hasNotes = beats.some(([, cues]) => cues.length > 0);
-      if (hasNotes) {
-        doc.addPage();
-        pageTitle(
-          "Speech notes",
-          "Speak from these. Never from a script.",
-          "One cue per line, in the order you say them. A cue reminds you what comes next; the words come from you in the room, so they sound like you. Word for word is for legal and political speeches, where every word will be quoted. For everything else, notes."
-        );
-        for (const [name, cues, sub] of beats) {
-          keep(110);
-          gap(2);
-          doc.font("Helvetica").fontSize(7.5).fillColor(RED).text(name.toUpperCase(), L, doc.y, { characterSpacing: 1.6, width: W, continued: true });
-          doc.fillColor(MUTED).text("   " + sub, { characterSpacing: 0 });
-          gap(2);
-          for (const cue of cues) {
-            const y = doc.y;
-            doc.rect(L, y + 6, 2, 10).fillColor(RED).fill();
-            doc.font("Times-Roman").fontSize(14).fillColor(INK).text(cue, L + 16, y, { width: W - 16, lineGap: 4 });
-            doc.x = L;
-            gap(2.5);
-          }
-          gap(2);
-        }
-      }
-
-      // 3. Word for word: the spoken parts in full, for those who need them
-      doc.addPage();
-      pageTitle(
-        "Word for word",
-        "The spoken parts in full.",
-        "Use this page to rehearse, and to hear whether the words sound like you. Change any that do not. If you must read, read only the Prologue and the Epilogue; the acts are yours to tell."
-      );
-      const script: Array<[string, string]> = [
-        ["Prologue", landing.prologue],
-        ["Signpost into Act 1", landing.why.signpost],
-        ["Signpost into Act 2", landing.how.signpost],
-        ["Signpost into Act 3", landing.what.signpost],
-        ["Epilogue", landing.epilogue],
-      ];
-      for (const [name, text] of script) {
-        // Keep each spoken block on one page: a two-line orphan on a fresh page is no use in rehearsal.
-        doc.font("Times-Roman").fontSize(13);
-        keep(Math.min(doc.heightOfString(text, { width: W, lineGap: 9 }) + 40, bottom() - 80));
-        gap(2);
-        eyebrow(name, RED);
-        doc.font("Times-Roman").fontSize(13).fillColor(INK).text(text, L, doc.y, { width: W, lineGap: 9 });
-        gap(2);
-      }
-
-      // The slide brief and the prompt live on the slides page and in the PowerPoint outline (18 October):
-      // the story document is the story.
-    }
-
-    if (!landing) ownIt([...story.gaps, ...ownItAdvice(story, null)]);
-    if (!landing) sourceCheck();
-
-    // 6. How this was made
-    doc.addPage();
-    pageTitle("How this was made", "The method behind your story.");
-    for (const [name, text] of METHOD) {
-      keep(50);
-      gap(1);
-      doc.font("Times-Roman").fontSize(12.5).fillColor(INK).text(name, L, doc.y, { width: W });
-      gap(0.5);
-      body(text, 10, "#3d3a33");
-      gap(2);
-    }
-    rule();
-    LICENCE.forEach((para, i) => {
-      if (i) gap(1.5);
-      body(para, 9.5, "#3d3a33");
-    });
-    gap(2);
-    body(SIGN_OFF, 9, MUTED);
-
-    // Footer on every page. Writing inside the bottom margin makes pdfkit add a blank page
-    // after each one, so the margin is lifted while the footer goes in.
-    const range = doc.bufferedPageRange();
-    for (let i = range.start; i < range.start + range.count; i++) {
-      doc.switchToPage(i);
-      const saved = doc.page.margins.bottom;
-      doc.page.margins.bottom = 0;
-      doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(
-        `Jim Harvey's StoryMachine  ·  The Message Business  ·  ${i + 1} of ${range.count}`,
-        L,
-        doc.page.height - 40,
-        { width: W, align: "center", lineBreak: false }
-      );
-      doc.page.margins.bottom = saved;
-    }
-    doc.end();
-  });
-}

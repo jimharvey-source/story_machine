@@ -6,7 +6,7 @@ import { KINDS, kindOf } from "./kinds";
 
 export const RHETORIC_TITLE = "Add power to your language";
 export const RHETORIC_LEAD =
-  "One well-made line sticks in an audience's mind like the hook of a song. Strong speakers choose their words on purpose. The notes in your story show the devices you already use, and three places where one would help.";
+  "One well-made line sticks in an audience's mind like the hook of a song. Strong speakers choose their words on purpose. The notes in your story show the rhetorical devices you already use, and three places where one would add power.";
 
 /** The part of the story a path points at, in the words the presenter sees on the page. */
 export function pathLabel(path: string | undefined, kind?: string | null): string {

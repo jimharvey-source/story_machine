@@ -103,7 +103,7 @@ export async function renderDocx(title: string, story: Story, landing: Landing |
     out.push(p(RHETORIC_LEAD, { italic: true }));
     for (const d of rhetoric.devices) out.push(bullet(deviceLine(d)));
     if (rhetoric.suggestions.length) {
-      out.push(h2("Where a device would help"));
+      out.push(h2("Where a rhetorical device would add power"));
       for (const s of rhetoric.suggestions) out.push(bullet(suggestionLine(s)));
     }
   }

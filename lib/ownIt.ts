@@ -12,11 +12,11 @@ export function ownItAdvice(story: Story, landing: Landing | null): string[] {
   // The StoryMachine gives no legal advice. For bad news, this line always comes first.
   if (story.kind === "badnews") out.push("Take legal advice before you explain how it happened.");
   const proposed = [story.why, story.how, story.what].some((a) => a.soundbite.source === "proposed");
-  if (proposed) out.push("Put every soundbite marked \"proposed\" into your own words. The line the room repeats should be one you would say anyway.");
+  if (proposed) out.push("Put every soundbite StoryMachine proposed into your own words. The line the room repeats should be one you would say anyway.");
   out.push("Add one story from your own experience to the act that feels thinnest. Stories are what an audience remembers and retells.");
   out.push(
     landing
-      ? "Say the Prologue and Epilogue out loud, then change any word that feels borrowed. Rehearse the acts from the speech notes."
+      ? "Say the Prologue and Epilogue out loud, then change any word that feels borrowed. Rehearse the acts from the speaker notes."
       : "Read the three headlines out loud. If one sounds like someone else, rewrite it until it sounds like you."
   );
   return out;

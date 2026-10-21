@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   // pdfkit reads its font metrics from disk at runtime; keep it outside the bundle and ship the files.
   serverExternalPackages: ["pdfkit", "mammoth"],
   outputFileTracingIncludes: {
-    "/api/export": ["./node_modules/pdfkit/js/data/**"],
+    "/api/export": ["./node_modules/pdfkit/js/data/**", "./lib/fonts/**"],
   },
 };
 
