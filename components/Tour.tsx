@@ -230,8 +230,8 @@ const HOW: Array<[string, string]> = [
     "Edit any line, ask for a sharper version, or argue with StoryMachine until it says what you mean. When you are satisfied, download it as a PDF or Word file.",
   ],
   [
-    "Add slides, if you need them.",
-    "StoryMachine can produce a PowerPoint outline, or give you a detailed prompt for your slides to use in your AI tool of choice.",
+    "Add slides, then rehearse.",
+    "If you need slides, StoryMachine can produce a PowerPoint outline, or give you a detailed prompt for your slides to use in your AI tool of choice. Then rehearse from your speaker notes.",
   ],
 ];
 
@@ -270,10 +270,10 @@ const STAGES = [
   },
 ];
 
-// After the two stages, two things of their own (18 October): rehearsal, then slides if you need them.
+// After the two stages: story, slides, rehearsal (Jim, 21 October).
 const AFTER: Array<[string, string, string, IconName]> = [
-  ["Then", "Rehearse it into life", "Speaker notes, and the words in full. Say it aloud before you build anything.", "acts"],
-  ["Finally, if you need them", "The outline for powerful visuals", "One idea per slide, with a brief and a prompt for your own AI tool.", "slides"],
+  ["Then, if you need them", "The outline for powerful visuals", "One idea per slide, with a brief and a prompt for your own AI tool.", "slides"],
+  ["Finally", "Rehearse it into life", "Speaker notes, and the words in full. Say it aloud, with your slides, before you present.", "acts"],
 ];
 
 const KINDS: Array<[string, IconName]> = [

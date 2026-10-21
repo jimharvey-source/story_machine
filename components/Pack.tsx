@@ -5,7 +5,7 @@ import type { Landing, Story } from "@/lib/schema";
 import { slideList, slidePrompt } from "@/lib/slides";
 import { KINDS, kindOf } from "@/lib/kinds";
 
-// After Stage 2: rehearsal on the story page, slides on their own (18 October: the slides come last, on a separate view).
+// After Stage 2: story, slides, rehearsal (Jim, 21 October). Both sit on the slides view, slides first.
 
 function Why({ children }: { children: React.ReactNode }) {
   return <p className="mt-1 mb-3 text-xs leading-relaxed text-muted">{children}</p>;
@@ -36,7 +36,7 @@ export function Rehearse({ story, landing }: { story: Story; landing: Landing })
     <>
       <section className="border-t border-rule pt-8">
         <p className="eyebrow text-red">Rehearse it into life</p>
-        <p className="said mt-2 text-xl leading-snug text-ink">Say it aloud before you build anything. Speak from the notes; read only if you must.</p>
+        <p className="said mt-2 text-xl leading-snug text-ink">Now say it aloud, with your slides if you have them. Speak from the notes; read only if you must.</p>
       </section>
       {hasNotes && (
         <section>

@@ -1159,12 +1159,12 @@ export default function Build() {
             Back to your story
           </button>
           <div>
-            <p className="eyebrow">Step 5</p>
+            <p className="eyebrow">Your slides, then rehearsal</p>
             <h1 className="display mt-2 text-3xl leading-[1.05] sm:text-4xl">Add slides, if you need them.</h1>
             <p className="mt-3 max-w-2xl text-ink-2">
               You have done the important thinking. Now the slides can support the story rather than replace it. Take the
               prompt to your own AI tool, download the PowerPoint outline and build it in your company template, or make
-              the slides yourself from the brief.
+              the slides yourself from the brief. Then rehearse it into life, with your speaker notes at the foot of this page.
             </p>
             <p className="said mt-4 text-xl text-ink">{story.bigIdea}</p>
           </div>
@@ -1187,6 +1187,9 @@ export default function Build() {
           </div>
           {error && <p className="text-sm text-red">{error}</p>}
           <Slides story={story} landing={landing} />
+          <div id="rehearse" className="scroll-mt-8 space-y-10">
+            <Rehearse story={story} landing={landing} />
+          </div>
         </article>
       )}
 
@@ -1487,7 +1490,9 @@ export default function Build() {
                   ))}
                 </ol>
               </section>
-              <Rehearse story={story} landing={landing} />
+              {/* Story, slides, rehearsal (Jim, 21 October): rehearsal sits after the slides, on the slides view.
+                  Anyone who cannot open that view still gets it here. */}
+              {!(signedIn && !locked) && <Rehearse story={story} landing={landing} />}
             </>
           )}
 
@@ -1551,16 +1556,29 @@ export default function Build() {
               <p className="eyebrow text-paper/70">Your story is finished</p>
               <h2 className="display mt-2 text-3xl leading-tight">Congratulations, you&apos;ve finished your story.</h2>
               <p className="mt-3 max-w-2xl text-paper/80">
-                You have done the hard work. Download it as a PDF or a Word file below. If you need slides, StoryMachine
-                gives you a slide brief, a PowerPoint outline and a prompt for your own AI tool.
+                You have done the hard work. Download it as a PDF or a Word file below. Next come the slides: StoryMachine
+                gives you a slide brief, a PowerPoint outline and a prompt for your own AI tool. Then rehearse it into life
+                from your speaker notes.
               </p>
-              <button
-                type="button"
-                onClick={() => { setView("slides"); window.scrollTo({ top: 0 }); }}
-                className="mt-6 rounded-md bg-paper px-6 py-3 text-base font-medium text-ink hover:opacity-90"
-              >
-                Now make your slides
-              </button>
+              <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+                <button
+                  type="button"
+                  onClick={() => { setView("slides"); window.scrollTo({ top: 0 }); }}
+                  className="rounded-md bg-paper px-6 py-3 text-base font-medium text-ink hover:opacity-90"
+                >
+                  Now make your slides
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setView("slides");
+                    setTimeout(() => document.getElementById("rehearse")?.scrollIntoView({ behavior: "smooth" }), 50);
+                  }}
+                  className="text-sm text-paper/80 underline decoration-paper/40 underline-offset-4 hover:text-paper"
+                >
+                  No slides? Go straight to rehearsal
+                </button>
+              </div>
             </section>
           )}
 

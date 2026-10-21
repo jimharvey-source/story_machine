@@ -8,7 +8,7 @@ It takes five steps and less than 30 minutes:
 2. **Your material.** Paste your notes and upload your files.
 3. **Your email.** We send you a six-digit code. No credit card necessary.
 4. **Your story.** It arrives, ready to read, revise and download.
-5. **Slides, if you need them.** A slide brief, a PowerPoint outline and a prompt for your own AI tool.
+5. **Slides, then rehearsal.** If you need slides, a slide brief, a PowerPoint outline and a prompt for your own AI tool. Then speaker notes to rehearse from.
 
 Your first story is free. Each part arrives with a line saying why it is there, so you learn the method while it works.
 
@@ -173,11 +173,26 @@ Using a suggestion is an edit by hand, so it is always free. After you edit, pre
 
 Every story ends with a panel headed **Make it your own**: the gaps in your story, followed by advice to help you rehearse. Do these things before you present. Audiences believe speakers who sound like themselves.
 
+## Add slides, if you need them
+
+*In PowerPoint or using an AI tool.*
+
+Story first, then slides, then rehearsal. That is the order of the method. When your story is finished, press **Now make your slides**. The slides page gives you:
+
+- **What great slides do.** One idea per slide, the three-second rule, titles that tell the story.
+- **The slide brief.** Every slide in order: the words, the picture and the part of the story it serves.
+- **A prompt for your own AI tool.** The brief with the rules for slides built in. Press **Copy the prompt** and paste it into whichever AI tool you use to make slides.
+- **The PowerPoint outline.** Each slide's words in the title placeholder and its picture brief in the content placeholder, with the cue in the speaker notes. Apply your company template and the slides take on its look.
+
+Or build the slides yourself from the brief. Whichever route you take, keep the titles as written. Read in order, they tell your story.
+
+If your talk has no slides, StoryMachine says so. A talk built for words alone is a strength.
+
 ## Rehearse from your speaker notes
 
 *Your story in PDF or Word.*
 
-Under the story you will find **Rehearse it into life**:
+Below the slides you will find **Rehearse it into life**. No slides? Press **No slides? Go straight to rehearsal** under your finished story.
 
 **Speaker notes.** Short cues, in the order you say them. Speak from these. A cue reminds you what comes next; the words come from you in the room, so they sound like you. Word for word is for legal and political speeches only.
 
@@ -196,21 +211,6 @@ Then:
 1. **Review StoryMachine's suggestions.** Add the example, the number or the story only you have.
 2. **Say the Prologue and Epilogue aloud.** Change any word that feels borrowed.
 3. **Rehearse from the speaker notes.** Talk it through with a colleague and ask three questions: What was my argument? What do I want you to do? What will you remember tomorrow? If your colleague's answers match your intent, the story works. If not, fix the story. Slides cannot repair a weak argument.
-
-## Add slides, if you need them
-
-*Step 5: in PowerPoint or using an AI tool.*
-
-The slides come last. That is the point of the method. When your story is finished, press **Now make your slides**. The slides page gives you:
-
-- **What great slides do.** One idea per slide, the three-second rule, titles that tell the story.
-- **The slide brief.** Every slide in order: the words, the picture and the part of the story it serves.
-- **A prompt for your own AI tool.** The brief with the rules for slides built in. Press **Copy the prompt** and paste it into whichever AI tool you use to make slides.
-- **The PowerPoint outline.** Each slide's words in the title placeholder and its picture brief in the content placeholder, with the cue in the speaker notes. Apply your company template and the slides take on its look.
-
-Or build the slides yourself from the brief. Whichever route you take, keep the titles as written. Read in order, they tell your story.
-
-If your talk has no slides, StoryMachine says so. A talk built for words alone is a strength.
 
 ## Choose a payment plan
 
