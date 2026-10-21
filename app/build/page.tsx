@@ -71,6 +71,55 @@ function StepHead({ n, title, sub }: { n: number; title: string; sub: string }) 
   );
 }
 
+/** A section of the finished story, numbered as in the PDF (21 October). */
+function SectionHead({ n, title, intro }: { n: number; title: string; intro: string }) {
+  return (
+    <div className="border-t-2 border-ink pt-6">
+      <p className="text-sm font-semibold text-red">Section {n}</p>
+      <h2 className="display mt-1 text-3xl leading-tight sm:text-4xl">{title}</h2>
+      <span className="mt-3 block h-[3px] w-10 bg-red" aria-hidden="true" />
+      <p className="mt-4 max-w-2xl text-ink-2">{intro}</p>
+    </div>
+  );
+}
+
+/** A heading inside a section, with one line on what the part is for. */
+function SubHead({ title, about }: { title: string; about?: string }) {
+  return (
+    <div className="mb-4">
+      <h3 className="display text-xl">{title}</h3>
+      {about && <p className="mt-1 max-w-3xl text-sm text-muted">{about}</p>}
+    </div>
+  );
+}
+
+/** A part of the presentation: Prologue, an act, the Epilogue. The id is a target for the speech structure links. */
+function Part({ id, title, about, children }: { id: string; title: string; about: string; children: React.ReactNode }) {
+  return (
+    <div id={id} className="scroll-mt-20 space-y-5 border-t border-rule pt-8">
+      <div>
+        <h3 className="display text-2xl">{title}</h3>
+        <p className="mt-1 max-w-3xl text-sm text-muted">{about}</p>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+/** Label on the left, words on the right, as in the PDF's audience analysis. */
+function Row({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="grid gap-1 sm:grid-cols-[11rem_1fr] sm:gap-4">
+      <p className="pt-1 text-sm font-semibold text-muted">{label}</p>
+      <div>{children}</div>
+    </div>
+  );
+}
+
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return <p className="mb-1 text-xs font-semibold text-muted">{children}</p>;
+}
+
 // The process explains itself as the story appears: one line under each part saying why it is there.
 function Why({ children }: { children: React.ReactNode }) {
   return <p className="mt-1 mb-2 text-xs leading-relaxed text-muted">{children}</p>;
@@ -1209,114 +1258,145 @@ export default function Build() {
               notes. About a minute. Read on while it works.
             </p>
           )}
-          <section>
-            <p className="eyebrow">Big Idea</p>
-            <Why>The whole presentation in one line that people can repeat in the corridor. If they remember nothing else, they will remember this.</Why>
-            <Editable
-              as="h2"
-              value={story.bigIdea}
-              busy={busy === "bigIdea"}
-              onChange={(v) => applyPath("bigIdea", v)}
-              onAction={chips("bigIdea", story.bigIdea)}
-              className="said mt-3 text-4xl leading-[1.08] sm:text-5xl"
-              label="Big Idea"
+          {/* The story page follows the PDF (21 October): three sections, with a contents bar that stays in view. */}
+          <nav aria-label="Your story" className="sticky top-0 z-20 -mx-2 flex flex-wrap gap-x-5 gap-y-1 border-b border-rule bg-paper-2/95 px-2 py-3 text-sm backdrop-blur">
+            {[
+              ["s-audience", "1 Your audience and your argument"],
+              ["s-presentation", "2 Your presentation"],
+              ["s-suggestions", "3 Suggestions"],
+              ...(landing && signedIn && !locked ? [["s-finished", "Next: slides and rehearsal"]] : []),
+            ].map(([id, t]) => (
+              <a key={id} href={`#${id}`} className="text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
+                {t}
+              </a>
+            ))}
+          </nav>
+
+          {/* 1. Your audience and your argument */}
+          <section id="s-audience" className="scroll-mt-20 space-y-8">
+            <SectionHead
+              n={1}
+              title="Your audience and your argument"
+              intro="These are the foundations of your story. Check them first: if one is wrong, everything built on it will be too. Click any line to change it."
             />
-            {notesFor("bigIdea", story.bigIdea)}
-            <p className="mt-4 text-sm text-muted">
-              <span className="eyebrow mr-2">Structure</span>
-              {KINDS[story.kind].label}: {KINDS[story.kind].line}
-              {kindChosenByMachine && (
-                <> StoryMachine chose this from your notes. To use another, choose Rework the notes, pick the kind and find your story again.</>
-              )}
-            </p>
-          </section>
-
-          <section className="grid gap-8 border-t border-rule pt-8 sm:grid-cols-2">
-            <div className="space-y-4">
-              <div>
-                <p className="eyebrow">Audience</p>
-                <Why>Every story starts with the people listening. A message for everyone lands with no one.</Why>
-                <Editable
-                  value={story.audience.who}
-                  onChange={(v) => applyPath("audience.who", v)}
-                  className="mt-1 font-medium"
-                />
-              </div>
-              <div>
-                <p className="eyebrow">They need to hear</p>
-                <Editable
-                  value={story.audience.needToHear}
-                  onChange={(v) => applyPath("audience.needToHear", v)}
-                  className="mt-1 text-ink-2"
-                />
-              </div>
-              <div>
-                <p className="eyebrow">Leave out</p>
-                <Editable
-                  value={story.audience.doNotNeedToHear}
-                  onChange={(v) => applyPath("audience.doNotNeedToHear", v)}
-                  className="mt-1 text-ink-2"
-                />
-              </div>
-              {story.hero.who && (
-                <div>
-                  <p className="eyebrow">The hero</p>
-                  <Why>The audience is the hero. You are the faithful friend who believes in them and tells them the truth they need to hear.</Why>
-                  <Editable
-                    value={story.hero.who}
-                    onChange={(v) => applyPath("hero.who", v)}
-                    className="mt-1 font-medium"
-                  />
-                  <p className="eyebrow mt-3">What they want</p>
-                  <Editable
-                    value={story.hero.wants}
-                    onChange={(v) => applyPath("hero.wants", v)}
-                    className="mt-1 text-ink-2"
-                  />
-                  <p className="eyebrow mt-3">What stands in the way</p>
-                  <Editable
-                    value={story.hero.obstacle}
-                    onChange={(v) => applyPath("hero.obstacle", v)}
-                    className="mt-1 text-ink-2"
-                  />
-                </div>
-              )}
-            </div>
-            <div className="space-y-4">
-              <div>
-                <p className="eyebrow">Statement of intent</p>
-                <Why>&ldquo;After my presentation, the audience will...&rdquo; If you can&apos;t finish this sentence, the presentation is not ready.</Why>
-                <Editable
-                  value={story.intent}
-                  busy={busy === "intent"}
-                  onChange={(v) => applyPath("intent", v)}
-                  onAction={chips("intent", story.intent)}
-                  actions={["sharper", "simpler", "another"]}
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <p className="eyebrow">The argument</p>
-                <Why>Your case in one sentence. Everything in the three acts supports the argument.</Why>
-                <Editable
-                  value={story.argument}
-                  busy={busy === "argument"}
-                  onChange={(v) => applyPath("argument", v)}
-                  onAction={chips("argument", story.argument)}
-                  actions={["sharper", "simpler", "clearer", "another"]}
-                  className="mt-1"
-                />
+            <div>
+              <SubHead title="Your audience analysis" about="Who is in the room, and what they need from you. A message for everyone lands with no one." />
+              <div className="space-y-4">
+                <Row label="Who they are">
+                  <Editable value={story.audience.who} onChange={(v) => applyPath("audience.who", v)} className="font-medium" />
+                </Row>
+                {story.hero.who && (
+                  <>
+                    <Row label="What they want">
+                      <Editable value={story.hero.wants} onChange={(v) => applyPath("hero.wants", v)} className="text-ink-2" />
+                    </Row>
+                    <Row label="What stands in the way">
+                      <Editable value={story.hero.obstacle} onChange={(v) => applyPath("hero.obstacle", v)} className="text-ink-2" />
+                    </Row>
+                  </>
+                )}
+                <Row label="What they need to hear">
+                  <Editable value={story.audience.needToHear} onChange={(v) => applyPath("audience.needToHear", v)} className="text-ink-2" />
+                </Row>
+                <Row label="What to leave out">
+                  <Editable value={story.audience.doNotNeedToHear} onChange={(v) => applyPath("audience.doNotNeedToHear", v)} className="text-ink-2" />
+                </Row>
               </div>
             </div>
+            <div className="border-t border-rule pt-8">
+              <SubHead title="What you want your presentation to do" about="Your statement of intent. If you can't finish the sentence, the presentation is not ready." />
+              <Editable
+                value={story.intent}
+                busy={busy === "intent"}
+                onChange={(v) => applyPath("intent", v)}
+                onAction={chips("intent", story.intent)}
+                actions={["sharper", "simpler", "another"]}
+                className="text-lg"
+              />
+            </div>
+            <div className="border-t border-rule pt-8">
+              <SubHead title="Your argument" about="Your case in one sentence. Everything in the three acts supports it." />
+              <Editable
+                value={story.argument}
+                busy={busy === "argument"}
+                onChange={(v) => applyPath("argument", v)}
+                onAction={chips("argument", story.argument)}
+                actions={["sharper", "simpler", "clearer", "another"]}
+                className="text-lg"
+              />
+            </div>
+            {landing && (
+              <div className="rounded-md bg-panel p-6 sm:p-8">
+                <SubHead title="Your story in five lines" about="The whole talk in 30 seconds. If it works here, it will work in the room." />
+                <ol className="space-y-3">
+                  {(["prologue", "why", "how", "what", "epilogue"] as const).map((k, i) => (
+                    <li key={k} className="grid gap-1 sm:grid-cols-[9rem_1fr] sm:gap-4">
+                      <span className="pt-1.5 text-sm font-semibold text-muted">
+                        {k === "prologue" ? "Prologue" : k === "epilogue" ? "Epilogue" : `Act ${i}: ${KINDS[story.kind].acts[i - 1]}`}
+                      </span>
+                      <Editable value={landing.fiveLineStory[k]} onChange={(v) => applyPath(`landing.fiveLineStory.${k}`, v)} className="said text-lg" />
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
           </section>
 
-          {landing && (
-            <section className="border-t border-rule pt-8">
-              <p className="eyebrow">
-                Prologue &middot; spoken &middot; the golden minute
-              </p>
-              <Why>The first minute that earns the rest. It states the Big Idea, says why now, and tells the audience what you need from them.</Why>
-              <div className="mt-4">
+          {/* 2. Your presentation */}
+          <section id="s-presentation" className="scroll-mt-20 space-y-10">
+            <SectionHead
+              n={2}
+              title="Your presentation"
+              intro={
+                landing
+                  ? "The talk from the first word to the last. Words in this typeface are for saying aloud. The grey and red notes under some lines are StoryMachine's suggestions on rhetoric: section 3 explains them."
+                  : "Your Big Idea and the three acts. The opening, signposts and ending follow in Stage 2."
+              }
+            />
+            <div>
+              <SubHead title="Your Big Idea" about="The one line people repeat in the corridor afterwards. Your whole presentation rests on it." />
+              <Editable
+                as="h2"
+                value={story.bigIdea}
+                busy={busy === "bigIdea"}
+                onChange={(v) => applyPath("bigIdea", v)}
+                onAction={chips("bigIdea", story.bigIdea)}
+                className="said text-4xl leading-[1.08] sm:text-5xl"
+                label="Big Idea"
+              />
+              {notesFor("bigIdea", story.bigIdea)}
+            </div>
+            <div>
+              <SubHead
+                title="Your speech structure"
+                about={`${KINDS[story.kind].label}: ${KINDS[story.kind].line}${kindChosenByMachine ? " StoryMachine chose this from your notes. To use another, choose Rework the notes, pick the kind and find your story again." : ""}`}
+              />
+              <ol className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+                {[
+                  ["p-prologue", "Prologue", landing ? "The first minute" : "Comes with Stage 2", true],
+                  ["p-why", "Act 1", KINDS[story.kind].acts[0], false],
+                  ["p-how", "Act 2", KINDS[story.kind].acts[1], false],
+                  ["p-what", "Act 3", KINDS[story.kind].acts[2], false],
+                  ["p-epilogue", "Epilogue", landing ? "End with certainty" : "Comes with Stage 2", true],
+                ].map(([id, a, b, end]) => {
+                  const live = landing || !end;
+                  const inner = (
+                    <>
+                      <span className={"block text-sm font-semibold " + (end ? "text-red" : "text-ink")}>{a as string}</span>
+                      <span className="mt-0.5 block text-xs leading-snug text-ink-2">{b as string}</span>
+                    </>
+                  );
+                  return (
+                    <li key={id as string} className={"rounded-md px-3 py-2.5 " + (end ? "bg-red-soft" : "bg-panel")}>
+                      {live ? <a href={`#${id}`} className="block hover:opacity-80">{inner}</a> : inner}
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
+
+            {landing && (
+              <Part id="p-prologue" title="Prologue" about="The first 30 to 60 seconds, to grab your audience's attention. State the Big Idea, say why it matters now, and tell them what you need from them.">
                 <Editable
                   value={landing.prologue}
                   busy={busy === "landing.prologue"}
@@ -1326,94 +1406,17 @@ export default function Build() {
                   label="Prologue"
                 />
                 {notesFor("landing.prologue", landing.prologue)}
-              </div>
-            </section>
-          )}
+              </Part>
+            )}
 
-          {actsFor(story.kind).map(({ key, n, word, job, why }) => {
-            const act = story[key];
-            const land = landing?.[key];
-            return (
-              <section
-                key={key}
-                className="border-t border-rule pt-8 sm:grid sm:grid-cols-[5.5rem_1fr] sm:gap-6"
-              >
-                <div className="mb-3 sm:mb-0">
-                  <p className="eyebrow">{n}</p>
-                  <p className={"display mt-1 text-red " + (word.length > 5 ? "text-lg leading-tight" : "text-3xl")}>{word}</p>
-                  {job && <p className="mt-1 text-xs text-muted">{job}</p>}
-                  <p className="mt-2 hidden text-xs leading-relaxed text-muted sm:block">{why}</p>
-                </div>
-                <div className="space-y-5">
-                  <Editable
-                    as="h2"
-                    value={act.headline}
-                    busy={busy === `${key}.headline`}
-                    onChange={(v) => applyPath(`${key}.headline`, v)}
-                    onAction={chips(`${key}.headline`, act.headline)}
-                    className="display text-2xl leading-snug sm:text-[1.75rem]"
-                    label={`${n} headline`}
-                  />
-                  {notesFor(`${key}.headline`, act.headline)}
-                  <Editable
-                    value={act.coreMessage}
-                    busy={busy === `${key}.coreMessage`}
-                    onChange={(v) => applyPath(`${key}.coreMessage`, v)}
-                    onAction={chips(`${key}.coreMessage`, act.coreMessage)}
-                    actions={[
-                      "sharper",
-                      "simpler",
-                      "clearer",
-                      "senior",
-                      "another",
-                    ]}
-                    className="text-lg"
-                  />
-                  {notesFor(`${key}.coreMessage`, act.coreMessage)}
-                  <div
-                    className={
-                      "border-l-2 pl-4 " +
-                      (act.soundbite.source === "material"
-                        ? "border-red"
-                        : "border-rule")
-                    }
-                  >
-                    <p className="eyebrow" title="A line worth quoting. From your notes when one is there; proposed when not, and marked so you find your own.">
-                      Soundbite &middot;{" "}
-                      {act.soundbite.source === "material" ? (
-                        <span className="text-red">from your notes</span>
-                      ) : (
-                        "proposed, find your own"
-                      )}
-                    </p>
-                    <Editable
-                      value={act.soundbite.text}
-                      busy={busy === `${key}.soundbite.text`}
-                      onChange={(v) => applyPath(`${key}.soundbite.text`, v)}
-                      onAction={chips(
-                        `${key}.soundbite.text`,
-                        act.soundbite.text,
-                      )}
-                      actions={["sharper", "memorable", "another"]}
-                      className="said mt-1 text-xl"
-                    />
-                    {notesFor(`${key}.soundbite.text`, act.soundbite.text)}
-                  </div>
-                  <EditableList
-                    items={act.supportingPoints}
-                    busy={busy === `${key}.supportingPoints`}
-                    onChange={(items) =>
-                      applyPath(`${key}.supportingPoints`, items)
-                    }
-                    onAction={chips(
-                      `${key}.supportingPoints`,
-                      act.supportingPoints,
-                    )}
-                  />
+            {actsFor(story.kind).map(({ key, n, word, why }) => {
+              const act = story[key];
+              const land = landing?.[key];
+              return (
+                <Part key={key} id={`p-${key}`} title={`${n}: ${word}`} about={why.replace(/^(Why|How|What):\s*/, "")}>
                   {land && (
                     <div className="rounded-md bg-panel p-5">
-                      <p className="eyebrow">Signpost &middot; spoken</p>
-                      <Why>The sentence that tells the room the important idea has arrived.</Why>
+                      <p className="text-xs font-semibold text-red">Your signpost into {n}: say this to move into the act</p>
                       <div className="mt-2">
                         <Editable
                           value={land.signpost}
@@ -1427,20 +1430,67 @@ export default function Build() {
                       </div>
                     </div>
                   )}
-                </div>
-              </section>
-            );
-          })}
+                  <div>
+                    <FieldLabel>Headline</FieldLabel>
+                    <Editable
+                      as="h2"
+                      value={act.headline}
+                      busy={busy === `${key}.headline`}
+                      onChange={(v) => applyPath(`${key}.headline`, v)}
+                      onAction={chips(`${key}.headline`, act.headline)}
+                      className="display text-2xl leading-snug sm:text-[1.75rem]"
+                      label={`${n} headline`}
+                    />
+                    {notesFor(`${key}.headline`, act.headline)}
+                  </div>
+                  <div>
+                    <FieldLabel>What it means</FieldLabel>
+                    <Editable
+                      value={act.coreMessage}
+                      busy={busy === `${key}.coreMessage`}
+                      onChange={(v) => applyPath(`${key}.coreMessage`, v)}
+                      onAction={chips(`${key}.coreMessage`, act.coreMessage)}
+                      actions={["sharper", "simpler", "clearer", "senior", "another"]}
+                      className="text-lg"
+                    />
+                    {notesFor(`${key}.coreMessage`, act.coreMessage)}
+                  </div>
+                  <div className={"border-l-2 pl-4 " + (act.soundbite.source === "material" ? "border-red" : "border-rule")}>
+                    <FieldLabel>
+                      Soundbite:{" "}
+                      {act.soundbite.source === "material" ? (
+                        <span className="text-red">from your notes</span>
+                      ) : (
+                        "our suggestion. Put it in your own words."
+                      )}
+                    </FieldLabel>
+                    <Editable
+                      value={act.soundbite.text}
+                      busy={busy === `${key}.soundbite.text`}
+                      onChange={(v) => applyPath(`${key}.soundbite.text`, v)}
+                      onAction={chips(`${key}.soundbite.text`, act.soundbite.text)}
+                      actions={["sharper", "memorable", "another"]}
+                      className="said text-xl"
+                    />
+                    {notesFor(`${key}.soundbite.text`, act.soundbite.text)}
+                  </div>
+                  <div>
+                    <FieldLabel>Evidence: only what carries the point</FieldLabel>
+                    <EditableList
+                      items={act.supportingPoints}
+                      busy={busy === `${key}.supportingPoints`}
+                      onChange={(items) => applyPath(`${key}.supportingPoints`, items)}
+                      onAction={chips(`${key}.supportingPoints`, act.supportingPoints)}
+                    />
+                  </div>
+                </Part>
+              );
+            })}
 
-          {landing && (
-            <>
-              <section className="border-t border-rule pt-8">
-                <p className="eyebrow">
-                  Epilogue &middot; spoken &middot; end with certainty
-                </p>
-                <Why>Audiences need certainty. End by recapping your headlines and the actions from here. Send them away with your message ringing in their ears.</Why>
-                {story && !endsOnBigIdea(landing.epilogue, story.bigIdea) && (
-                  <div className="mt-4 flex flex-wrap items-center gap-3 rounded-md border border-red bg-red-soft px-4 py-3">
+            {landing && (
+              <Part id="p-epilogue" title="End with certainty: your Epilogue" about="Recap your headlines and the actions from here. Send them away with your message ringing in their ears.">
+                {!endsOnBigIdea(landing.epilogue, story.bigIdea) && (
+                  <div className="flex flex-wrap items-center gap-3 rounded-md border border-red bg-red-soft px-4 py-3">
                     <p className="text-sm text-ink">
                       Your Big Idea has changed. The Epilogue, the five lines and the closing notes still end on the old one.
                     </p>
@@ -1454,50 +1504,26 @@ export default function Build() {
                     </button>
                   </div>
                 )}
-                <div className="mt-4">
-                  <Editable
-                    value={landing.epilogue}
-                    busy={busy === "landing.epilogue"}
-                    onChange={(v) => applyPath("landing.epilogue", v)}
-                    onAction={chips("landing.epilogue", landing.epilogue)}
-                    className="spoken"
-                    label="Epilogue"
-                  />
-                  {notesFor("landing.epilogue", landing.epilogue)}
-                </div>
-              </section>
-              <section className="rounded-md bg-panel p-6 sm:p-8">
-                <p className="eyebrow">The story in five lines</p>
-                <Why>The whole talk in 30 seconds. If it works here, it will work with your audience.</Why>
-                <ol className="mt-4 space-y-3">
-                  {(
-                    ["prologue", "why", "how", "what", "epilogue"] as const
-                  ).map((k) => (
-                    <li key={k} className="grid grid-cols-[5rem_1fr] gap-3">
-                      <span className="eyebrow pt-1.5">
-                        {k === "why" || k === "how" || k === "what"
-                          ? KINDS[story.kind].acts[["why", "how", "what"].indexOf(k)]
-                          : k === "prologue" ? "Prologue" : "Epilogue"}
-                      </span>
-                      <Editable
-                        value={landing.fiveLineStory[k]}
-                        onChange={(v) =>
-                          applyPath(`landing.fiveLineStory.${k}`, v)
-                        }
-                        className="said text-lg"
-                      />
-                    </li>
-                  ))}
-                </ol>
-              </section>
-              {/* Story, slides, rehearsal (Jim, 21 October): rehearsal sits after the slides, on the slides view.
-                  Anyone who cannot open that view still gets it here. */}
-              {!(signedIn && !locked) && <Rehearse story={story} landing={landing} />}
-            </>
-          )}
+                <Editable
+                  value={landing.epilogue}
+                  busy={busy === "landing.epilogue"}
+                  onChange={(v) => applyPath("landing.epilogue", v)}
+                  onAction={chips("landing.epilogue", landing.epilogue)}
+                  className="spoken"
+                  label="Epilogue"
+                />
+                {notesFor("landing.epilogue", landing.epilogue)}
+              </Part>
+            )}
+            {/* Story, slides, rehearsal (Jim, 21 October): rehearsal sits after the slides, on the slides view.
+                Anyone who cannot open that view still gets it here. */}
+            {landing && !(signedIn && !locked) && <Rehearse story={story} landing={landing} />}
+          </section>
 
-          {story && (
-            <section className="rounded-md bg-red-soft px-5 py-6 sm:px-8 sm:py-8">
+          {/* 3. Suggestions from StoryMachine */}
+          <section id="s-suggestions" className="scroll-mt-20 space-y-10">
+            <SectionHead n={3} title="Suggestions from StoryMachine" intro="This is a first draft. Here's how we think you can make the message even stronger." />
+            <div className="rounded-md bg-red-soft px-5 py-6 sm:px-8 sm:py-8">
               <p className="eyebrow text-red">{OWN_IT_TITLE}</p>
               <p className="said mt-2 text-xl leading-snug text-ink">{OWN_IT_LEAD}</p>
               <ul className="mt-4 space-y-3 text-ink-2">
@@ -1508,51 +1534,52 @@ export default function Build() {
                 ))}
               </ul>
               <Why>The machine never invents. Where your notes were silent, it asks.</Why>
-            </section>
-          )}
+            </div>
 
-          {landing && (busy === "rhetoric" || hasRhetoric(rhetoric) || storyId) && (
-            <section className="border-t border-rule pt-8">
-              <p className="eyebrow text-red">{RHETORIC_TITLE}</p>
-              <p className="said mt-2 text-xl leading-snug text-ink">{RHETORIC_LEAD}</p>
-              {busy === "rhetoric" && <p className="mt-3 text-sm text-muted" role="status">Finding the rhetoric in your story...</p>}
-              {busy !== "rhetoric" && inPlaceCount > 0 && (
-                <p className="mt-3 text-sm text-muted">
-                  Look for the notes headed Rhetoric and Add power under the lines above. Copy any line you like, or press Use this line. Every edit by hand is free.
-                </p>
-              )}
-              {hasRhetoric(legacyRhetoric) && (
-                <ul className="mt-4 space-y-4">
-                  {legacyRhetoric.devices.map((d, i) => (
-                    <li key={`d${i}`} className="border-l-2 border-rule pl-4 text-sm">
-                      <p><span className="font-semibold text-ink">{d.device}</span><span className="text-muted"> &middot; {d.where || pathLabel(d.path, story.kind)}</span></p>
-                      <p className="spoken mt-1 text-ink">{d.line}</p>
-                      <p className="mt-1 text-ink-2">{d.note}</p>
-                    </li>
-                  ))}
-                  {legacyRhetoric.suggestions.map((sg, i) => (
-                    <li key={`s${i}`} className="border-l-2 border-red pl-4 text-sm">
-                      <p><span className="font-semibold text-ink">{sg.device}</span><span className="text-muted"> &middot; {sg.where}</span></p>
-                      <p className="mt-1 text-ink">Try: &ldquo;{sg.better}&rdquo;</p>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {busy !== "rhetoric" && storyId && (
-                <button
-                  type="button"
-                  onClick={() => runRhetoric()}
-                  disabled={busy !== null}
-                  className="mt-4 text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink disabled:opacity-40"
-                >
-                  {hasRhetoric(rhetoric) ? "Check the rhetoric again after your edits" : "Find the rhetoric in this story"}
-                </button>
-              )}
-            </section>
-          )}
+            {landing && (busy === "rhetoric" || hasRhetoric(rhetoric) || storyId) && (
+              <div className="border-t border-rule pt-8">
+                <p className="eyebrow text-red">{RHETORIC_TITLE}</p>
+                <p className="said mt-2 text-xl leading-snug text-ink">{RHETORIC_LEAD}</p>
+                {busy === "rhetoric" && <p className="mt-3 text-sm text-muted" role="status">Finding the rhetoric in your story...</p>}
+                {busy !== "rhetoric" && inPlaceCount > 0 && (
+                  <p className="mt-3 text-sm text-muted">
+                    The notes sit under the lines they belong to in section 2: grey for rhetorical devices already in your story, red for a line that would gain from one. Copy any line you like, or press Use this line. Every edit by hand is free.{" "}
+                    <a href="#s-presentation" className="underline decoration-rule underline-offset-4 hover:text-ink">Go to your presentation</a>
+                  </p>
+                )}
+                {hasRhetoric(legacyRhetoric) && (
+                  <ul className="mt-4 space-y-4">
+                    {legacyRhetoric.devices.map((d, i) => (
+                      <li key={`d${i}`} className="border-l-2 border-rule pl-4 text-sm">
+                        <p><span className="font-semibold text-ink">{d.device}</span><span className="text-muted"> &middot; {d.where || pathLabel(d.path, story.kind)}</span></p>
+                        <p className="spoken mt-1 text-ink">{d.line}</p>
+                        <p className="mt-1 text-ink-2">{d.note}</p>
+                      </li>
+                    ))}
+                    {legacyRhetoric.suggestions.map((sg, i) => (
+                      <li key={`s${i}`} className="border-l-2 border-red pl-4 text-sm">
+                        <p><span className="font-semibold text-ink">{sg.device}</span><span className="text-muted"> &middot; {sg.where}</span></p>
+                        <p className="mt-1 text-ink">Try: &ldquo;{sg.better}&rdquo;</p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {busy !== "rhetoric" && storyId && (
+                  <button
+                    type="button"
+                    onClick={() => runRhetoric()}
+                    disabled={busy !== null}
+                    className="mt-4 text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink disabled:opacity-40"
+                  >
+                    {hasRhetoric(rhetoric) ? "Check the rhetoric again after your edits" : "Find the rhetoric in this story"}
+                  </button>
+                )}
+              </div>
+            )}
+          </section>
 
           {landing && signedIn && !locked && (
-            <section className="rounded-md bg-ink px-6 py-8 text-paper sm:px-10 sm:py-10">
+            <section id="s-finished" className="scroll-mt-20 rounded-md bg-ink px-6 py-8 text-paper sm:px-10 sm:py-10">
               <p className="eyebrow text-paper/70">Your story is finished</p>
               <h2 className="display mt-2 text-3xl leading-tight">Congratulations, you&apos;ve finished your story.</h2>
               <p className="mt-3 max-w-2xl text-paper/80">
