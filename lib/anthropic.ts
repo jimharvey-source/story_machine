@@ -162,3 +162,46 @@ export async function generateStructured<T>(opts: {
     unresolved,
   };
 }
+
+// Photos and screenshots (21 October 2026). Claude reads the picture and writes out what is in it,
+// as plain text for the notes box. The picture is sent once and kept nowhere.
+const READ_IMAGE_SYSTEM = `You turn a photograph or screenshot into plain text notes for someone preparing a presentation.
+
+Write out every word you can read, in reading order, keeping headings, lists and the order of slides or columns.
+Copy every number, name, date and label exactly as shown. Never round, correct or complete a figure.
+For a table, write one line per row with the cells separated by " | ".
+For a chart, diagram or drawing, add one short line in square brackets saying what it shows, using only what is visible, e.g. [Bar chart: sales by region, 2025; Europe highest at 4.2m].
+For handwriting you cannot read, write [unreadable]. Never guess.
+Do not summarise, comment, give advice or add anything that is not in the picture.
+If the picture holds no text and nothing useful for a presentation, reply with exactly: NOTHING
+Plain text only. No Markdown symbols, no dashes used as punctuation.`;
+
+export type ImageMediaType = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
+
+export async function readImage(base64: string, mediaType: ImageMediaType): Promise<string> {
+  const anthropic = getClient();
+  const res = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 4000,
+    system: READ_IMAGE_SYSTEM,
+    thinking: { type: "disabled" },
+    messages: [
+      {
+        role: "user",
+        content: [
+          { type: "image", source: { type: "base64", media_type: mediaType, data: base64 } },
+          { type: "text", text: "Write out what is in this picture as notes." },
+        ],
+      },
+    ],
+  });
+  console.log(JSON.stringify({ tag: "usage", label: "photo", output_tokens: res.usage.output_tokens, input_tokens: res.usage.input_tokens, stop_reason: res.stop_reason }));
+  const text = res.content
+    .filter((b) => b.type === "text")
+    .map((b) => (b.type === "text" ? b.text : ""))
+    .join("\n")
+    .replace(/\s+[–—]\s+/g, ", ")
+    .replace(/[–—]/g, "-")
+    .trim();
+  return text;
+}

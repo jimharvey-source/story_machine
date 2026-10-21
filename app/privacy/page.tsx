@@ -15,7 +15,7 @@ export default function Privacy() {
 
       <h2>What we collect</h2>
       <ul>
-        <li><strong>Your material.</strong> The notes you paste or the words from a file you upload, your answers about the audience and intent, and the stories the StoryMachine writes from them. Files are read in your browser: the file itself never reaches us, only its words.</li>
+        <li><strong>Your material.</strong> The notes you paste or the words from a file you upload, your answers about the audience and intent, and the stories the StoryMachine writes from them. Files are read in your browser: the file itself never reaches us, only its words. Photos and screenshots are the exception: the picture is sent to us and to Anthropic to be read, the words go into your notes, and the picture is not stored.</li>
         <li><strong>Your email address,</strong> when you sign in, and your account details: your plan, stories left, and any programme code you used.</li>
         <li><strong>Payments.</strong> What you bought and when, and Stripe&apos;s reference for it. Your card details go to Stripe, never to us.</li>
         <li><strong>Limits and security.</strong> A random code in a cookie (<code>sm_guest</code>) for people who have not signed in, and a scrambled (hashed) form of your internet address, so we can limit free use and wrong programme codes. We cannot turn the hashed form back into your address.</li>

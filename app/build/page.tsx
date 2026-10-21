@@ -663,6 +663,51 @@ export default function Build() {
     }
   }
 
+  // Photos and screenshots (21 October 2026): shrunk in the browser, sent to /api/photo, and Claude writes out
+  // what is in them. Unlike documents, the picture does leave the computer; it is not stored.
+  async function readPhoto(file: Blob, label: string) {
+    setError(null);
+    setUploadNote(null);
+    setBusy("photo");
+    try {
+      const { prepareImage } = await import("@/lib/imagePrep");
+      const img = await prepareImage(file);
+      const res = await fetch("/api/photo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: img.base64, mediaType: img.mediaType }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { text?: string; error?: string };
+      if (!res.ok || !data.text) throw new Error(data.error || "We could not read that picture just now. Try again in a moment.");
+      setNotes((prev) => (prev.trim() ? prev.trimEnd() + "\n\n" : "") + `From ${label}:\n` + data.text);
+      setUploadNote(`Added what we could read in ${label}. Check the words and figures against the picture, and cut anything that is not part of the story.`);
+    } catch (e) {
+      setError(e instanceof Error && e.message ? e.message : "We could not read that picture.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function uploadAll(files: FileList | null) {
+    if (!files || !files.length) return;
+    const { isImage } = await import("@/lib/imagePrep");
+    for (const f of Array.from(files).slice(0, 10)) {
+      if (isImage(f)) await readPhoto(f, f.name || "your picture");
+      else await upload(f);
+    }
+    if (fileRef.current) fileRef.current.value = "";
+  }
+
+  // A screenshot pasted straight into the notes box is read like an uploaded photo.
+  function pasteImage(e: React.ClipboardEvent<HTMLTextAreaElement>) {
+    const item = Array.from(e.clipboardData?.items ?? []).find((i) => i.kind === "file" && i.type.startsWith("image/"));
+    if (!item) return;
+    const blob = item.getAsFile();
+    if (!blob) return;
+    e.preventDefault();
+    if (busy === null) readPhoto(blob, "your pasted picture");
+  }
+
   // The file is read here, in the browser. Only its words go into the notes; the file itself is never sent.
   async function upload(file: File) {
     setError(null);
@@ -938,6 +983,7 @@ export default function Build() {
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
+              onPaste={pasteImage}
               rows={12}
               placeholder="Paste your notes here, or upload a file below."
               className="mt-3 w-full rounded-md border border-rule bg-paper-2 p-4 text-base leading-relaxed outline-none focus:border-ink"
@@ -949,18 +995,19 @@ export default function Build() {
                 disabled={busy !== null}
                 className="rounded-md border border-ink bg-paper-2 px-4 py-2 font-medium text-ink disabled:opacity-40"
               >
-                {busy === "upload" ? "Reading the file..." : "Upload a file"}
+                {busy === "upload" ? "Reading the file..." : busy === "photo" ? "Reading the picture..." : "Upload a file or photo"}
               </button>
-              <span>PDF, Word or PowerPoint. The files stay on your computer; only the words are read.</span>
+              <span>
+                PDF, Word or PowerPoint: the file stays on your computer; only the words are read. A photo or screenshot
+                goes to our servers and the AI to be read, and is not kept. You can also paste a screenshot into the box.
+              </span>
               <input
                 ref={fileRef}
                 type="file"
-                accept=".pdf,.docx,.pptx,.txt,.md"
+                multiple
+                accept=".pdf,.docx,.pptx,.txt,.md,image/*,.heic,.heif"
                 className="hidden"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) upload(f);
-                }}
+                onChange={(e) => uploadAll(e.target.files)}
               />
               {uploadNote && <span className="w-full text-ink">{uploadNote}</span>}
             </div>

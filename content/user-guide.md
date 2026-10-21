@@ -69,6 +69,8 @@ Good material might include:
 
 Your files stay on your computer. StoryMachine reads the words and adds them to the box. The files themselves never leave your computer. There is no size limit on the files you can upload.
 
+**Add photos and screenshots**: a whiteboard, a flipchart, a slide, a page of handwritten notes. Upload them with the same button, or paste a screenshot straight into the box. StoryMachine writes out the words and figures it can read. Check them against the picture. A photo is different from a document: it goes to our servers and the AI to be read, and it is not kept.
+
 Before you go on, review what landed in the box and delete anything that does not belong.
 
 A scanned PDF is a picture of text, so it has no words to read. Export it again with text, or paste the text in.

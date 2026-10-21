@@ -164,7 +164,8 @@ export function Tour({ programme = false }: { programme?: boolean }) {
           <p>
             Upload a Word file, PDF or PowerPoint of any size. StoryMachine reads the words, but the files never leave your
             computer. Only the words go to our servers and to the AI that helps you write your story. Your story is saved
-            to your account. You can delete it, and all related material, at any time.
+            to your account. You can delete it, and all related material, at any time. A photo or screenshot is
+            different: it goes to our servers and the AI to be read, and it is not kept.
           </p>
           <p className="mt-4">
             For more details on how your information is handled, please see the{" "}
