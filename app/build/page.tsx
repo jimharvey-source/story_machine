@@ -665,7 +665,7 @@ export default function Build() {
 
   // Photos and screenshots (21 October 2026): shrunk in the browser, sent to /api/photo, and Claude writes out
   // what is in them. Unlike documents, the picture does leave the computer; it is not stored.
-  async function readPhoto(file: Blob, label: string) {
+  async function readPhoto(file: Blob, label: string): Promise<boolean> {
     setError(null);
     setUploadNote(null);
     setBusy("photo");
@@ -681,8 +681,10 @@ export default function Build() {
       if (!res.ok || !data.text) throw new Error(data.error || "We could not read that picture just now. Try again in a moment.");
       setNotes((prev) => (prev.trim() ? prev.trimEnd() + "\n\n" : "") + `From ${label}:\n` + data.text);
       setUploadNote(`Added what we could read in ${label}. Check the words and figures against the picture, and cut anything that is not part of the story.`);
+      return true;
     } catch (e) {
-      setError(e instanceof Error && e.message ? e.message : "We could not read that picture.");
+      setError(`${label}: ${e instanceof Error && e.message ? e.message : "we could not read that picture."}`);
+      return false;
     } finally {
       setBusy(null);
     }
@@ -691,9 +693,21 @@ export default function Build() {
   async function uploadAll(files: FileList | null) {
     if (!files || !files.length) return;
     const { isImage } = await import("@/lib/imagePrep");
-    for (const f of Array.from(files).slice(0, 10)) {
-      if (isImage(f)) await readPhoto(f, f.name || "your picture");
-      else await upload(f);
+    const list = Array.from(files);
+    const failed: string[] = [];
+    let added = 0;
+    for (const f of list.slice(0, 10)) {
+      const ok = isImage(f) ? await readPhoto(f, f.name || "your picture") : await upload(f);
+      if (ok) added += 1;
+      else failed.push(f.name);
+    }
+    if (list.length > 1) {
+      setUploadNote(
+        added
+          ? `Added what we could read from ${added} ${added === 1 ? "file" : "files"}${list.length > 10 ? " (the first ten; upload the rest next)" : ""}. Check the words and figures, and cut anything that is not part of the story.`
+          : null,
+      );
+      setError(failed.length ? `Could not read: ${failed.join(", ")}. Try those again, save them in another format, or paste the text.` : null);
     }
     if (fileRef.current) fileRef.current.value = "";
   }
@@ -709,7 +723,7 @@ export default function Build() {
   }
 
   // The file is read here, in the browser. Only its words go into the notes; the file itself is never sent.
-  async function upload(file: File) {
+  async function upload(file: File): Promise<boolean> {
     setError(null);
     setUploadNote(null);
     setBusy("upload");
@@ -722,6 +736,7 @@ export default function Build() {
       setUploadNote(
         `Added the words from ${data.name}${data.truncated ? " (the first 60,000 characters)" : ""}. The file stays on your computer. Cut anything that is not part of the story before you go on.`,
       );
+      return true;
     } catch (e) {
       const msg = e instanceof Error ? e.message : "";
       setError(
@@ -729,6 +744,7 @@ export default function Build() {
           ? msg
           : `Could not read that file${msg ? ` (${msg})` : ""}. Save it again as .pptx, .docx or .pdf, or paste the text.`,
       );
+      return false;
     } finally {
       setBusy(null);
       if (fileRef.current) fileRef.current.value = "";
@@ -995,10 +1011,10 @@ export default function Build() {
                 disabled={busy !== null}
                 className="rounded-md border border-ink bg-paper-2 px-4 py-2 font-medium text-ink disabled:opacity-40"
               >
-                {busy === "upload" ? "Reading the file..." : busy === "photo" ? "Reading the picture..." : "Upload a file or photo"}
+                {busy === "upload" ? "Reading the file..." : busy === "photo" ? "Reading the picture..." : "Upload files or photos"}
               </button>
               <span>
-                PDF, Word or PowerPoint: the file stays on your computer; only the words are read. A photo or screenshot
+                Choose up to ten at once. PDF, Word or PowerPoint: the file stays on your computer; only the words are read. A photo or screenshot
                 goes to our servers and the AI to be read, and is not kept. You can also paste a screenshot into the box.
               </span>
               <input

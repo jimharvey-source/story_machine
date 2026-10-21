@@ -65,7 +65,7 @@ Good material might include:
 
 **Paste** your notes into the large box. It holds up to 60,000 characters, about 30 pages of text.
 
-**Upload any relevant files**: PowerPoint (.pptx), Word (.docx), PDF or plain text.
+**Upload any relevant files**: PowerPoint (.pptx), Word (.docx), PDF or plain text. Choose up to ten at once; their words are added to the box one after another.
 
 Your files stay on your computer. StoryMachine reads the words and adds them to the box. The files themselves never leave your computer. There is no size limit on the files you can upload.
 
