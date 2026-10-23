@@ -101,10 +101,11 @@ function Draw({ d, stroke, delay }: { d: string; stroke: string; delay: number }
 }
 
 /** The arrowhead at a line's tip, shown once the line has drawn. */
-function Tip({ x, y, head, delay }: { x: number; y: number; head: string; delay: number }) {
+function Tip({ x, y, head, delay, dir = "right" }: { x: number; y: number; head: string; delay: number; dir?: "right" | "left" | "down" }) {
+  const d = dir === "left" ? `M ${x + 6} ${y} H ${x}` : dir === "down" ? `M ${x} ${y - 6} V ${y}` : `M ${x - 6} ${y} H ${x}`;
   return (
     <path
-      d={`M ${x - 6} ${y} H ${x}`}
+      d={d}
       className="hiw-fade"
       style={{ ["--d" as string]: `${delay}s` }}
       fill="none"
@@ -122,6 +123,136 @@ function Dot({ route, fill, begin, dur }: { route: string; fill: string; begin: 
       <animateMotion path={route} dur={`${dur}s`} begin={`${begin}s`} repeatCount="indefinite" calcMode="linear" />
       <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.85;1" dur={`${dur}s`} begin={`${begin}s`} repeatCount="indefinite" />
     </circle>
+  );
+}
+
+// The phone layout, in its own units (360 wide). Two columns of cards either side of a spine at x = 180.
+const P = { L: [0, 156], R: [204, 360], SPINE: 180 };
+const P_IN: Array<{ lines: string[]; col: 0 | 1; y: number }> = [
+  { lines: ["Your notes"], col: 0, y: 66 },
+  { lines: ["Old slides", "and decks"], col: 1, y: 66 },
+  { lines: ["Reports", "and papers"], col: 0, y: 124 },
+  { lines: ["Photos and", "screenshots"], col: 1, y: 124 },
+  { lines: ["Who is in", "the room"], col: 0, y: 182 },
+];
+const P_OUT: Array<{ lines: string[]; col: 0 | 1; y: number }> = [
+  { lines: ["Your Big Idea"], col: 0, y: 662 },
+  { lines: ["A three-act story"], col: 1, y: 662 },
+  { lines: ["A strong start", "in 60 seconds"], col: 0, y: 720 },
+  { lines: ["A clear, confident", "ending"], col: 1, y: 720 },
+  { lines: ["Speaker notes"], col: 0, y: 778 },
+  { lines: ["More powerful", "language"], col: 1, y: 778 },
+];
+const P_S1 = { top: 226, bottom: 290 };
+const P_HUB = { cy: 366, r: 50 };
+const P_S2 = { top: 532, bottom: 596 };
+const edge = (col: 0 | 1) => (col === 0 ? P.L[1] : P.R[0]);
+const pInRoute = (c: { col: 0 | 1; y: number }) => `M ${edge(c.col)} ${c.y} H ${P.SPINE} V ${P_S1.top - 4}`;
+const pOutRoute = (c: { col: 0 | 1; y: number }) =>
+  `M ${P.SPINE} ${P_S2.bottom} V ${c.y} H ${c.col === 0 ? P.L[1] + 4 : P.R[0] - 4}`;
+const P_MID_1 = `M ${P.SPINE} ${P_S1.bottom} V ${P_HUB.cy - P_HUB.r - 4}`;
+const P_MID_2 = `M ${P.SPINE} ${P_HUB.cy + P_HUB.r + 92} V ${P_S2.top - 4}`;
+
+function PhoneCard({ c, fill, delay }: { c: { lines: string[]; col: 0 | 1; y: number }; fill: string; delay: number }) {
+  const [x0, x1] = c.col === 0 ? P.L : P.R;
+  return (
+    <g className="hiw-pop" style={{ ["--d" as string]: `${delay}s` }}>
+      <rect x={x0} y={c.y - 25} width={x1 - x0} height={50} rx={12} fill={fill} />
+      {c.lines.map((l, k) => (
+        <text key={l} x={x0 + 14} y={c.y + 5 + (k - (c.lines.length - 1) / 2) * 18} fontSize={14.5} fontWeight={600} fill={INK}>
+          {l}
+        </text>
+      ))}
+    </g>
+  );
+}
+
+function PhoneDiagram({ play }: { play: boolean }) {
+  const FLOW = 3.0;
+  const label = { paintOrder: "stroke", stroke: "#f5f4f2", strokeWidth: 8, strokeLinejoin: "round" } as const;
+  return (
+    <svg
+      viewBox="-2 0 364 812"
+      className="block w-full md:hidden"
+      role="img"
+      aria-label="Input everything you've got: your notes, old slides and decks, reports and papers, photos and screenshots, and who is in the room. Answer a few simple questions about your audience and your goal. StoryMachine. Sharpen every element of your presentation until it's perfect. Output a fully worked presentation: your Big Idea, a three-act story, a strong start in 60 seconds, a clear, confident ending, speaker notes and more powerful language."
+      style={{ fontFamily: "'Instrument Sans', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" }}
+    >
+      <defs>
+        {[["hiwp-g", LINE], ["hiwp-k", INK], ["hiwp-r", RED]].map(([id, c]) => (
+          <marker key={id} id={id} orient="auto" markerWidth="5" markerHeight="5" refX="2" refY="2" overflow="visible">
+            <path d="M0 0 L4 2 L0 4 Z" fill={c} />
+          </marker>
+        ))}
+      </defs>
+
+      <text x={0} y={22} fontSize={15} fontWeight={600} fill={RED} className="hiw-fade" style={{ ["--d" as string]: "0s" }}>
+        Input everything you&rsquo;ve got
+      </text>
+
+      {P_IN.map((c, i) => (
+        <Draw key={`pil${i}`} d={pInRoute(c)} stroke={LINE} delay={0.5 + i * 0.08} />
+      ))}
+      <Tip x={P.SPINE} y={P_S1.top - 4} head="hiwp-g" delay={1.2} dir="down" />
+      <Draw d={P_MID_1} stroke={INK} delay={1.5} />
+      <Tip x={P.SPINE} y={P_HUB.cy - P_HUB.r - 4} head="hiwp-k" delay={1.8} dir="down" />
+      <Draw d={P_MID_2} stroke={INK} delay={2.0} />
+      <Tip x={P.SPINE} y={P_S2.top - 4} head="hiwp-k" delay={2.3} dir="down" />
+      {P_OUT.map((c, i) => (
+        <Draw key={`pol${i}`} d={pOutRoute(c)} stroke={RED} delay={2.4 + i * 0.08} />
+      ))}
+      {P_OUT.map((c, i) => (
+        <Tip key={`pot${i}`} x={c.col === 0 ? P.L[1] + 4 : P.R[0] - 4} y={c.y} head="hiwp-r" delay={3.0 + i * 0.08} dir={c.col === 0 ? "left" : "right"} />
+      ))}
+
+      {P_IN.map((c, i) => (
+        <PhoneCard key={c.lines.join(" ")} c={c} fill={SUNK} delay={i * 0.08} />
+      ))}
+
+      <g className="hiw-pop" style={{ ["--d" as string]: "1.1s" }}>
+        <rect x={24} y={P_S1.top} width={312} height={P_S1.bottom - P_S1.top} rx={12} fill="#fff" stroke={RULE} />
+        <text x={180} y={P_S1.top + 28} textAnchor="middle" fontSize={15} fontWeight={600} fill={INK}>Answer a few simple questions</text>
+        <text x={180} y={P_S1.top + 48} textAnchor="middle" fontSize={15} fontWeight={600} fill={INK}>about your audience and your goal</text>
+      </g>
+
+      <g className="hiw-hub" style={{ ["--d" as string]: "1.7s", transformOrigin: `${P.SPINE}px ${P_HUB.cy}px` }}>
+        <circle className="hiw-pulse" cx={P.SPINE} cy={P_HUB.cy} r={P_HUB.r} fill="none" stroke={RED} strokeWidth={2} />
+        <circle cx={P.SPINE} cy={P_HUB.cy} r={P_HUB.r} fill={RED} />
+        <svg x={P.SPINE - 33} y={P_HUB.cy - 33} width={66} height={66} viewBox="10 10 44 44" aria-hidden="true">
+          <path d={QUOTE} fill="#fff" />
+        </svg>
+        <text x={P.SPINE} y={P_HUB.cy + P_HUB.r + 24} textAnchor="middle" fontSize={12.5} fill={MUTED}>Jim Harvey&rsquo;s</text>
+        <text x={P.SPINE} y={P_HUB.cy + P_HUB.r + 50} textAnchor="middle" fontSize={24} fontWeight={600} fill={INK} letterSpacing="-0.02em">StoryMachine</text>
+        <text x={P.SPINE} y={P_HUB.cy + P_HUB.r + 74} textAnchor="middle" fontSize={16} fill={INK} style={{ fontFamily: "Fraunces, Georgia, serif" }}>Story first. Then slides.</text>
+      </g>
+
+      <g className="hiw-pop" style={{ ["--d" as string]: "2.1s" }}>
+        <rect x={24} y={P_S2.top} width={312} height={P_S2.bottom - P_S2.top} rx={12} fill="#fff" stroke={RED} strokeWidth={1.5} />
+        <text x={180} y={P_S2.top + 28} textAnchor="middle" fontSize={15} fontWeight={600} fill={INK}>Sharpen every element of your</text>
+        <text x={180} y={P_S2.top + 48} textAnchor="middle" fontSize={15} fontWeight={600} fill={INK}>presentation until it&rsquo;s perfect</text>
+      </g>
+
+      <text x={180} y={P_S2.bottom + 31} textAnchor="middle" fontSize={15} fontWeight={600} fill={RED} className="hiw-fade" style={{ ["--d" as string]: "2.5s", ...label }}>
+        Output a fully worked presentation
+      </text>
+
+      {P_OUT.map((c, i) => (
+        <PhoneCard key={c.lines.join(" ")} c={c} fill={SOFT} delay={2.7 + i * 0.08} />
+      ))}
+
+      {play && (
+        <g aria-hidden="true">
+          {P_IN.map((c, i) => (
+            <Dot key={`pid${i}`} route={pInRoute(c)} fill={LINE} begin={FLOW + i * 0.5} dur={1.8} />
+          ))}
+          <Dot route={P_MID_1} fill={INK} begin={FLOW + 1.4} dur={0.9} />
+          <Dot route={P_MID_2} fill={INK} begin={FLOW + 2.0} dur={0.9} />
+          {P_OUT.map((c, i) => (
+            <Dot key={`pod${i}`} route={pOutRoute(c)} fill={RED} begin={FLOW + 2.4 + i * 0.4} dur={1.8} />
+          ))}
+        </g>
+      )}
+    </svg>
   );
 }
 
@@ -251,39 +382,8 @@ export function HowItWorksDiagram() {
           )}
         </svg>
 
-        {/* Phones: the same story, top to bottom */}
-        <ol className="space-y-3 md:hidden">
-          <li>
-            <p className="text-sm font-semibold text-red">Input everything you&rsquo;ve got</p>
-            <ul className="mt-2 flex flex-wrap gap-2">
-              {INPUTS.map((t) => (
-                <li key={t} className="rounded-[14px] bg-panel px-3 py-2 text-sm font-semibold">{t}</li>
-              ))}
-            </ul>
-          </li>
-          <li aria-hidden="true" className="pl-6 text-muted">&darr;</li>
-          <li className="rounded-[14px] border border-rule bg-paper-2 p-4 text-center font-semibold">{STEP_1.join(" ")}</li>
-          <li aria-hidden="true" className="text-center text-muted">&darr;</li>
-          <li className="flex flex-col items-center">
-            <span className="flex h-24 w-24 items-center justify-center rounded-full bg-red">
-              <svg width="64" height="64" viewBox="10 10 44 44" aria-hidden="true"><path d={QUOTE} fill="#fff" /></svg>
-            </span>
-            <span className="mt-2 text-xs text-muted">Jim Harvey&rsquo;s</span>
-            <span className="text-xl font-semibold">StoryMachine</span>
-            <span className="said">Story first. Then slides.</span>
-          </li>
-          <li aria-hidden="true" className="text-center text-muted">&darr;</li>
-          <li className="rounded-[14px] border-[1.5px] border-red bg-paper-2 p-4 text-center font-semibold">{STEP_2.join(" ")}</li>
-          <li aria-hidden="true" className="pl-6 text-red">&darr;</li>
-          <li>
-            <p className="text-sm font-semibold text-red">Output a fully worked presentation</p>
-            <ul className="mt-2 flex flex-wrap gap-2">
-              {OUTPUTS.map((t) => (
-                <li key={t} className="rounded-[14px] bg-red-soft px-3 py-2 text-sm font-semibold">{t}</li>
-              ))}
-            </ul>
-          </li>
-        </ol>
+        {/* Phones: the same drawing turned upright, so it reads top to bottom at full width (Jim, 23 October). */}
+        <PhoneDiagram play={state === "play"} />
       </div>
     </section>
   );
