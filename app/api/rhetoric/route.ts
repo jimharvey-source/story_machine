@@ -59,6 +59,6 @@ export async function POST(req: Request) {
     await refundAi(storyId, "rhetoric");
     const message = e instanceof Error ? e.message : "Unknown error";
     console.error("[api/rhetoric]", message);
-    return NextResponse.json({ error: "The rhetoric notes did not come through. " + message }, { status: 502 });
+    return NextResponse.json({ error: "The rhetoric suggestions did not come through. " + message }, { status: 502 });
   }
 }

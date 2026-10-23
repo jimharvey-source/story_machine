@@ -83,10 +83,10 @@ const ICONS: Record<string, IconName> = {
   "Step 4: Your story": "acts",
   "Stage 1: Get your story straight": "target",
   "Stage 2: Add interest and impact": "mic",
-  "Add power to your language": "quote",
+  "Add power to your words": "quote",
   "Make it your own": "pen",
   "Rehearse from your speaker notes": "download",
-  "Add slides, if you need them": "slides",
+  "If you need them, add slides": "slides",
   "Choose a payment plan": "tag",
   "Get help": "help",
 };

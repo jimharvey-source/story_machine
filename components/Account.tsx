@@ -135,7 +135,7 @@ export function SignIn({ compact, title, body, next, programme, onSignedIn }: { 
           </button>
         </form>
         {error && <p className="mt-2 text-sm text-red">{error}</p>}
-        <p className="mt-3 text-sm text-muted">Your story comes with you either way. Nothing arrived after a minute? Look in spam, or send it again.</p>
+        <p className="mt-3 text-sm text-muted">Your story comes with you either way. Nothing arrived after a minute? Look in your spam folder or click Send it again.</p>
         <button type="button" onClick={() => { setSent(false); setCode(""); setError(null); }} className="mt-3 text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink">
           Send it again
         </button>
@@ -313,9 +313,7 @@ export function Paywall({ me, onChange, onClose }: { me: Me; onChange: () => voi
       </div>
       <h2 className="display mt-2 text-2xl sm:text-3xl">Your next story, start to finish.</h2>
       <p className="mt-3 max-w-xl text-ink-2">
-        Both stages: the story straight, then the first minute, signposts, the ending and speaker notes. Download it as
-        a PDF or a Word file, and, if you need slides, an outline in PowerPoint ready for your company template.
-        Unlimited reruns and AI edits come with it.
+        Unlimited reruns and AI edits.
       </p>
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
         {(["story", "monthly", "annual"] as PlanKey[]).map((k) => {

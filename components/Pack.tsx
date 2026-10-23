@@ -36,7 +36,7 @@ export function Rehearse({ story, landing }: { story: Story; landing: Landing })
     <>
       <section className="border-t border-rule pt-8">
         <p className="eyebrow text-red">Rehearse it into life</p>
-        <p className="said mt-2 text-xl leading-snug text-ink">Now say it aloud, with your slides if you have them. Speak from the notes; read only if you must.</p>
+        <p className="said mt-2 text-xl leading-snug text-ink">Now say it out loud, with your slides if you have them. Use the notes as a guide; read only if you must.</p>
       </section>
       {hasNotes && (
         <section>
@@ -109,16 +109,16 @@ export function Slides({ story, landing }: { story: Story; landing: Landing }) {
     <>
       {wordsAlone && (
         <section className="rounded-md bg-red-soft px-5 py-4 text-ink">
-          Your talk is built for words alone, and that is a strength. If you do want slides, here is a brief that serves the story.
+          Your talk is built for words alone, and that is a strength. If you want slides, here is a brief that serves the story.
         </section>
       )}
       <section>
         <p className="eyebrow">What great slides do</p>
         <ul className="mt-3 space-y-2 text-ink-2">
           <li className="border-l-2 border-red pl-4">One idea per slide. The slide illustrates; your words explain.</li>
-          <li className="border-l-2 border-red pl-4">The three-second rule: if the audience cannot take it in at a glance, it is too much.</li>
-          <li className="border-l-2 border-red pl-4">The titles tell the story. Read in order, they are your argument.</li>
-          <li className="border-l-2 border-red pl-4">Words large, one picture at most, no bullet lists.</li>
+          <li className="border-l-2 border-red pl-4">The three-second rule: if the audience cannot understand your slide at a glance, it is too much.</li>
+          <li className="border-l-2 border-red pl-4">The slide titles should tell the story. Read in order, they are your argument.</li>
+          <li className="border-l-2 border-red pl-4">Large font, one picture at most, no bullet lists.</li>
         </ul>
       </section>
       <section className="border-t border-rule pt-8">

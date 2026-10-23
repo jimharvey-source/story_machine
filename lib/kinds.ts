@@ -102,7 +102,7 @@ export const KINDS: Record<Kind, KindInfo> = {
     label: "Scientific presentation",
     book: "The Scientific Presentation",
     line: "Why the experts should care, what remains unsolved, and what you ask of them.",
-    helps: "Turn all that data and all those details into a meaningful message.",
+    helps: "Turn the data and details into a meaningful message.",
     acts: ["Why the experts should care", "The challenges", "The ask"],
     prologue: "The finding or question in a sentence, and why it matters to this audience now.",
     act1: "The implications of the latest developments in your field, and why these experts should care.",

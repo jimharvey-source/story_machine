@@ -56,9 +56,9 @@ export default async function Landing({ searchParams }: Props) {
           </h1>
           <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink-2 sm:text-xl">
             You have a big presentation to make. The subject is complex and the stakes are high. After 65 years between us
-            helping the biggest businesses get their message across, our advice is: start with the story, not the slides.
+            helping the biggest businesses and organisations get their message across, our advice is simple: start with the story, not the slides.
           </p>
-          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink-2 sm:text-xl">And now there is a tool that walks you through it.</p>
+          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink-2 sm:text-xl">And now there is a tool that walks you through the process.</p>
           <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-3">
             <BuildButton signedIn={signedIn} />
             <p className="text-sm text-muted">Your first story is free. Just your email, no credit card.</p>
@@ -135,7 +135,7 @@ function HeroStory() {
       <div className="panel relative ml-auto mt-24 w-[90%] !p-6 sm:!p-7">
         <div className="flex items-center gap-2">
           <Icon name="quote" className="!h-5 !w-5" />
-          <span className="eyebrow">Big Idea</span>
+          <span className="eyebrow">Your Big Idea</span>
         </div>
         <p className="said mt-3 text-[1.4rem] leading-[1.3] text-ink">Everyone admires the ceiling. The genius is in the walls.</p>
         <div className="mt-6 grid grid-cols-3 gap-2">

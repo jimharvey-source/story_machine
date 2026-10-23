@@ -54,7 +54,7 @@ const STEPS: Array<[string, string]> = [
   ],
   [
     "Take it with you",
-    "Download your story as a PDF or Word document to share. Draft slides in PowerPoint, ready for your company template. Or a detailed AI slide design prompt.",
+    "Download your story as a PDF or Word document to share. Draft slides in PowerPoint.",
   ],
 ];
 
@@ -336,10 +336,10 @@ function DoorSignIn({ programme, next }: { programme?: string; next: string }) {
           {busy ? "Sending..." : "Send my code"}
         </button>
       </div>
-      <p className="mt-3 text-sm text-ink-2">We send you a six-digit code. No password.</p>
+      <p className="mt-3 text-sm text-ink-2">We will send you a six-digit code. No password needed.</p>
       {error && <p className="mt-2 text-sm text-red">{error}</p>}
       <p className="mt-4 text-xs text-muted">
-        Signing in adds you to the Presentation Guru list, one email a month from Jim Harvey. Unsubscribe any time.{" "}
+        Signing in adds you to the Presentation Guru mailing list. One helpful email a month, full of useful ideas for your presentations. Unsubscribe any time.{" "}
         <Link href="/privacy" className="underline decoration-rule underline-offset-4 hover:text-ink">Privacy</Link>
       </p>
     </form>

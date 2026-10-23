@@ -78,7 +78,7 @@ export const StoryInputSchema = StorySchema.extend({
 export const LandingActSchema = z.object({
   signpost: z
     .string()
-    .describe("A natural spoken sentence that tells the audience the important idea has arrived"),
+    .describe("A natural spoken sentence that introduces the act: what is coming next and why it matters to the audience"),
   visualIdea: z
     .string()
     .describe(

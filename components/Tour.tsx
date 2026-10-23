@@ -23,8 +23,8 @@ export function Tour({ programme = false }: { programme?: boolean }) {
               <p className="mt-4 text-lg leading-relaxed text-ink-2">
                 Jim started his first business 35 years ago and had to learn to sell as he built it. Before long, clients
                 were asking him to help them launch products, run conferences and train their people. Today his company, The
-                Message Business, works with teams at JP Morgan, Mercer, Ford, Rolls-Royce and many others in technology,
-                retail, consulting and finance. He has also written for television, done hundreds of gigs as a stand-up
+                Message Business, works with teams around the world in the technology, retail,
+                consulting and finance sectors. Jim has also written for television, done hundreds of gigs as a stand-up
                 comedian, and hosts conferences as a core part of his work.
               </p>
               <a href="https://www.themessagebusiness.com" className="mt-4 inline-block text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
@@ -38,10 +38,12 @@ export function Tour({ programme = false }: { programme?: boolean }) {
               <div className="p-7 sm:p-8">
               <p className="display text-2xl">John Zimmer</p>
               <p className="mt-4 text-lg leading-relaxed text-ink-2">
-                John is a lawyer who found public speaking and never looked back. He is a nine-time European Toastmasters
-                champion and a TEDx speaker. He teaches presentation skills on Executive MBA programmes in Geneva, Lausanne
-                and Barcelona. His blog, <em>Manner of Speaking</em>, has been one of the leading voices on public speaking
-                since 2009.
+                John is an internationally recognised expert on public speaking and presentation skills. He gives keynotes,
+                moderates events, and helps organisations around the world communicate more effectively. Before becoming a
+                full-time speaker, John worked as a lawyer at one of Canada&apos;s premier law firms, the United Nations and the
+                World Health Organization. A TEDx speaker and co-creator of <em>Rhetoric: The Public Speaking Game</em>, John is
+                a nine-time European champion in Toastmasters contests and coach of the 2025 and 2026 World Champions of Public
+                Speaking. His blog, <em>Manner of Speaking</em>, has been a leading voice on public speaking since 2009.
               </p>
               <a href="https://mannerofspeaking.org/the-face-behind-the-blog/" className="mt-4 inline-block text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
                 Manner of Speaking
@@ -50,7 +52,7 @@ export function Tour({ programme = false }: { programme?: boolean }) {
             </div>
           </div>
           <p className="mt-8 max-w-3xl text-lg leading-relaxed text-ink-2">
-            They met through a shared obsession with presentations, started{" "}
+            Jim and John met through a shared obsession with presentations, started{" "}
             <a href="https://www.presentation-guru.com" className="underline decoration-rule underline-offset-4 hover:text-ink"><em>Presentation Guru</em></a>{" "}
             together, and have worked side by side ever since.
           </p>
@@ -60,8 +62,7 @@ export function Tour({ programme = false }: { programme?: boolean }) {
         <Section icon="backwards" label="The problem" title="Most presentations are built backwards.">
           <p>
             People start with PowerPoint. They gather old slides, add new ones, and hope that somehow, a coherent
-            presentation will emerge. The audience leaves with plenty of information, often too much information, but
-            no clear message.
+            presentation will emerge. The audience leaves with too much information and no clear message.
           </p>
           <div className="my-8 border-l-2 border-red pl-6">
             <p className="said text-2xl leading-snug text-ink sm:text-[1.7rem]">
@@ -70,13 +71,13 @@ export function Tour({ programme = false }: { programme?: boolean }) {
             </p>
           </div>
           <p>
-            StoryMachine helps you build stronger stories. Stronger stories mean more confident presenters and more engaged
-            audiences. More engaged audiences mean better results.
+            StoryMachine helps you build a clear, strong story. Strong stories mean more confident presenters and more
+            engaged audiences; more engaged audiences mean better results.
           </p>
         </Section>
 
         {/* 3. How it works */}
-        <Section icon="acts" label="How it works" title="Five steps. About 20 minutes.">
+        <Section icon="acts" label="How it works" title="Five steps. Under 30 minutes.">
           <ol className="mt-2 border-b border-rule">
             {(programme ? HOW_PROGRAMME : HOW).map(([head, body], i) => (
               <li key={head} className="grid grid-cols-[1.5rem_1fr_auto] items-start gap-3 border-t border-rule py-6">
@@ -105,7 +106,7 @@ export function Tour({ programme = false }: { programme?: boolean }) {
                 <p className="tag mt-5 text-red">{st.n}</p>
                 <p className="display mt-1 text-2xl">{st.name}</p>
                 <p className="mt-1 text-ink-2">{st.sub}</p>
-                <p className="mt-1 text-sm text-muted">{programme ? "Included in your 20 stories." : st.access}</p>
+                {programme && <p className="mt-1 text-sm text-muted">Included in your programme.</p>}
                 <ul className="mt-6 space-y-4">
                   {st.steps.map(([head, sub]) => (
                     <li key={head}>
@@ -150,13 +151,13 @@ export function Tour({ programme = false }: { programme?: boolean }) {
         </Section>
 
         {/* 6. Make it your own */}
-        <Section icon="pen" label="StoryMachine works from what you give it" title="Make it your own.">
+        <Section icon="pen" label="StoryMachine works only from what you give it" title="Make it your own.">
           <p>
             StoryMachine only works from your notes, your documents and your ideas. If it needs more information,
             StoryMachine will ask you questions. Every story ends with a panel headed{" "}
             <span className="font-semibold text-ink">Make it your own</span>. Here, you add the example, the number, the
-            reason it matters to you. And you get advice before you rehearse. Audiences believe speakers who sound like
-            themselves.
+            reason it matters to you. You then get concrete advice before you rehearse. Audiences believe speakers who are
+            authentic.
           </p>
         </Section>
 
@@ -164,9 +165,9 @@ export function Tour({ programme = false }: { programme?: boolean }) {
         <Section icon="laptop" label="Confidential material" title="Your documents stay on your computer.">
           <p>
             Upload a Word file, PDF or PowerPoint of any size. StoryMachine reads the words, but the files never leave your
-            computer. Only the words go to our servers and to the AI that helps you write your story. Your story is saved
-            to your account. You can delete it, and all related material, at any time. The one exception is a
-            photo or screenshot: it goes to our servers, is read, and is then deleted.
+            computer. Only the words go to our servers and to the AI that helps you write your story. The one exception is a
+            photo or screenshot: it goes to our servers, is read, and is then deleted. All of your information, including
+            your story, is saved to your account. You can delete it at any time.
           </p>
           <p className="mt-4">
             For more details on how your information is handled, please see the{" "}
@@ -185,11 +186,11 @@ export function Tour({ programme = false }: { programme?: boolean }) {
             StoryMachine. The PDF ends with a summary of the method, so you can do it yourself next time.
           </p>
           <p className="said mt-8 text-2xl leading-snug text-ink sm:text-[1.7rem]">
-            You don&apos;t have to be a superstar to speak and present well. Steve Jobs, Barack Obama, Nelson Mandela,
-            Mahatma Gandhi, all of the greats had speechwriters to help them.
+            You don&apos;t have to be a superstar to speak and present well. Steve Jobs, Barack Obama, Michelle Obama,
+            Nelson Mandela, Margaret Thatcher: all of the greats had speechwriters to help them.
           </p>
           <p className="mt-4">
-            StoryMachine will guide you through the maze of information and help you structure and articulate the good
+            StoryMachine will guide you through the maze of information, and help you structure and articulate the good
             ideas you already have.
           </p>
         </Section>
@@ -216,11 +217,11 @@ export function Section({ icon, label, title, children }: { icon: IconName; labe
 const HOW: Array<[string, string]> = [
   [
     "Answer some key questions.",
-    "What kind of presentation is it? Who is your audience, and what do they think about the subject? What do you want them to do when you finish? What is your message, and why should they care?",
+    "What kind of presentation is it? What is it about? Who is your audience, and why does it matter to them? What do you want them to do as a result? What is your message, and why should they care? How long is your presentation?",
   ],
   [
     "Add what you have.",
-    "Paste or type your notes. Upload any relevant documents. Your files stay on your computer; StoryMachine only reads the words.",
+    "Paste or type your notes. Upload any relevant documents, or a photo of your whiteboard. Your files stay on your computer; StoryMachine only reads the words.",
   ],
   [
     "Enter your email.",
@@ -228,11 +229,11 @@ const HOW: Array<[string, string]> = [
   ],
   [
     "Read and revise your story.",
-    "Edit any line, ask for a sharper version, or argue with StoryMachine until it says what you mean. When you are satisfied, download it as a PDF or Word file.",
+    "Edit any line, ask for a sharper version, or argue with StoryMachine until it says what you mean. When you are satisfied, download your story as a PDF or Word file.",
   ],
   [
     "Add slides, then rehearse.",
-    "If you need slides, StoryMachine can produce a PowerPoint outline, or give you a detailed prompt for your slides to use in your AI tool of choice. Then rehearse from your speaker notes.",
+    "If you need slides, StoryMachine can produce a PowerPoint outline or give you a detailed prompt for your slides to use in your preferred AI tool. Then rehearse from your speaker notes.",
   ],
 ];
 
@@ -251,7 +252,6 @@ const STAGES = [
     icon: "target" as IconName,
     name: "Get your story straight",
     sub: "The essential elements that form the backbone of your story.",
-    access: "Free with your first story.",
     steps: [
       ["Understand the audience", "Who is in the room, what they need to hear, what to leave out."],
       ["Set a clear goal", "After my presentation, the audience will..."],
@@ -263,18 +263,18 @@ const STAGES = [
     icon: "mic" as IconName,
     name: "Add interest and impact",
     sub: "Refine and reinforce your story.",
-    access: "Follows straight on, in the same run.",
     steps: [
-      ["A confident start and a powerful ending", "The first minute, and a conclusion with a clear call to action."],
+      ["A confident start", "The first minute that captures attention."],
       ["Headlines and signposts", "The lines the audience will remember, and the sentences that drive home the key points."],
+      ["A powerful ending", "A clear call to action and a message that sticks."],
     ],
   },
 ];
 
 // After the two stages: story, slides, rehearsal (Jim, 21 October).
 const AFTER: Array<[string, string, string, IconName]> = [
-  ["Then, if you need them", "The outline for powerful visuals", "One idea per slide, with a brief and a prompt for your own AI tool.", "slides"],
-  ["Finally", "Rehearse it into life", "Speaker notes, and the words in full. Say it aloud, with your slides, before you present.", "acts"],
+  ["Then, if you need them", "An outline for powerful visuals", "One idea per slide, with a brief and a prompt for your own AI tool.", "slides"],
+  ["Finally", "Rehearse it into life", "Speaker notes, and the words in full. Say it out loud, with your slides, before you present.", "acts"],
 ];
 
 const KINDS: Array<[string, IconName]> = [

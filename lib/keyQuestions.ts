@@ -24,7 +24,7 @@ export const KEY_QUESTIONS: KeyQuestion[] = [
     field: "audience",
     tag: "Who they are and what matters to them",
     question: "Who is the audience, and why does it matter to them?",
-    hint: "For example: the executive committee, eight people, sceptical about cost, who care most about the pipeline number. What do they already know about the topic, and where do they stand on it?",
+    hint: "For example: the executive committee, eight people, sceptical about cost, who care most about total pipeline value. What do they already know about the topic, and where do they stand on it?",
   },
   {
     field: "intent",
@@ -36,7 +36,7 @@ export const KEY_QUESTIONS: KeyQuestion[] = [
     field: "intent",
     tag: "Message and why they should care",
     question: "What is your message, and why should they care?",
-    hint: "For example: we should open an office in Singapore because of the low tax rate, a highly skilled workforce and proximity to our clients in East Asia.",
+    hint: "For example: we should open an office in Singapore because of the low tax rate, a highly skilled workforce and proximity to our clients in East Asia. They should care because this will result in larger profits for the company.",
   },
   {
     field: "intent",

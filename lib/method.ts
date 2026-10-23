@@ -4,7 +4,7 @@ export const METHOD: Array<[string, string]> = [
   ["State your intent", "One sentence: after my presentation, the audience will... If you cannot finish it, you are not ready to present."],
   ["Clarify the argument", "The case in one sentence, in your words, that a sceptic could test. The Big Idea is the memorable form of it: the line people repeat in the corridor."],
   ["Build a three-act story", "Each kind of presentation gives the acts their own jobs. The classic story runs Why: the problem, and why it matters now. How: the insight or the answer. What: the ask. Each act has a headline that says the point, a soundbite worth quoting, and only the evidence that carries the point."],
-  ["Make it land", "A Prologue that earns attention in the first sentence and states the idea inside a minute. A signpost into each act so the audience knows the important thing has arrived."],
+  ["Make it land", "A Prologue that earns attention in the first sentence and states the idea inside a minute. A signpost that introduces each act, so the audience knows what is coming next."],
   ["End with certainty", "Audiences need certainty. End by recapping your headlines and the actions from here. Send them away with the message ringing in their ears."],
   ["Then the slides", "Slides come after the story, so every one has a job to do. Few, simple, one idea each, and titles that tell the story."],
   ["Then rehearse", "Rehearse from your notes, with your slides, until the story sounds like you. Say it out loud: a story you have only read is not ready."],

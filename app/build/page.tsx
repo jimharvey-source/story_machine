@@ -27,9 +27,9 @@ type AiUsage = Partial<Record<"rerun" | "edit" | "land" | "rhetoric", number>>;
 
 type Register = "formal" | "business" | "conversational";
 const REGISTERS: Array<{ value: Register; label: string; hint: string }> = [
-  { value: "formal", label: "Formal", hint: "Senior executives and government representatives. No contractions." },
-  { value: "business", label: "Business", hint: "Colleagues, clients and stakeholders. Direct and plain." },
-  { value: "conversational", label: "Conversational", hint: "Peers and friends. Warm, short sentences." },
+  { value: "formal", label: "Formal", hint: "Senior executives and government representatives. Measured and precise." },
+  { value: "business", label: "Business", hint: "Colleagues, clients and stakeholders. Clear and direct." },
+  { value: "conversational", label: "Conversational", hint: "Peers and friends. Warm and relaxed." },
 ];
 
 type Meta = {
@@ -357,7 +357,7 @@ export default function Build() {
         setNotice("Checkout cancelled. Your story is still here.");
         loadMe();
       } else if (params.get("joined")) {
-        setNotice("Welcome, you are in! Answer the questions below and add your material to find your first story.");
+        setNotice("Welcome, you are in! Answer the questions below and add your material to work on your first story.");
         loadMe();
       } else if (params.get("joinerror")) {
         setNotice(
@@ -961,9 +961,9 @@ export default function Build() {
       {!story && (
         <section className="panel space-y-10">
           <div>
-            <h1 className="display text-3xl leading-[1.05] sm:text-4xl">What do you want to say?</h1>
+            <h1 className="display text-3xl leading-[1.05] sm:text-4xl">Start with your audience.</h1>
             <p className="mt-3 max-w-2xl text-ink-2">
-              Answer some key questions about your presentation, your audience, your objective and your message. Add any
+              Answer some questions about your presentation, your audience, your objective and your message. Add any
               relevant material. StoryMachine builds the story, start to finish.
               {me && !me.signedIn && " Your first story is free. Just your email, no credit card."}{" "}
               <Link href="/guide" className="underline decoration-rule underline-offset-4 hover:text-ink">User Guide</Link>
@@ -974,7 +974,7 @@ export default function Build() {
             <StepHead
               n={1}
               title="Key questions"
-              sub="Think carefully about the questions below. They are the foundations of your presentation. Give as much detail as you can. If you really don't know, leave it blank."
+              sub="Think carefully about the questions below. They are the foundation of your presentation. Give as much detail as you can. If you really don't know, leave it blank."
             />
             <fieldset className="text-sm">
               <legend className="font-medium text-ink">What kind of presentation is it?</legend>
@@ -1061,13 +1061,13 @@ export default function Build() {
           </div>
 
           <div>
-            <StepHead n={2} title="Your material" sub="Paste your notes or rough thinking. Upload your documents. It does not have to be neat." />
+            <StepHead n={2} title="Your material" sub="Upload your documents. Type or paste your notes and rough thinking; it does not have to be neat." />
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               onPaste={pasteImage}
               rows={12}
-              placeholder="Paste your notes here, or upload a file below."
+              placeholder="Type or paste your notes and ideas here."
               className="mt-3 w-full rounded-md border border-rule bg-paper-2 p-4 text-base leading-relaxed outline-none focus:border-ink"
             />
             <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">
@@ -1111,7 +1111,7 @@ export default function Build() {
               {capped
                 ? rerunsLeft > 0
                   ? "Reworking the notes of your free story. It includes one rerun: a full rebuild from your changed notes. "
-                  : "Your free story has had its rerun. Edit any line by hand, or upgrade for unlimited reruns. "
+                  : "Your free story has had its free rerun. You can still edit any line by hand. Upgrade for unlimited reruns. "
                 : "Reworking the notes of a saved story. Finding it again is free. "}
               <button
                 type="button"
@@ -1127,7 +1127,7 @@ export default function Build() {
             <div ref={signInBoxRef}>
               <SignIn
                 title="Enter your email to see your story"
-                body="Your first story is free, start to finish, with the PDF. We send you a six-digit code. Type it here and your story starts straight away. No credit card. Signing in adds you to the Presentation Guru list: one useful email a month. Unsubscribe any time."
+                body="Your first story is free, start to finish, with the PDF. We will send you a six-digit code. Type it here to receive and work on your story. No credit card required. Signing in adds you to the Presentation Guru list: one useful email a month. Unsubscribe any time."
                 programme={programme}
                 onSignedIn={onSignedIn}
               />
@@ -1188,7 +1188,7 @@ export default function Build() {
                       : "Find my story"}
               </button>
               {busy === null && notes.trim().length < 40 && (
-                <span className="text-sm text-muted">Add a few lines of material in step 2 first.</span>
+                <span className="text-sm text-muted">Add some material in step 2 first.</span>
               )}
               {busy === "questions" && <span className="text-sm text-muted">A few seconds.</span>}
               {busy === "story" && <Progress label="Stage 1: getting your story straight" expected={45} />}
@@ -1221,12 +1221,17 @@ export default function Build() {
           </button>
           <div>
             <p className="eyebrow">Your slides, then rehearsal</p>
-            <h1 className="display mt-2 text-3xl leading-[1.05] sm:text-4xl">Add slides, if you need them.</h1>
+            <h1 className="display mt-2 text-3xl leading-[1.05] sm:text-4xl">If you need them, add slides.</h1>
             <p className="mt-3 max-w-2xl text-ink-2">
-              You have done the important thinking. Now the slides can support the story rather than replace it. Take the
-              prompt to your own AI tool, download the PowerPoint outline and build it in your company template, or make
-              the slides yourself from the brief. Then rehearse it into life, with your speaker notes at the foot of this page.
+              You have done the important work. If you think slides can support your story rather than replace it, you can
+              now create them. You have three options:
             </p>
+            <ol className="mt-3 max-w-2xl list-decimal space-y-1 pl-5 text-ink-2">
+              <li>Download the PowerPoint outline and work from that.</li>
+              <li>Follow the slide brief below and build your slides from that.</li>
+              <li>Copy the prompt at the bottom of this page and paste it into your preferred AI tool.</li>
+            </ol>
+            <p className="mt-3 max-w-2xl text-ink-2">Then rehearse it into life, with your speaker notes at the foot of this page.</p>
             <p className="said mt-4 text-xl text-ink">{story.bigIdea}</p>
           </div>
           <div className="flex flex-wrap items-center gap-4">
@@ -1239,7 +1244,7 @@ export default function Build() {
             >
               {busy === "export-pptx" ? "Making the outline..." : "Download the PowerPoint outline"}
             </button>
-            <span className="text-sm text-muted">Story-led headlines, ready for your own template. Add the pictures, data and detail.</span>
+            <span className="text-sm text-muted">Story-led headlines, ready for your own template. Add the images, data and detail.</span>
             {pdf && !busy?.startsWith("export") && (
               <a href={pdf.url} download={pdf.name} className="text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink">
                 Nothing downloaded? Save {pdf.name}
@@ -1273,6 +1278,11 @@ export default function Build() {
               <Progress label="Stage 2: adding interest and impact" expected={45} />
             </div>
           )}
+          {/* John's line (draft 5): say at once that this is a draft, and how to change it. */}
+          <p className="max-w-2xl text-ink-2">
+            Below is the first draft of your story. Click any text in a box to change it as you like. For many lines you can
+            also ask StoryMachine to make it clearer, sharper or simpler.
+          </p>
           {/* The story page follows the PDF (21 October): three sections, with a contents bar that stays in view. */}
           <nav aria-label="Your story" className="sticky top-0 z-20 -mx-2 flex flex-wrap gap-x-5 gap-y-1 border-b border-rule bg-paper-2/95 px-2 py-3 text-sm backdrop-blur">
             {[
@@ -1364,7 +1374,7 @@ export default function Build() {
               title="Your presentation"
               intro={
                 landing
-                  ? "The talk from the first word to the last. Words in this typeface are for saying aloud. The grey and red notes under some lines are StoryMachine's suggestions on rhetoric: section 3 explains them."
+                  ? "The talk from the first word to the last. Words in this typeface are for saying aloud. The red notes under some lines suggest a rhetorical device to add power: section 3 explains them."
                   : "Your Big Idea and the three acts. The opening, signposts and ending follow in Stage 2."
               }
             />
@@ -1590,7 +1600,6 @@ export default function Build() {
 
           {landing && signedIn && !locked && (
             <section id="s-finished" className="scroll-mt-20 rounded-md bg-ink px-6 py-8 text-paper sm:px-10 sm:py-10">
-              <p className="eyebrow text-paper/70">Your story is finished</p>
               <h2 className="display mt-2 text-3xl leading-tight">Congratulations, you&apos;ve finished your story.</h2>
               <p className="mt-3 max-w-2xl text-paper/80">
                 You have done the hard work. Download it as a PDF or a Word file below. Next come the slides: StoryMachine
@@ -1673,7 +1682,7 @@ export default function Build() {
                   disabled={busy !== null}
                   className="underline decoration-rule underline-offset-4 hover:text-ink disabled:opacity-40"
                 >
-                  {busy === "export-docx" ? "Making the Word file..." : "or as a Word file"}
+                  {busy === "export-docx" ? "Making the Word file..." : "or as a Word document"}
                 </button>
               </span>
             )}

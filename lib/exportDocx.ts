@@ -83,7 +83,7 @@ export async function renderDocx(title: string, story: Story, landing: Landing |
     out.push(h1("Epilogue"));
     out.push(spoken(landing.epilogue));
     out.push(p(timing(landing.epilogue), { small: true }));
-    out.push(h1("The story in five lines"));
+    out.push(h1("Your story in five lines"));
     out.push(label("Prologue", landing.fiveLineStory.prologue));
     out.push(label(kind.acts[0], landing.fiveLineStory.why));
     out.push(label(kind.acts[1], landing.fiveLineStory.how));
