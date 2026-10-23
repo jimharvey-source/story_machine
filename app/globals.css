@@ -301,3 +301,26 @@ input:focus-visible {
 .tile-white {
   background: var(--paper-2);
 }
+
+/* How StoryMachine works: the landing page diagram (23 October 2026). Drawn still unless motion is welcome. */
+.hiw .hiw-draw { stroke-dasharray: 1; stroke-dashoffset: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .hiw[data-state="wait"] .hiw-draw { stroke-dashoffset: 1; }
+  .hiw[data-state="wait"] .hiw-pop,
+  .hiw[data-state="wait"] .hiw-fade,
+  .hiw[data-state="wait"] .hiw-hub { opacity: 0; }
+  .hiw[data-state="play"] .hiw-draw { animation: hiw-draw 700ms ease-out var(--d, 0s) both; }
+  .hiw[data-state="play"] .hiw-pop { animation: hiw-pop 450ms ease-out var(--d, 0s) both; }
+  .hiw[data-state="play"] .hiw-fade { animation: hiw-fade 300ms ease-out var(--d, 0s) both; }
+  .hiw[data-state="play"] .hiw-hub { animation: hiw-hub 600ms cubic-bezier(.2,.8,.2,1.2) var(--d, 0s) both; }
+  .hiw[data-state="play"] .hiw-pulse {
+    transform-box: fill-box; transform-origin: center;
+    animation: hiw-pulse 3.2s ease-out 3.4s infinite;
+  }
+  @keyframes hiw-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  @keyframes hiw-pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes hiw-fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes hiw-hub { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
+  @keyframes hiw-pulse { 0% { opacity: .45; transform: scale(1); } 70%, 100% { opacity: 0; transform: scale(1.22); } }
+}
+.hiw .hiw-pulse { opacity: 0; }

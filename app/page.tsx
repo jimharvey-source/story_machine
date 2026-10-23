@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { Lockup } from "@/components/Logo";
 import { Icon, IconTile } from "@/components/Icon";
 import { Tour } from "@/components/Tour";
+import { HowItWorksDiagram } from "@/components/HowItWorksDiagram";
 import { CONTACT_EMAIL } from "@/lib/method";
 
 // The front door. Signed-out visitors read the case and press "Build your first story"; the tool lives at /build.
@@ -65,6 +66,9 @@ export default async function Landing({ searchParams }: Props) {
           </div>
           <HeroStory />
         </section>
+
+        {/* How StoryMachine works, in one picture (23 October): the diagram from the design canvas, animated. */}
+        <HowItWorksDiagram />
 
         <Tour />
 
