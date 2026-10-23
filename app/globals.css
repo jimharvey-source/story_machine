@@ -117,15 +117,16 @@ body {
 }
 
 /* Editable fields: quiet until hovered or focused. */
+/* Every line you can edit carries a visible border (agreed 23 October), so people see at once what they can change. */
 .editable {
   border-radius: 6px;
-  outline: 1px solid transparent;
-  outline-offset: 4px;
+  outline: 1px solid color-mix(in srgb, var(--rule) 65%, var(--muted));
+  outline-offset: 5px;
   transition: outline-color 120ms ease, background-color 120ms ease;
   cursor: text;
 }
 .editable:hover {
-  outline-color: var(--rule);
+  outline-color: var(--muted);
 }
 .editable:focus-within,
 .editable[data-editing="true"] {
@@ -324,3 +325,13 @@ input:focus-visible {
   @keyframes hiw-pulse { 0% { opacity: .45; transform: scale(1); } 70%, 100% { opacity: 0; transform: scale(1.22); } }
 }
 .hiw .hiw-pulse { opacity: 0; }
+
+/* The presentation-type tiles on the landing page: white icons on red, the accent in pale pink. */
+.kind-grid .ic {
+  stroke: var(--paper);
+  color: var(--paper);
+}
+.kind-grid .ic .r {
+  stroke: #f6c9c4;
+  color: #f6c9c4;
+}

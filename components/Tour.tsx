@@ -138,10 +138,11 @@ export function Tour({ programme = false }: { programme?: boolean }) {
             conference keynote, a scientific presentation, bad news, or something else. StoryMachine helps you create the
             right story for any presentation.
           </p>
-          <ul className="mt-8 flex flex-wrap gap-2">
+          {/* Square red tiles in a grid (Jim, 23 October): the pills looked weak. */}
+          <ul className="kind-grid mt-8 grid grid-cols-2 gap-2 sm:grid-cols-3">
             {KINDS.map(([k, icon]) => (
-              <li key={k} className="inline-flex items-center gap-2 rounded-full border border-rule bg-paper-2 py-1.5 pl-2.5 pr-4 text-sm text-ink-2">
-                <Icon name={icon} className="!h-[18px] !w-[18px]" />
+              <li key={k} className="flex min-h-14 items-center gap-2.5 bg-red px-3.5 py-3 text-sm font-medium leading-snug text-paper">
+                <Icon name={icon} className="!h-[20px] !w-[20px] shrink-0" />
                 {k}
               </li>
             ))}
@@ -164,8 +165,8 @@ export function Tour({ programme = false }: { programme?: boolean }) {
           <p>
             Upload a Word file, PDF or PowerPoint of any size. StoryMachine reads the words, but the files never leave your
             computer. Only the words go to our servers and to the AI that helps you write your story. Your story is saved
-            to your account. You can delete it, and all related material, at any time. A photo or screenshot is
-            different: it goes to our servers and the AI to be read, and it is not kept.
+            to your account. You can delete it, and all related material, at any time. The one exception is a
+            photo or screenshot: it goes to our servers, is read, and is then deleted.
           </p>
           <p className="mt-4">
             For more details on how your information is handled, please see the{" "}

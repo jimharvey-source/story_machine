@@ -25,7 +25,7 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-  const { notes, story, register, storyId } = parsed.data;
+  const { notes, story, register, storyId, minutes } = parsed.data;
 
   // Since 11 October a story is unlocked when it is made, so this rarely spends anything. Older locked stories
   // are unlocked here. Once unlocked, it stays unlocked. A free story may run Stage 2 twice (first run and after its rerun).
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
   try {
     const result = await generateStructured({
       system: landSystem(register, story.kind),
-      user: landUserMessage(notes, JSON.stringify(story, null, 2)),
+      user: landUserMessage(notes, JSON.stringify(story, null, 2), minutes ?? null),
       schema: LandingSchema,
       maxTokens: 8000,
       label: "land",

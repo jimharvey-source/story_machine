@@ -3,6 +3,7 @@ import { beginStory, capReached, currentProfile, isUnlimited, logGeneration, pur
 import { describeKey, generateStructured } from "@/lib/anthropic";
 import { allowRun, tooManyRuns } from "@/lib/guest";
 import { storySystem, storyUserMessage } from "@/lib/prompts";
+import { minutesFrom } from "@/lib/keyQuestions";
 import { StoryRequestSchema, StorySchema } from "@/lib/schema";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
@@ -56,7 +57,7 @@ export async function POST(req: Request) {
   try {
     const result = await generateStructured({
       system: storySystem(register, kind ?? null),
-      user: storyUserMessage(notes, audience, intent, answers),
+      user: storyUserMessage(notes, audience, intent, answers, minutesFrom(intent)),
       schema: StorySchema,
       maxTokens: 8000,
       label: "story",

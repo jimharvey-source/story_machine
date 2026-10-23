@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Landing, Question, Rhetoric, Story } from "@/lib/schema";
-import { RHETORIC_LEAD, RHETORIC_TITLE, hasRhetoric, pathLabel } from "@/lib/rhetoric";
+import { RHETORIC_LEAD, RHETORIC_TITLE, hasRhetoric } from "@/lib/rhetoric";
 import { Editable, EditableList } from "@/components/Editable";
 import { Refine, type ChatMessage } from "@/components/Refine";
 import { AccountBar, Paywall, SignIn, type Me } from "@/components/Account";
@@ -12,7 +12,8 @@ import { StoriesPanel } from "@/components/Stories";
 import { Lockup } from "@/components/Logo";
 import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "@/lib/ownIt";
 import { KIND_KEYS, KINDS, kindOf, type Kind } from "@/lib/kinds";
-import { KEY_QUESTIONS, composeAnswers, splitAnswers } from "@/lib/keyQuestions";
+import Progress from "@/components/Progress";
+import { BLANK_KEYS, KEY_QUESTIONS, composeAnswers, minutesFrom, splitAnswers } from "@/lib/keyQuestions";
 import { Rehearse, Slides } from "@/components/Pack";
 import { RhetoricNotes } from "@/components/RhetoricNotes";
 
@@ -171,8 +172,8 @@ function setIn<T>(obj: T, path: string[], value: unknown): T {
 
 export default function Build() {
   const [notes, setNotes] = useState("");
-  // The four key questions (lib/keyQuestions.ts). They travel as the audience and intent fields.
-  const [keys, setKeys] = useState<string[]>(["", "", "", ""]);
+  // The key questions (lib/keyQuestions.ts). They travel as the audience and intent fields.
+  const [keys, setKeys] = useState<string[]>(BLANK_KEYS);
   const { audience, intent } = composeAnswers(keys);
   const [register, setRegister] = useState<Register>("business");
   // The kind of presentation. Empty: the StoryMachine chooses, and says so.
@@ -300,7 +301,11 @@ export default function Build() {
         if (!raw) return;
         const d = JSON.parse(raw);
         if (typeof d.notes === "string") setNotes(d.notes);
-        if (Array.isArray(d.keys)) setKeys([0, 1, 2, 3].map((i) => (typeof d.keys[i] === "string" ? d.keys[i] : "")));
+        const str = (v: unknown) => (typeof v === "string" ? v : "");
+        if (Array.isArray(d.keys) && d.keysV === 2) setKeys(KEY_QUESTIONS.map((_, i) => str(d.keys[i])));
+        // A draft from before 23 October: four answers in the old order (audience, their view, objective, message).
+        else if (Array.isArray(d.keys))
+          setKeys(["", [str(d.keys[0]), str(d.keys[1])].filter(Boolean).join("\n"), str(d.keys[2]), str(d.keys[3]), ""]);
         else if (typeof d.audience === "string" || typeof d.intent === "string") setKeys(splitAnswers(d.audience ?? "", d.intent ?? ""));
         if (
           d.register === "formal" ||
@@ -390,7 +395,7 @@ export default function Build() {
     try {
       localStorage.setItem(
         DRAFT_KEY,
-        JSON.stringify({ notes, keys, register, kind }),
+        JSON.stringify({ notes, keys, keysV: 2, register, kind }),
       );
     } catch {
       // ignore
@@ -650,7 +655,7 @@ export default function Build() {
     try {
       const data = await postJson<{ landing: Landing; meta: Meta }>(
         "/api/land",
-        { notes, story: s, register, storyId: id ?? undefined },
+        { notes, story: s, register, storyId: id ?? undefined, minutes: minutesFrom(intent) ?? undefined },
       );
       setUnlocked(true);
       setLanding(data.landing);
@@ -882,8 +887,8 @@ export default function Build() {
   const notesFor = (path: string, current: string) => (
     <RhetoricNotes rhetoric={rhetoric} path={path} current={current} onUse={(p, t) => applyPath(p, t)} />
   );
-  const legacyRhetoric = rhetoric ? { devices: rhetoric.devices.filter((d) => !d.path), suggestions: rhetoric.suggestions.filter((x) => !x.path) } : null;
-  const inPlaceCount = rhetoric ? rhetoric.devices.filter((d) => d.path).length + rhetoric.suggestions.filter((x) => x.path).length : 0;
+  const legacySuggestions = rhetoric ? rhetoric.suggestions.filter((x) => !x.path) : [];
+  const inPlaceCount = rhetoric ? rhetoric.suggestions.filter((x) => x.path).length : 0;
 
   return (
     <main className="mx-auto w-full max-w-3xl px-5 pb-24 pt-10 sm:pt-16 lg:max-w-5xl lg:px-10 2xl:max-w-6xl">
@@ -969,7 +974,7 @@ export default function Build() {
             <StepHead
               n={1}
               title="Key questions"
-              sub="Think carefully about the questions below and answer them as thoroughly as you can. They are the foundations of your presentation. The more you say here, the sharper your story will be. If you don't know an answer yet, leave it blank: StoryMachine will name it as a gap."
+              sub="Think carefully about the questions below. They are the foundations of your presentation. Give as much detail as you can. If you really don't know, leave it blank."
             />
             <fieldset className="text-sm">
               <legend className="font-medium text-ink">What kind of presentation is it?</legend>
@@ -1009,14 +1014,26 @@ export default function Build() {
             {KEY_QUESTIONS.map((q, i) => (
               <label key={q.tag} className="block text-sm">
                 <span className="font-medium text-ink">{q.question}</span>
-                <textarea
-                  value={keys[i]}
-                  onChange={(e) => setKeys((prev) => prev.map((v, j) => (j === i ? e.target.value : v)))}
-                  rows={3}
-                  maxLength={1500}
-                  placeholder={q.hint}
-                  className="mt-1 w-full rounded-md border border-rule bg-paper-2 p-3 text-base leading-relaxed outline-none focus:border-ink"
-                />
+                {q.short ? (
+                  <input
+                    type="text"
+                    value={keys[i]}
+                    onChange={(e) => setKeys((prev) => prev.map((v, j) => (j === i ? e.target.value : v)))}
+                    maxLength={60}
+                    placeholder={q.hint}
+                    className="mt-1 block w-full max-w-xs rounded-md border border-rule bg-paper-2 p-3 text-base outline-none focus:border-ink"
+                  />
+                ) : (
+                  <textarea
+                    value={keys[i]}
+                    onChange={(e) => setKeys((prev) => prev.map((v, j) => (j === i ? e.target.value : v)))}
+                    rows={3}
+                    maxLength={3000}
+                    placeholder={q.hint}
+                    className="mt-1 w-full rounded-md border border-rule bg-paper-2 p-3 text-base leading-relaxed outline-none focus:border-ink"
+                  />
+                )}
+                {q.short && <span className="mt-1 block text-xs text-muted">StoryMachine builds the story to fit the time.</span>}
               </label>
             ))}
             <fieldset className="text-sm">
@@ -1063,8 +1080,8 @@ export default function Build() {
                 {busy === "upload" ? "Reading the file..." : busy === "photo" ? "Reading the picture..." : "Upload files or photos"}
               </button>
               <span>
-                Choose up to ten at once. PDF, Word or PowerPoint: the file stays on your computer; only the words are read. A photo or screenshot
-                goes to our servers and the AI to be read, and is not kept. You can also paste a screenshot into the box.
+                Choose up to ten at once. Your documents stay on your computer: only the words are read. The one exception is a photo or
+                screenshot, which goes to our servers, is read, and is then deleted. You can also paste a screenshot into the box.
               </span>
               <input
                 ref={fileRef}
@@ -1124,8 +1141,7 @@ export default function Build() {
                 {questions.length === 1 ? "One question" : "Two questions"} your notes leave open.
               </h2>
               <p className="mt-2 max-w-xl text-sm text-ink-2">
-                One or two lines each is plenty, but the more detail you add, the more useful it is. If you can&apos;t answer
-                one, leave it blank: StoryMachine will name it as a gap.
+                Give as much detail as you can. If you really don&apos;t know, leave it blank.
               </p>
               <ol className="mt-5 space-y-5">
                 {questions.map((q, i) => (
@@ -1136,7 +1152,7 @@ export default function Build() {
                         value={answers[i] ?? ""}
                         onChange={(e) => setAnswers((prev) => prev.map((a, j) => (j === i ? e.target.value : a)))}
                         rows={2}
-                        maxLength={1500}
+                        maxLength={3000}
                         placeholder={q.example ? `For example: ${q.example}` : ""}
                         className="mt-1 w-full rounded-md border border-rule bg-paper p-3 text-base leading-relaxed outline-none focus:border-ink"
                       />
@@ -1175,11 +1191,7 @@ export default function Build() {
                 <span className="text-sm text-muted">Add a few lines of material in step 2 first.</span>
               )}
               {busy === "questions" && <span className="text-sm text-muted">A few seconds.</span>}
-              {busy === "story" && (
-                <span className="text-sm text-muted">
-                  Usually under 45 seconds. Stage 2 follows straight after.
-                </span>
-              )}
+              {busy === "story" && <Progress label="Stage 1: getting your story straight" expected={45} />}
             </div>
           ) : null}
           </div>
@@ -1253,10 +1265,13 @@ export default function Build() {
             </li>
           </ol>
           {busy === "land" && (
-            <p className="rounded-md bg-panel px-4 py-3 text-sm text-ink-2" role="status">
-              Stage 1 is here. Now adding interest and impact: the first minute, signposts, the ending and your speaker
-              notes. About a minute. Read on while it works.
-            </p>
+            <div className="space-y-3 rounded-md bg-panel px-4 py-3 text-sm text-ink-2" role="status">
+              <p>
+                Stage 1 is here. Now adding interest and impact: the first minute, signposts, the ending and your speaker
+                notes. Read on while it works.
+              </p>
+              <Progress label="Stage 2: adding interest and impact" expected={45} />
+            </div>
           )}
           {/* The story page follows the PDF (21 October): three sections, with a contents bar that stays in view. */}
           <nav aria-label="Your story" className="sticky top-0 z-20 -mx-2 flex flex-wrap gap-x-5 gap-y-1 border-b border-rule bg-paper-2/95 px-2 py-3 text-sm backdrop-blur">
@@ -1416,7 +1431,7 @@ export default function Build() {
                 <Part key={key} id={`p-${key}`} title={`${n}: ${word}`} about={why.replace(/^(Why|How|What):\s*/, "")}>
                   {land && (
                     <div className="rounded-md bg-panel p-5">
-                      <p className="text-xs font-semibold text-red">Your signpost into {n}: say this to move into the act</p>
+                      <p className="text-xs font-semibold text-red">Your signpost that introduces {n}</p>
                       <div className="mt-2">
                         <Editable
                           value={land.signpost}
@@ -1540,26 +1555,21 @@ export default function Build() {
               <div className="border-t border-rule pt-8">
                 <p className="eyebrow text-red">{RHETORIC_TITLE}</p>
                 <p className="said mt-2 text-xl leading-snug text-ink">{RHETORIC_LEAD}</p>
-                {busy === "rhetoric" && <p className="mt-3 text-sm text-muted" role="status">Finding the rhetoric in your story...</p>}
+                {busy === "rhetoric" && <p className="mt-3 text-sm text-muted" role="status">Looking for lines that would gain power...</p>}
                 {busy !== "rhetoric" && inPlaceCount > 0 && (
                   <p className="mt-3 text-sm text-muted">
-                    The notes sit under the lines they belong to in section 2: grey for rhetorical devices already in your story, red for a line that would gain from one. Copy any line you like, or press Use this line. Every edit by hand is free.{" "}
+                    The suggestions sit in red under the lines they belong to in section 2. Copy any line you like, or press Use this line. Every edit by hand is free.{" "}
                     <a href="#s-presentation" className="underline decoration-rule underline-offset-4 hover:text-ink">Go to your presentation</a>
                   </p>
                 )}
-                {hasRhetoric(legacyRhetoric) && (
+                {legacySuggestions.length > 0 && (
                   <ul className="mt-4 space-y-4">
-                    {legacyRhetoric.devices.map((d, i) => (
-                      <li key={`d${i}`} className="border-l-2 border-rule pl-4 text-sm">
-                        <p><span className="font-semibold text-ink">{d.device}</span><span className="text-muted"> &middot; {d.where || pathLabel(d.path, story.kind)}</span></p>
-                        <p className="spoken mt-1 text-ink">{d.line}</p>
-                        <p className="mt-1 text-ink-2">{d.note}</p>
-                      </li>
-                    ))}
-                    {legacyRhetoric.suggestions.map((sg, i) => (
+                    {legacySuggestions.map((sg, i) => (
                       <li key={`s${i}`} className="border-l-2 border-red pl-4 text-sm">
-                        <p><span className="font-semibold text-ink">{sg.device}</span><span className="text-muted"> &middot; {sg.where}</span></p>
-                        <p className="mt-1 text-ink">Try: &ldquo;{sg.better}&rdquo;</p>
+                        <p className="text-muted">{sg.where}</p>
+                        <p className="mt-1 text-ink-2">For example, you could say this:</p>
+                        <p className="said mt-1 text-ink">&ldquo;{sg.better}&rdquo;</p>
+                        <p className="mt-1 text-ink-2"><span className="font-semibold text-ink">{sg.device}.</span> {sg.what}</p>
                       </li>
                     ))}
                   </ul>
@@ -1571,7 +1581,7 @@ export default function Build() {
                     disabled={busy !== null}
                     className="mt-4 text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink disabled:opacity-40"
                   >
-                    {hasRhetoric(rhetoric) ? "Check the rhetoric again after your edits" : "Find the rhetoric in this story"}
+                    {hasRhetoric(rhetoric) ? "Suggest again after your edits" : "Suggest rhetorical devices for this story"}
                   </button>
                 )}
               </div>
@@ -1736,7 +1746,7 @@ export default function Build() {
                 setQuestions(null);
                 setSaveState("idle");
                 setNotes("");
-                setKeys(["", "", "", ""]);
+                setKeys(BLANK_KEYS());
                 setKind("");
                 setUploadNote(null);
                 window.scrollTo({ top: 0 });

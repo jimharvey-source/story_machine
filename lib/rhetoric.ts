@@ -1,12 +1,13 @@
 import type { Rhetoric } from "./schema";
 import { KINDS, kindOf } from "./kinds";
 
-// Rhetoric notes. Since 18 October each note sits under the line it belongs to (John Zimmer's change): up to three
-// devices the story already uses and up to three suggestions. Shared by the page, the PDF and the Word download.
+// Rhetoric suggestions. Each sits under the line it belongs to (John Zimmer's change, 18 October). Since the call of
+// 23 October only the suggestions show: the suggested line first, then the device and what it is. The grey notes on
+// devices already in the story are gone. Shared by the page, the PDF and the Word download.
 
-export const RHETORIC_TITLE = "More powerful language";
+export const RHETORIC_TITLE = "Add power to your words with a rhetorical device";
 export const RHETORIC_LEAD =
-  "One well-made line sticks in an audience's mind like the hook of a song. Strong speakers choose their words on purpose. The notes in your story show the rhetorical devices you already use, and three places where one would add power.";
+  "One well-made line sticks in an audience's mind like the hook of a song. Strong speakers choose their words on purpose. Under some lines of your story, StoryMachine suggests another way to say it, using a rhetorical device.";
 
 /** The part of the story a path points at, in the words the presenter sees on the page. */
 export function pathLabel(path: string | undefined, kind?: string | null): string {
@@ -25,14 +26,10 @@ export function pathLabel(path: string | undefined, kind?: string | null): strin
   return `${actName(m[1])}, ${part}`;
 }
 
-export function deviceLine(d: Rhetoric["devices"][number]): string {
-  return `${d.device}, ${d.where} (${d.source === "yours" ? "your words" : "added"}): “${d.line}” ${d.what ? d.what + " " : ""}${d.note}`;
-}
-
 export function suggestionLine(s: Rhetoric["suggestions"][number]): string {
-  return `${s.where}, ${s.device}: “${s.now}” could become “${s.better}”${s.what ? ` ${s.what}` : ""}`;
+  return `${s.where ? s.where + ". " : ""}For example, you could say this: “${s.better}” ${s.device}${s.what ? `: ${s.what}` : "."}`;
 }
 
 export function hasRhetoric(r: Rhetoric | null | undefined): r is Rhetoric {
-  return Boolean(r && (r.devices.length || r.suggestions.length));
+  return Boolean(r && r.suggestions.length);
 }

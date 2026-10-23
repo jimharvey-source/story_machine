@@ -143,7 +143,7 @@ export const RegisterSchema = z.enum(["formal", "business", "conversational"]).d
 
 export const AnswerSchema = z.object({
   question: z.string().max(300),
-  answer: z.string().max(1500, "Keep each answer to a short paragraph."),
+  answer: z.string().max(3000, "Keep each answer to 3,000 characters."),
 });
 
 export const QuestionsSchema = z.object({
@@ -162,16 +162,16 @@ export type Question = z.infer<typeof QuestionsSchema>["questions"][number];
 
 export const QuestionsRequestSchema = z.object({
   notes: z.string().min(40, "Paste at least a few lines of notes").max(60000, "That is more than StoryMachine can read at once. Cut anything that is not part of this story."),
-  audience: z.string().max(4000).optional().default(""),
-  intent: z.string().max(4000).optional().default(""),
+  audience: z.string().max(12000).optional().default(""),
+  intent: z.string().max(12000).optional().default(""),
   kind: KindSchema.optional(),
   storyId: z.string().uuid().optional(),
 });
 
 export const StoryRequestSchema = z.object({
   notes: z.string().min(40, "Paste at least a few lines of notes").max(60000, "That is more than StoryMachine can read at once. Cut anything that is not part of this story."),
-  audience: z.string().max(4000, "Keep each answer about your audience to a short paragraph.").optional().default(""),
-  intent: z.string().max(4000, "Keep your objective and your message to a short paragraph each.").optional().default(""),
+  audience: z.string().max(12000, "Keep each answer to 3,000 characters.").optional().default(""),
+  intent: z.string().max(12000, "Keep each answer to 3,000 characters.").optional().default(""),
   register: RegisterSchema,
   /** The kind of presentation. Absent: the StoryMachine picks the likeliest and says so. */
   kind: KindSchema.optional(),
@@ -187,6 +187,8 @@ export const LandRequestSchema = z.object({
   register: RegisterSchema,
   /** The saved story to unlock for stage 2. */
   storyId: z.string().uuid().optional(),
+  /** How long the presentation runs, in minutes, from the length question. */
+  minutes: z.number().int().min(1).max(600).optional(),
 });
 
 // The ending, rewritten after the Big Idea has changed. Only the parts that carry the Big Idea at the close.
@@ -267,7 +269,7 @@ export const RHETORIC_PATHS = [
 ] as const;
 export type RhetoricPath = (typeof RHETORIC_PATHS)[number];
 
-const DEVICE_NAME = "The device's name: Tricolon, Anaphora, Epistrophe, Alliteration, Antithesis, Rhetorical question, Metaphor, Analogy, Chiasmus or Callback.";
+const DEVICE_NAME = "The device's name, as it appears in the list of devices: for example Tricolon, Anaphora, Epistrophe, Anadiplosis, Chiasmus or Hypophora.";
 const DEVICE_WHAT = "One plain sentence saying what the device is, for someone who has never heard its name. For example: \"A tricolon is a list of three: three words, phrases or ideas in a row.\"";
 
 const deviceGen = z.object({
@@ -279,18 +281,16 @@ const deviceGen = z.object({
   note: z.string().describe("One sentence: why it works for this audience."),
 });
 const suggestionGen = z.object({
+  path: z.enum(RHETORIC_PATHS).describe("The line to strengthen. Never a line that already uses a device."),
+  better: z.string().describe("The line rewritten to use the device. Same facts and numbers."),
   device: z.string().describe(DEVICE_NAME),
   what: z.string().describe(DEVICE_WHAT),
-  path: z.enum(RHETORIC_PATHS).describe("The line to strengthen. Never a line that already uses a device."),
   now: z.string().describe("The line as it stands."),
-  better: z.string().describe("The line rewritten to use the device. Same facts and numbers."),
-  note: z.string().describe("One sentence: why the device makes this line stronger."),
 });
 
-/** What the model returns. */
+/** What the model returns: suggestions only, since 23 October. */
 export const RhetoricGenSchema = z.object({
-  devices: z.array(deviceGen).max(3).describe("At most three devices already in the story, the strongest first."),
-  suggestions: z.array(suggestionGen).max(3).describe("At most three lines where a device would help."),
+  suggestions: z.array(suggestionGen).max(4).describe("At most four lines where a rhetorical device would add power, each a different line and, where possible, a different device."),
 });
 
 /** What is stored and shown. Older notes have no path or "what"; they are shown as a list. */
@@ -313,7 +313,7 @@ export const RhetoricSchema = z.object({
         where: z.string().default(""),
       })
     )
-    .max(3),
+    .max(4),
 });
 
 export type Rhetoric = z.infer<typeof RhetoricSchema>;

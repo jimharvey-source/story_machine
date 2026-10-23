@@ -9,7 +9,7 @@ import { supabaseAdmin } from "@/lib/supabase/server";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
-// Rhetoric (9 October): the devices in the finished story, and where one would help.
+// Rhetoric (9 October): lines where a rhetorical device would add power. Since 23 October, suggestions only.
 // Runs on its own after Stage 2, so it never slows the story and never trips the story's voice rules.
 export async function POST(req: Request) {
   const profile = await currentProfile();
@@ -39,26 +39,19 @@ export async function POST(req: Request) {
       label: "rhetoric",
       skipVoice: true,
     });
-    // Check the model's claims we can check. "Yours" only when the words really are in the notes.
-    const flat = (t: string) => t.toLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim();
-    const source = flat(notes);
     const all = { ...story, landing: landing ?? {} } as Record<string, unknown>;
     const textAt = (path: string): string => {
       const v = path.split(".").reduce<unknown>((o, k) => (o && typeof o === "object" ? (o as Record<string, unknown>)[k] : undefined), all);
       return typeof v === "string" ? v : "";
     };
-    const devices = result.data.devices
-      .filter((d) => d.device.toLowerCase() !== "rhetorical question" || d.line.trim().endsWith("?"))
-      .filter((d) => flat(textAt(d.path)).includes(flat(d.line)))
-      .slice(0, 3)
-      .map((d) => ({ ...d, where: pathLabel(d.path, story.kind), source: (flat(d.line) && source.includes(flat(d.line)) ? "yours" : "added") as "yours" | "added" }));
-    // Never suggest a device for a line that already has one, and never two suggestions for one line.
-    const taken = new Set(devices.map((d) => d.path as string));
+    // One suggestion a line, for a line that exists, and never the line unchanged.
+    const taken = new Set<string>();
+    const same = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
     const suggestions = result.data.suggestions
-      .filter((sg) => textAt(sg.path) && !taken.has(sg.path) && (taken.add(sg.path), true))
-      .slice(0, 3)
+      .filter((sg) => textAt(sg.path) && !same(textAt(sg.path), sg.better) && !taken.has(sg.path) && (taken.add(sg.path), true))
+      .slice(0, 4)
       .map((sg) => ({ ...sg, now: textAt(sg.path), where: pathLabel(sg.path, story.kind) }));
-    const rhetoric: Rhetoric = { devices, suggestions };
+    const rhetoric: Rhetoric = { devices: [], suggestions };
     await logGeneration(profile.id, "rhetoric");
     await admin.from("stories").update({ rhetoric }).eq("id", storyId).eq("user_id", profile.id);
     return NextResponse.json({ rhetoric });

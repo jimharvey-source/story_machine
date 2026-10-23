@@ -34,18 +34,19 @@ Think carefully about these questions and answer them as thoroughly as you can. 
 
 Hover over each button for a line on what it helps you do. If you choose nothing, StoryMachine picks the likeliest kind and says which.
 
-Then four questions:
+Then five questions:
 
-- **Who is the audience and what matters to them?** *For example: the executive committee, eight people, sceptical about cost, who care most about the pipeline number.*
-- **What does your audience think about the topic of your presentation?** *Do they know a lot or not much at all? Are they in favour of it, or opposed to it? Why is the topic important to them?*
-- **What is your objective? When you finish speaking, what should the audience know, think and do?** *For example: understand why the process needs more structure, and approve the pilot budget.*
+- **What is your presentation about?** *For example: the case for opening an office in Singapore next year.*
+- **Who is the audience, and why does it matter to them?** *For example: the executive committee, eight people, sceptical about cost, who care most about the pipeline number. What do they already know about the topic, and where do they stand on it?*
+- **What is your objective? What do you want the audience to do as a result?** *For example: approve the pilot budget at this meeting.*
 - **What is your message, and why should they care?** *For example: we should open an office in Singapore because of the low tax rate, a highly skilled workforce and proximity to our clients in East Asia.*
+- **How long is your presentation, not counting questions?** *For example: 20 minutes.* StoryMachine builds the story to fit the time: fewer points for a short talk, more examples for a long one.
 
 **The more you say in response to each question, the sharper your story will be.** For example, "The executive committee, who approved last year's budget and want to know what it bought" gives StoryMachine far more to work with than "senior managers".
 
 **Be specific about the objective.** Finish this sentence: *After my presentation, the audience will...* "...approve the second phase and name an owner by Friday" is much better than "...understand the project".
 
-Each answer can run to a short paragraph. If you don't know an answer yet, leave it blank. StoryMachine will not guess: it names what is missing as a gap, so you know what to find out before you present.
+Each answer can run to 3,000 characters. Give as much detail as you can. If you really don't know, leave it blank. StoryMachine will not guess: it names what is missing as a gap, so you know what to find out before you present.
 
 **Tone of voice.** Choose formal, business or conversational. A line under the buttons says which rooms each one suits. Business suits most.
 
@@ -69,7 +70,7 @@ Good material might include:
 
 Your files stay on your computer. StoryMachine reads the words and adds them to the box. The files themselves never leave your computer. There is no size limit on the files you can upload.
 
-**Add photos and screenshots**: a whiteboard, a flipchart, a slide, a page of handwritten notes. Upload them with the same button, or paste a screenshot straight into the box. StoryMachine writes out the words and figures it can read. Check them against the picture. A photo is different from a document: it goes to our servers and the AI to be read, and it is not kept.
+**Add photos and screenshots**: a whiteboard, a flipchart, a slide, a page of handwritten notes. Upload them with the same button, or paste a screenshot straight into the box. StoryMachine writes out the words and figures it can read. Check them against the picture. Your documents stay on your computer. The one exception is a photo or screenshot: it goes to our servers, is read, and is then deleted.
 
 Before you go on, review what landed in the box and delete anything that does not belong.
 
@@ -97,7 +98,7 @@ Signing in also adds you to the Presentation Guru list: one helpful email a mont
 
 **Up to two questions.** If something important is still open after your answers and your material, StoryMachine asks you up to two short questions before it writes. Each comes with an example of a possible answer. A couple of lines will do, but the more detail you give, the better the story. If you don't have an answer, leave it blank and press **Write my story**: the story will name what is missing as a gap.
 
-**The story.** Stage 1 arrives first, usually in under 45 seconds. Stage 2 follows straight on, in the same run, in about a minute. Read Stage 1 while Stage 2 is on its way. Then notes on the rhetoric in your story appear under the lines they belong to.
+**The story.** Stage 1 arrives first, with a bar to show how far it has got. Stage 2 follows straight on, in the same run, with its own bar. Read Stage 1 while Stage 2 is on its way. Then notes on the rhetoric in your story appear under the lines they belong to.
 
 Everything saves as you work. Open **My stories** at the top of the page to return to any of your stories at any time.
 

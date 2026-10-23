@@ -3,7 +3,7 @@ import path from "node:path";
 import PDFDocument from "pdfkit";
 import type { z } from "zod";
 import type { LandingInputSchema, Rhetoric, StoryInputSchema } from "./schema";
-import { hasRhetoric, pathLabel } from "./rhetoric";
+import { RHETORIC_LEAD, RHETORIC_TITLE, hasRhetoric, pathLabel } from "./rhetoric";
 import { OWN_IT_LEAD, ownItAdvice } from "./ownIt";
 import { KINDS, kindOf } from "./kinds";
 import { LICENCE, METHOD, SIGN_OFF } from "./method";
@@ -204,7 +204,7 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
     row("What they need to hear", story.audience.needToHear);
     row("What to leave out", story.audience.doNotNeedToHear);
     thinRule();
-    subhead("What you want your presentation to do", "Your statement of intent: what the audience will know, think and do afterwards.");
+    subhead("What you want your presentation to do", "Your statement of intent: what the audience will do as a result.");
     text(story.intent, font.sans, 11.5, INK);
     thinRule();
     subhead("Your argument", "Your case in one sentence. Everything in the three acts supports it.");
@@ -286,7 +286,7 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
         (landing ? heightOf(landing[key].signpost, font.said, 11.5, W - 20) + 30 : 0) + heightOf(act.headline, font.bold, 13.5) + 30
       );
       if (landing) {
-        label(`Your signpost into Act ${i + 1}: say this to move into the act`, RED);
+        label(`Your signpost that introduces Act ${i + 1}`, RED);
         said(landing[key].signpost, 11.5);
         gap(12);
       }
@@ -344,55 +344,23 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
 
     if (landing && hasRhetoric(rhetoric)) {
       thinRule();
-      subhead(
-        "More powerful language",
-        "One well-made line sticks in an audience's mind like the hook of a song. Strong speakers choose their words deliberately. Here are the rhetorical devices already working in your story, and lines where one would add power.",
-        140
-      );
+      subhead(RHETORIC_TITLE, RHETORIC_LEAD, 140);
       const where = (p?: string, w?: string) => pathLabel(p, story.kind) || w || "";
-      if (rhetoric.devices.length) {
-        keep(80);
-        text("Rhetorical devices already in your story", font.bold, 11, INK);
-        gap(8);
-        for (const d of rhetoric.devices) {
-          const block = [d.what, d.note].filter(Boolean).join(" ");
-          keep(heightOf(d.line, font.said, 11.5, W - 20) + heightOf(block, font.sans, 9.5, W - 20) + 40);
-          const y0 = doc.y;
-          doc.font(font.bold).fontSize(10).fillColor(INK).text(d.device, L + 12, y0, { continued: true });
-          doc.font(font.sans).fillColor(MUTED).text(`   ${where(d.path, d.where)}  ·  ${d.source === "yours" ? "your words" : "added by StoryMachine"}`);
-          gap(3);
-          text(`“${d.line}”`, font.said, 11.5, INK, {}, L + 12, W - 12);
-          gap(3);
-          text(block, font.sans, 9.5, INK2, {}, L + 12, W - 12);
-          doc.rect(L, y0, 2, doc.y - y0).fillColor(RULE).fill();
-          gap(12);
-        }
-      }
-      if (rhetoric.suggestions.length) {
-        keep(90);
+      for (const s of rhetoric.suggestions) {
+        const what = `${s.device}. ${s.what ?? ""}`.trim();
+        keep(heightOf(s.better, font.said, 11.5, W - 12) + heightOf(what, font.sans, 9.5, W - 12) + 56);
+        const y0 = doc.y;
+        text(where(s.path, s.where), font.bold, 9, MUTED, {}, L + 12, W - 12);
         gap(4);
-        text(`${rhetoric.suggestions.length === 1 ? "One line" : `${["", "One", "Two", "Three"][rhetoric.suggestions.length]} lines`} to try`, font.bold, 11, INK);
-        gap(8);
-        for (const s of rhetoric.suggestions) {
-          const why = [s.what, s.note].filter(Boolean).join(" ");
-          keep(heightOf(s.now, font.sans, 10, W - 60) + heightOf(s.better, font.said, 11.5, W - 60) + heightOf(why, font.sans, 9.5, W - 12) + 50);
-          const y0 = doc.y;
-          doc.font(font.bold).fontSize(10).fillColor(INK).text(s.device, L + 12, y0, { continued: true });
-          doc.font(font.sans).fillColor(MUTED).text(`   ${where(s.path, s.where)}`);
-          gap(4);
-          const pair = (k: string, v: string, f: string, size: number, colour: string) => {
-            const y = doc.y;
-            doc.font(font.bold).fontSize(8.5).fillColor(MUTED).text(k, L + 12, y + 2, { width: 36 });
-            doc.font(f).fontSize(size).fillColor(colour).text(v, L + 52, y, { width: W - 52, lineGap: size * 0.3 });
-            doc.x = L;
-            gap(4);
-          };
-          pair("Now", s.now, font.sans, 10, INK2);
-          pair("Try", s.better, font.said, 11.5, INK);
-          if (why) text(why, font.sans, 9.5, INK2, {}, L + 12, W - 12);
-          doc.rect(L, y0, 2, doc.y - y0).fillColor(RED).fill();
-          gap(12);
-        }
+        text("For example, you could say this:", font.sans, 9.5, INK2, {}, L + 12, W - 12);
+        gap(3);
+        text(`“${s.better}”`, font.said, 11.5, INK, {}, L + 12, W - 12);
+        gap(4);
+        doc.font(font.bold).fontSize(9.5).fillColor(INK).text(`${s.device}.`, L + 12, doc.y, { width: W - 12, continued: true, lineGap: 3 });
+        doc.font(font.sans).fillColor(INK2).text(` ${s.what ?? ""}`);
+        doc.x = L;
+        doc.rect(L, y0, 2, doc.y - y0).fillColor(RED).fill();
+        gap(12);
       }
       text("To use a line, edit it into your story in StoryMachine, or press Use this line under it.", font.sans, 8.5, MUTED);
     }

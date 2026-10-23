@@ -207,8 +207,32 @@ export function landSystem(register: Register, kind: Kind): string {
   return withStructure(withRegister(LAND_SYSTEM_TEMPLATE, register), kind);
 }
 
-export function storyUserMessage(notes: string, audience: string, intent: string, answers: Array<{ question: string; answer: string }> = []): string {
+/** The length the presenter gave, as instructions for fitting the story to the time (agreed 23 October). */
+export function timeBlock(minutes: number | null | undefined, stage: "story" | "land"): string {
+  if (!minutes || minutes < 1) return "";
+  const m = Math.min(minutes, 180);
+  const words = m * 130;
+  const fit =
+    m <= 5
+      ? "This is a short talk. Two supporting points per act, each one sentence. The prologue under 70 spoken words and the epilogue under 60. Three speech-note cues per beat."
+      : m <= 12
+        ? "Two or three supporting points per act. The prologue under 110 spoken words and the epilogue under 90."
+        : m <= 30
+          ? "Three supporting points per act, and at least one example or case from the material in each act where the material has one. The prologue up to 150 spoken words and the epilogue up to 120."
+          : "Three or four supporting points per act, and a story, case or example from the material in every act where the material has one. The prologue up to 150 spoken words and the epilogue up to 120. Name in the gaps any act that needs more material to fill its time.";
+  const lead = `<time>
+The presentation runs ${m} minute${m === 1 ? "" : "s"}, not counting questions: about ${words.toLocaleString("en-GB")} spoken words at a normal pace. Build the story to fit that time. ${fit}`;
+  const tail =
+    stage === "story"
+      ? " Give each act its share of the time: Act 2 usually the largest. Never pad an act to fill time, and never squeeze in more than the time allows: if the material holds more than fits, keep the points that prove the headline best."
+      : " The prologue and the epilogue together take no more than a fifth of the time.";
+  return `${lead}${tail}
+</time>`;
+}
+
+export function storyUserMessage(notes: string, audience: string, intent: string, answers: Array<{ question: string; answer: string }> = [], minutes: number | null = null): string {
   const given: string[] = [];
+  const time = timeBlock(minutes, "story");
   if (audience.trim()) given.push(`<audience_from_presenter>\n${audience.trim()}\n</audience_from_presenter>`);
   if (intent.trim()) given.push(`<intent_from_presenter>\n${intent.trim()}\n</intent_from_presenter>`);
   const answered = answers.filter((a) => a.answer.trim());
@@ -221,6 +245,7 @@ export function storyUserMessage(notes: string, audience: string, intent: string
     // A question left blank means "I don't know" (Jim, 18 October). Never guess the answer: name it as a gap.
     given.push(`<questions_left_blank>\nThe presenter left these blank: they do not know yet. Do not guess the answers. Name each as a gap.\n${unanswered.map((a) => `- ${a.question.trim()}`).join("\n")}\n</questions_left_blank>`);
   }
+  if (time) given.push(time);
   return `<source_material>
 ${notes.trim()}
 </source_material>
@@ -232,11 +257,12 @@ Get the story straight. Work through audience, the hero, statement of intent, ar
 Remember: find the presenter's conviction first, keep their own images, give each act its job for this kind of presentation, make Act 1 show the obstacle in the hero's way, hold one point of view, translate every figure for this audience and keep every number exactly as given, ration contrast (free in the Big Idea, soundbites and slides; two at most elsewhere; never in audience, intent, argument or gaps), no em dashes, no banned phrases, short sentences, UK English.`;
 }
 
-export function landUserMessage(notes: string, storyJson: string): string {
+export function landUserMessage(notes: string, storyJson: string, minutes: number | null = null): string {
+  const time = timeBlock(minutes, "land");
   return `<source_material>
 ${notes.trim()}
 </source_material>
-
+${time ? "\n" + time + "\n" : ""}
 <story>
 ${storyJson}
 </story>
@@ -377,32 +403,37 @@ export function questionsUserMessage(notes: string, audience: string, intent: st
 // Rhetoric (9 October): point out the devices in the finished story, so the presenter learns as they go.
 // No separate module: a short list of what is there, where, and why it works.
 
-export const RHETORIC_SYSTEM = `You are Jim Harvey's StoryMachine, an experienced presentation coach. A presenter has a finished presentation story. Your job is to point out the classical rhetorical devices in it, so they learn to see and use them.
+export const RHETORIC_SYSTEM = `You are Jim Harvey's StoryMachine, an experienced presentation coach. A presenter has a finished presentation story. Your job is to find the lines that would gain power from a classical rhetorical device, and to show the presenter how, so they learn to use these devices on purpose.
 
-Most presenters use rhetorical devices without knowing it. Business audiences respond to them as much as any other. Name what is there and why it works, so the presenter can do it on purpose next time.
-
-Look for these devices, and only these:
-- Tricolon (rule of three): three parallel words, phrases or clauses.
-- Anaphora: the same word or phrase repeated at the start of successive sentences or clauses.
-- Epistrophe: the same word or phrase repeated at the end of successive clauses.
-- Alliteration: the same sound at the start of nearby stressed words, when it helps the line stick.
-- Antithesis: two opposed ideas in balanced phrases.
-- Rhetorical question: a question asked for effect, answered or left hanging.
-- Metaphor or analogy: one thing described as another to make it vivid.
+Choose from these devices. Use the name exactly as written here:
+- Tricolon: three parallel words, phrases or clauses in a row.
+- Anaphora: the same word or phrase at the start of successive sentences or clauses.
+- Epistrophe: the same word or phrase at the end of successive sentences or clauses.
+- Anadiplosis: the last word of one clause becomes the first word of the next.
+- Epizeuxis: a word repeated straight away for emphasis.
 - Chiasmus: a phrase repeated with its parts reversed.
-- Callback (bookend): the ending returns to an image or line from the opening.
+- Antithesis: two opposed ideas set side by side in balanced phrases.
+- Asyndeton: a list with the joining words left out, for speed and force.
+- Polysyndeton: a list with "and" repeated between every item, to make it feel long or heavy.
+- Climax: words or ideas in rising order of weight, the strongest last.
+- Commoratio: dwelling on the key point by saying it again in different words.
+- Hypophora: asking a question and answering it at once.
+- Rhetorical question (erotema): a question asked for effect, with no answer expected.
+- Paralipsis: drawing attention to something by saying you will not dwell on it.
+- Alliteration: the same sound at the start of nearby stressed words.
+- Metaphor: one thing described as another to make it vivid.
+- Analogy: a comparison that explains the unfamiliar through the familiar.
+- Callback: the ending returns to an image or line from the opening.
 
 Rules:
-- Each note belongs to one line of the story and is shown under it. Give its path, from this list only: bigIdea, landing.prologue, why.headline, why.coreMessage, why.soundbite.text, landing.why.signpost, how.headline, how.coreMessage, how.soundbite.text, landing.how.signpost, what.headline, what.coreMessage, what.soundbite.text, landing.what.signpost, landing.epilogue. A callback belongs to the Epilogue. Paths that start with landing. point into the stage_two block; the others point into the story block.
-- Quote the words exactly as they appear in that line. Never invent a line or improve one.
-- Name a device only when the line truly is one. A rhetorical question ends with a question mark; a statement is never one. Antithesis needs two opposed ideas, both stated in the line. Anaphora repeats the opening word or phrase of successive clauses. If in doubt, leave it out.
-- Mark each device "yours" only when the exact words appear in the presenter's own material, and "added" when the StoryMachine wrote them.
-- For every device, say in one plain sentence what it is, for someone who has never heard its name, and in one sentence why it works for this audience. No jargon beyond the device's name.
-- At most three devices already in the story, the strongest first, each in a different line. If the story has fewer, list fewer.
-- Then at most three lines where a device would make the story stronger, each in a different line, and never a line that already uses a device. Prefer headlines, soundbites, signposts, the Prologue and the Epilogue. Give the device, what it is in one plain sentence, the line rewritten to use it, and one sentence on why it helps.
-- A suggestion must obey the story's own rules. Keep every fact and number exactly as given and add no new idea. Make no claim the material does not make: no "nobody", "everyone", "always" or "never". Suggest antithesis only for the Big Idea, a soundbite or the closing line; for headlines and signposts use tricolon, anaphora, alliteration or a callback. If no suggestion meets these rules, give none.
+- Each suggestion belongs to one line of the story and is shown under it. Give its path, from this list only: bigIdea, landing.prologue, why.headline, why.coreMessage, why.soundbite.text, landing.why.signpost, how.headline, how.coreMessage, how.soundbite.text, landing.how.signpost, what.headline, what.coreMessage, what.soundbite.text, landing.what.signpost, landing.epilogue. Paths that start with landing. point into the stage_two block; the others point into the story block.
+- At most four suggestions, each for a different line, and never a line that already uses a device well. Prefer headlines, soundbites, signposts, the Prologue and the Epilogue. Use a range of devices: never the same device twice, and look past the obvious ones (tricolon, anaphora, antithesis) to the device that suits the line best.
+- For each, give the line rewritten to use the device, the device's name, and one plain sentence saying what the device is, for someone who has never heard its name. No jargon beyond the device's name.
+- For a Prologue or Epilogue, rewrite the whole passage with the device worked into it, changing as little as you can.
+- A suggestion must obey the story's own rules. Keep every fact and number exactly as given and add no new idea. Make no claim the material does not make: no "nobody", "everyone", "always" or "never". A rhetorical question or hypophora ends its question with a question mark. Paralipsis never hints at a fact the material does not give. Antithesis only for the Big Idea, a soundbite or the closing line. The Epilogue still ends on the Big Idea, word for word.
+- If no suggestion meets these rules, give none.
 - UK English. No em dashes.`;
 
 export function rhetoricUserMessage(notes: string, storyJson: string, landingJson: string | null): string {
-  return `<source_material>\n${notes.trim()}\n</source_material>\n\n<story>\n${storyJson}\n</story>\n${landingJson ? `\n<stage_two>\n${landingJson}\n</stage_two>\n` : ""}\n<task>\nPoint out at most three rhetorical devices already in this story, then at most three lines where one would make the story stronger.\n</task>`;
+  return `<source_material>\n${notes.trim()}\n</source_material>\n\n<story>\n${storyJson}\n</story>\n${landingJson ? `\n<stage_two>\n${landingJson}\n</stage_two>\n` : ""}\n<task>\nSuggest at most four lines where a rhetorical device would add power, each with a different device.\n</task>`;
 }

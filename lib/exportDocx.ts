@@ -5,7 +5,7 @@
 import { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun } from "docx";
 import { z } from "zod";
 import type { LandingInputSchema, Rhetoric, StoryInputSchema } from "./schema";
-import { RHETORIC_LEAD, RHETORIC_TITLE, deviceLine, hasRhetoric, suggestionLine } from "./rhetoric";
+import { RHETORIC_LEAD, RHETORIC_TITLE, hasRhetoric, suggestionLine } from "./rhetoric";
 import { KINDS, kindOf } from "./kinds";
 import { LICENCE, METHOD, SIGN_OFF } from "./method";
 import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "./ownIt";
@@ -75,7 +75,7 @@ export async function renderDocx(title: string, story: Story, landing: Landing |
     out.push(label(act.soundbite.source === "material" ? "Soundbite, from your notes" : "Soundbite, proposed", `“${act.soundbite.text}”`));
     for (const pt of act.supportingPoints) out.push(bullet(pt));
     if (landing) {
-      out.push(label("Signpost, spoken", landing[key].signpost));
+      out.push(label(`Your signpost that introduces Act ${["why", "how", "what"].indexOf(key) + 1}`, landing[key].signpost));
     }
   }
 
@@ -101,11 +101,7 @@ export async function renderDocx(title: string, story: Story, landing: Landing |
   if (landing && hasRhetoric(rhetoric)) {
     out.push(h1(RHETORIC_TITLE));
     out.push(p(RHETORIC_LEAD, { italic: true }));
-    for (const d of rhetoric.devices) out.push(bullet(deviceLine(d)));
-    if (rhetoric.suggestions.length) {
-      out.push(h2("Where a rhetorical device would add power"));
-      for (const s of rhetoric.suggestions) out.push(bullet(suggestionLine(s)));
-    }
+    for (const s of rhetoric.suggestions) out.push(bullet(suggestionLine(s)));
   }
 
   if (landing) {

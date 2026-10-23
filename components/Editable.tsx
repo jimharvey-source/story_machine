@@ -131,7 +131,7 @@ type ListProps = {
 export function EditableList({ items, onChange, onAction, busy }: ListProps) {
   return (
     <div className="group relative">
-      <ul className="space-y-2 text-ink-2">
+      <ul className="space-y-4 text-ink-2">
         {items.map((p, i) => (
           <li key={i} className="border-l-2 border-rule pl-4">
             <Editable
