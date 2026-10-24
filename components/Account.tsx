@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/browser";
 
@@ -173,7 +174,7 @@ export function SignIn({ compact, title, body, next, programme, onSignedIn }: { 
       </div>
       <p className="mt-3 text-xs text-muted">
         Signing in adds you to the Presentation Guru list, one email a month from Jim Harvey. Unsubscribe any time.{" "}
-        <a href="/privacy" className="underline decoration-rule underline-offset-4 hover:text-ink">Privacy</a>
+        <Link href="/privacy" className="underline decoration-rule underline-offset-4 hover:text-ink">Privacy</Link>
       </p>
       {error && <p className="mt-2 text-sm text-red">{error}</p>}
     </form>
