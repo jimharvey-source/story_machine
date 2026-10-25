@@ -27,7 +27,7 @@ export function Tour({ programme = false }: { programme?: boolean }) {
                 consulting and finance sectors. Jim has also written for television, done hundreds of gigs as a stand-up
                 comedian, and hosts conferences as a core part of his work.
               </p>
-              <a href="https://www.themessagebusiness.com" className="mt-4 inline-block text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
+              <a href="https://www.themessagebusiness.com" target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
                 The Message Business
               </a>
               </div>
@@ -45,7 +45,7 @@ export function Tour({ programme = false }: { programme?: boolean }) {
                 a nine-time European champion in Toastmasters contests and coach of the 2025 and 2026 World Champions of Public
                 Speaking. His blog, <em>Manner of Speaking</em>, has been a leading voice on public speaking since 2009.
               </p>
-              <a href="https://mannerofspeaking.org/the-face-behind-the-blog/" className="mt-4 inline-block text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
+              <a href="https://mannerofspeaking.org" target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
                 Manner of Speaking
               </a>
               </div>
@@ -53,7 +53,7 @@ export function Tour({ programme = false }: { programme?: boolean }) {
           </div>
           <p className="mt-8 max-w-3xl text-lg leading-relaxed text-ink-2">
             Jim and John met through a shared obsession with presentations, started{" "}
-            <a href="https://www.presentation-guru.com" className="underline decoration-rule underline-offset-4 hover:text-ink"><em>Presentation Guru</em></a>{" "}
+            <a href="https://www.presentation-guru.com" target="_blank" rel="noopener noreferrer" className="underline decoration-rule underline-offset-4 hover:text-ink"><em>Presentation Guru</em></a>{" "}
             together, and have worked side by side ever since.
           </p>
         </section>
@@ -66,13 +66,13 @@ export function Tour({ programme = false }: { programme?: boolean }) {
           </p>
           <div className="my-8 border-l-2 border-red pl-6">
             <p className="said text-2xl leading-snug text-ink sm:text-[1.7rem]">
-              In most poor presentations, the story is the problem. But after the presentation, the presenter gets the
-              blame. It&apos;s unfair, and it&apos;s easy to fix.
+              When a presentation falls flat, the presenter takes the blame: too long, too confusing, too many slides. The
+              real problem is usually the story. And it&apos;s easy to fix.
             </p>
           </div>
           <p>
-            StoryMachine helps you build a clear, strong story. Strong stories mean more confident presenters and more
-            engaged audiences; more engaged audiences mean better results.
+            StoryMachine helps you build a clear, strong story. A strong story means a more confident presenter and a more
+            engaged audience. A more engaged audience means better results.
           </p>
         </Section>
 
@@ -134,11 +134,7 @@ export function Tour({ programme = false }: { programme?: boolean }) {
 
         {/* 5. Presentation types */}
         <Section icon="grid" label="Presentation types" title="Tell StoryMachine what kind of presentation it is.">
-          <p>
-            A project update, a strategy recommendation, a sales pitch, choosing between options, a training session, a
-            conference keynote, a scientific presentation, bad news, or something else. StoryMachine helps you create the
-            right story for any presentation.
-          </p>
+          <p>StoryMachine helps you create the right story for any presentation.</p>
           {/* Square red tiles in a grid (Jim, 23 October): the pills looked weak. */}
           <ul className="kind-grid mt-8 grid grid-cols-2 gap-2 sm:grid-cols-3">
             {KINDS.map(([k, icon]) => (
@@ -154,7 +150,10 @@ export function Tour({ programme = false }: { programme?: boolean }) {
         <Section icon="pen" label="StoryMachine works only from what you give it" title="Make it your own.">
           <p>
             StoryMachine only works from your notes, your documents and your ideas. If it needs more information,
-            StoryMachine will ask you questions. Every story ends with a panel headed{" "}
+            StoryMachine will ask you questions.
+          </p>
+          <p className="mt-4">
+            Every story ends with a panel headed{" "}
             <span className="font-semibold text-ink">Make it your own</span>. Here, you add the example, the number, the
             reason it matters to you. You then get concrete advice before you rehearse. Audiences believe speakers who are
             authentic.
@@ -165,13 +164,15 @@ export function Tour({ programme = false }: { programme?: boolean }) {
         <Section icon="laptop" label="Confidential material" title="Your documents stay on your computer.">
           <p>
             Upload a Word file, PDF or PowerPoint of any size. StoryMachine reads the words, but the files never leave your
-            computer. Only the words go to our servers and to the AI that helps you write your story. The one exception is a
-            photo or screenshot: it goes to our servers, is read, and is then deleted. All of your information, including
+            computer. Only the words go to our servers and to the AI that helps you write your story.
+          </p>
+          <p className="mt-4">
+            The one exception is a photo or screenshot: it goes to our servers, is read, and is then deleted. All of your information, including
             your story, is saved to your account. You can delete it at any time.
           </p>
           <p className="mt-4">
             For more details on how your information is handled, please see the{" "}
-            <Link href="/guide" className="underline decoration-rule underline-offset-4 hover:text-ink">User Guide</Link>.
+            <Link href="/guide" target="_blank" className="underline decoration-rule underline-offset-4 hover:text-ink">User Guide</Link>.
           </p>
         </Section>
 
@@ -186,8 +187,8 @@ export function Tour({ programme = false }: { programme?: boolean }) {
             StoryMachine. The PDF ends with a summary of the method, so you can do it yourself next time.
           </p>
           <p className="said mt-8 text-2xl leading-snug text-ink sm:text-[1.7rem]">
-            You don&apos;t have to be a superstar to speak and present well. Steve Jobs, Barack Obama, Michelle Obama,
-            Nelson Mandela, Margaret Thatcher: all of the greats had speechwriters to help them.
+            You don&apos;t have to be a superstar to speak and present well. And even the superstars had help. Steve Jobs,
+            Barack Obama, Michelle Obama, Nelson Mandela, Margaret Thatcher: all of them worked with others on their words.
           </p>
           <p className="mt-4">
             StoryMachine will guide you through the maze of information, and help you structure and articulate the good
@@ -221,7 +222,7 @@ const HOW: Array<[string, string]> = [
   ],
   [
     "Add what you have.",
-    "Paste or type your notes. Upload any relevant documents, or a photo of your whiteboard. Your files stay on your computer; StoryMachine only reads the words.",
+    "Paste or type your notes. Upload any relevant documents, or a photo of your whiteboard.",
   ],
   [
     "Enter your email.",
@@ -233,7 +234,7 @@ const HOW: Array<[string, string]> = [
   ],
   [
     "Add slides, then rehearse.",
-    "If you need slides, StoryMachine can produce a PowerPoint outline or give you a detailed prompt for your slides to use in your preferred AI tool. Then rehearse from your speaker notes.",
+    "If you need slides, StoryMachine will produce a PowerPoint outline and generate a detailed prompt for your slides to use in your preferred AI tool. Then rehearse from your speaker notes.",
   ],
 ];
 
@@ -260,7 +261,7 @@ const STAGES = [
   },
   {
     n: "Stage 2",
-    icon: "mic" as IconName,
+    icon: "acts" as IconName,
     name: "Add interest and impact",
     sub: "Refine and reinforce your story.",
     steps: [
@@ -274,7 +275,7 @@ const STAGES = [
 // After the two stages: story, slides, rehearsal (Jim, 21 October).
 const AFTER: Array<[string, string, string, IconName]> = [
   ["Then, if you need them", "An outline for powerful visuals", "One idea per slide, with a brief and a prompt for your own AI tool.", "slides"],
-  ["Finally", "Rehearse it into life", "Speaker notes, and the words in full. Say it out loud, with your slides, before you present.", "acts"],
+  ["Finally", "Rehearse it into life", "Speaker notes, and the words in full. Say it out loud, with your slides, before you present.", "mic"],
 ];
 
 const KINDS: Array<[string, IconName]> = [
@@ -282,7 +283,6 @@ const KINDS: Array<[string, IconName]> = [
   ["Strategy recommendation", "strategy"],
   ["Sales pitch", "pitch"],
   ["Choosing between options", "options"],
-  ["Training session", "training"],
   ["Conference keynote", "mic"],
   ["Scientific presentation", "science"],
   ["Bad news", "badnews"],

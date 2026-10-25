@@ -64,7 +64,7 @@ export async function renderDocx(title: string, story: Story, landing: Landing |
   if (story.hero?.obstacle) out.push(label("What stands in the way", story.hero.obstacle));
   out.push(label("What they need to hear", story.audience.needToHear));
   out.push(label("What to leave out", story.audience.doNotNeedToHear));
-  out.push(h2("What you want your presentation to do"));
+  out.push(h2("What you want your audience to do as a result of your presentation to them"));
   out.push(p(story.intent));
   out.push(h2("Your argument"));
   out.push(p(story.argument));
@@ -158,7 +158,7 @@ export async function renderDocx(title: string, story: Story, landing: Landing |
     // ---- 5 Word for word ----
     section(
       "Word for word",
-      "Read these aloud to hear whether they sound like you, and change any word that does not. If you must read on the day, read only the Prologue and the Epilogue. The acts are yours to tell."
+      "Read these aloud to hear whether they sound like you, and change any word that does not. Learn the Prologue and the Epilogue by heart. Tell the acts in your own words."
     );
     for (const [name, text] of [
       ["Prologue", landing.prologue],

@@ -136,7 +136,7 @@ export function SignIn({ compact, title, body, next, programme, onSignedIn }: { 
           </button>
         </form>
         {error && <p className="mt-2 text-sm text-red">{error}</p>}
-        <p className="mt-3 text-sm text-muted">Your story comes with you either way. Nothing arrived after a minute? Look in your spam folder or click Send it again.</p>
+        <p className="mt-3 text-sm text-muted">Nothing arrived after a minute? Look in your spam folder or click Send it again.</p>
         <button type="button" onClick={() => { setSent(false); setCode(""); setError(null); }} className="mt-3 text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink">
           Send it again
         </button>

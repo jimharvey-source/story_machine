@@ -11,7 +11,7 @@ import { clearPendingProgramme, normaliseCode, readPendingProgramme, savePending
 import { StoriesPanel } from "@/components/Stories";
 import { Lockup } from "@/components/Logo";
 import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "@/lib/ownIt";
-import { KIND_KEYS, KINDS, kindOf, type Kind } from "@/lib/kinds";
+import { FORM_KINDS, KINDS, kindOf, type Kind } from "@/lib/kinds";
 import Progress from "@/components/Progress";
 import { BLANK_KEYS, KEY_QUESTIONS, composeAnswers, minutesFrom, splitAnswers } from "@/lib/keyQuestions";
 import { Rehearse, Slides } from "@/components/Pack";
@@ -60,7 +60,7 @@ function normaliseStory(s: Story): Story {
 }
 
 /** A numbered step on the form: the number, the step's name, one line on what to do. */
-function StepHead({ n, title, sub }: { n: number; title: string; sub: string }) {
+function StepHead({ n, title, sub }: { n: number; title: string; sub: React.ReactNode }) {
   return (
     <div className="flex items-start gap-3">
       <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red text-sm font-semibold text-paper">{n}</span>
@@ -313,7 +313,7 @@ export default function Build() {
           d.register === "conversational"
         )
           setRegister(d.register);
-        if (typeof d.kind === "string" && (KIND_KEYS as readonly string[]).includes(d.kind)) setKind(d.kind as Kind);
+        if (typeof d.kind === "string" && (FORM_KINDS as readonly string[]).includes(d.kind)) setKind(d.kind as Kind);
       } catch {
         // storage unavailable; carry on
       } finally {
@@ -961,12 +961,11 @@ export default function Build() {
       {!story && (
         <section className="panel space-y-10">
           <div>
-            <h1 className="display text-3xl leading-[1.05] sm:text-4xl">Start with your audience.</h1>
+            <h1 className="display text-3xl leading-[1.05] sm:text-4xl">Start with the key questions.</h1>
             <p className="mt-3 max-w-2xl text-ink-2">
               Answer some questions about your presentation, your audience, your objective and your message. Add any
               relevant material. StoryMachine builds the story, start to finish.
-              {me && !me.signedIn && " Your first story is free. Just your email, no credit card."}{" "}
-              <Link href="/guide" className="underline decoration-rule underline-offset-4 hover:text-ink">User Guide</Link>
+              {me && !me.signedIn && " Your first story is free. Just your email, no credit card."}
             </p>
           </div>
 
@@ -979,7 +978,7 @@ export default function Build() {
             <fieldset className="text-sm">
               <legend className="font-medium text-ink">What kind of presentation is it?</legend>
               <div className="mt-2 flex flex-wrap gap-2">
-                {KIND_KEYS.map((k) => (
+                {FORM_KINDS.map((k) => (
                   <span key={k} className="group relative">
                     <button
                       type="button"
@@ -1081,7 +1080,7 @@ export default function Build() {
               </button>
               <span>
                 Choose up to ten at once. Your documents stay on your computer: only the words are read. The one exception is a photo or
-                screenshot, which goes to our servers, is read, and is then deleted. You can also paste a screenshot into the box.
+                screenshot, which goes to our servers, is read, and is then deleted. You can also paste a photo or screenshot into the box.
               </span>
               <input
                 ref={fileRef}
@@ -1102,7 +1101,7 @@ export default function Build() {
               sub={
                 signedIn
                   ? "Press the button. If something important is still open, StoryMachine asks you up to two more questions. Then the whole story arrives."
-                  : "Press Find my story and enter your email. We send you a six-digit code to type here. Then you get the complete story for your presentation, to edit and refine. Everything you have typed stays on this page."
+                  : <>Press <strong className="font-semibold text-ink">Find my story</strong> and enter your email. We will send you a six-digit code to type here. Then you get the complete story for your presentation, to edit and refine. Everything you have typed stays on this page.</>
               }
             />
 
@@ -1220,18 +1219,16 @@ export default function Build() {
             Back to your story
           </button>
           <div>
-            <p className="eyebrow">Your slides, then rehearsal</p>
+            <p className="eyebrow">Your slides</p>
             <h1 className="display mt-2 text-3xl leading-[1.05] sm:text-4xl">If you need them, add slides.</h1>
             <p className="mt-3 max-w-2xl text-ink-2">
-              You have done the important work. If you think slides can support your story rather than replace it, you can
-              now create them. You have three options:
+              If you think slides can support your story rather than replace it, you can now create them. You have three options:
             </p>
             <ol className="mt-3 max-w-2xl list-decimal space-y-1 pl-5 text-ink-2">
               <li>Download the PowerPoint outline and work from that.</li>
               <li>Follow the slide brief below and build your slides from that.</li>
               <li>Copy the prompt at the bottom of this page and paste it into your preferred AI tool.</li>
             </ol>
-            <p className="mt-3 max-w-2xl text-ink-2">Then rehearse it into life, with your speaker notes at the foot of this page.</p>
             <p className="said mt-4 text-xl text-ink">{story.bigIdea}</p>
           </div>
           <div className="flex flex-wrap items-center gap-4">
@@ -1244,7 +1241,7 @@ export default function Build() {
             >
               {busy === "export-pptx" ? "Making the outline..." : "Download the PowerPoint outline"}
             </button>
-            <span className="text-sm text-muted">Story-led headlines, ready for your own template. Add the images, data and detail.</span>
+            <span className="text-sm text-muted">Story-led headlines, ready for your own template. Add images, data and detail.</span>
             {pdf && !busy?.startsWith("export") && (
               <a href={pdf.url} download={pdf.name} className="text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink">
                 Nothing downloaded? Save {pdf.name}
@@ -1280,8 +1277,8 @@ export default function Build() {
           )}
           {/* John's line (draft 5): say at once that this is a draft, and how to change it. */}
           <p className="max-w-2xl text-ink-2">
-            Below is the first draft of your story. Click any text in a box to change it as you like. For many lines you can
-            also ask StoryMachine to make it clearer, sharper or simpler.
+            Below is the first draft of your story. Click any text in a box to change it as often as you like. In many places
+            you can also ask StoryMachine to make it clearer, sharper or simpler.
           </p>
           {/* The story page follows the PDF (21 October): three sections, with a contents bar that stays in view. */}
           <nav aria-label="Your story" className="sticky top-0 z-20 -mx-2 flex flex-wrap gap-x-5 gap-y-1 border-b border-rule bg-paper-2/95 px-2 py-3 text-sm backdrop-blur">
@@ -1302,7 +1299,7 @@ export default function Build() {
             <SectionHead
               n={1}
               title="Your audience and your argument"
-              intro="These are the foundations of your story. Check them first: if one is wrong, everything built on it will be too. Click any line to change it."
+              intro="These are the foundations of your story. Check them first. If one is wrong, everything built on it will be too. Click any line to change it."
             />
             <div>
               <SubHead title="Your audience analysis" about="Who is in the room, and what they need from you. A message for everyone lands with no one." />
@@ -1329,7 +1326,7 @@ export default function Build() {
               </div>
             </div>
             <div className="border-t border-rule pt-8">
-              <SubHead title="What you want your presentation to do" about="Your statement of intent. If you can't finish the sentence, the presentation is not ready." />
+              <SubHead title="What you want your audience to do as a result of your presentation to them" about="Your statement of intent. If you can't finish the sentence, the presentation is not ready." />
               <Editable
                 value={story.intent}
                 busy={busy === "intent"}
@@ -1379,7 +1376,7 @@ export default function Build() {
               }
             />
             <div>
-              <SubHead title="Your Big Idea" about="The one line people repeat in the corridor afterwards. Your whole presentation rests on it." />
+              <SubHead title="Your Big Idea" about="The one line people repeat in the corridor afterwards. Everything in the three-act story builds to deliver it clearly and confidently." />
               <Editable
                 as="h2"
                 value={story.bigIdea}
@@ -1558,7 +1555,7 @@ export default function Build() {
                   </li>
                 ))}
               </ul>
-              <Why>The machine never invents. Where your notes were silent, it asks.</Why>
+              <Why>StoryMachine never invents. Where your notes were silent, it asks.</Why>
             </div>
 
             {landing && (busy === "rhetoric" || hasRhetoric(rhetoric) || storyId) && (
@@ -1602,10 +1599,13 @@ export default function Build() {
             <section id="s-finished" className="scroll-mt-20 rounded-md bg-ink px-6 py-8 text-paper sm:px-10 sm:py-10">
               <h2 className="display mt-2 text-3xl leading-tight">Congratulations, you&apos;ve finished your story.</h2>
               <p className="mt-3 max-w-2xl text-paper/80">
-                You have done the hard work. Download it as a PDF or a Word file below. Next come the slides: StoryMachine
-                gives you a slide brief, a PowerPoint outline and a prompt for your own AI tool. Then rehearse it into life
-                from your speaker notes.
+                You have done the hard work. Download your story as a PDF or a Word file below.
               </p>
+              <p className="mt-3 max-w-2xl text-paper/80">
+                Next come the slides: StoryMachine gives you a slide brief, a PowerPoint outline and a prompt for your own AI
+                tool. Choose whatever works best for you.
+              </p>
+              <p className="mt-3 max-w-2xl text-paper/80">Then rehearse it into life from your speaker notes.</p>
               <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
                 <button
                   type="button"

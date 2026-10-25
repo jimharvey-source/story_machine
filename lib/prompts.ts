@@ -1,7 +1,7 @@
 // The system prompts are the product. Copy changes here change what users get.
 // Rules that must be true of the output are also enforced in lib/voice.ts.
 
-import { KIND_KEYS, KINDS, type Kind } from "./kinds";
+import { FORM_KINDS, KINDS, type Kind } from "./kinds";
 
 const CORE = `You are Jim Harvey's StoryMachine.
 
@@ -110,16 +110,16 @@ Act 3: ${d.act3}
 Epilogue: ${d.epilogue}${rule ? `\n${rule}` : ""}`;
 }
 
-/** The structure block for the system prompt. With no kind, the model chooses from all seven. */
+/** The structure block for the system prompt. With no kind, the model chooses from the form kinds. */
 function structureBlock(kind: Kind | null): string {
   if (kind) {
     return `The kind of presentation: ${KINDS[kind].label}. Set "kind" to "${kind}". Every part keeps its place; this is the job each one does.
 
 ${kindBlock(kind)}`;
   }
-  return `The kind of presentation: the presenter has not said. Read the material, the audience and the intent, and choose the likeliest of the nine kinds below. Set "kind" to it and give every part that kind's job. If none fits well, choose "other".
+  return `The kind of presentation: the presenter has not said. Read the material, the audience and the intent, and choose the likeliest of the eight kinds below. Set "kind" to it and give every part that kind's job. If none fits well, choose "other".
 
-${KIND_KEYS.map(kindBlock).join("\n\n")}`;
+${FORM_KINDS.map(kindBlock).join("\n\n")}`;
 }
 
 /** Where the ask goes, for stage one: Act 3, for every kind. */

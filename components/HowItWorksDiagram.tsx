@@ -16,11 +16,11 @@ const SUNK = "#efeeeb";
 const SOFT = "#f7e8e6";
 const RULE = "#d9d6d0";
 
-const INPUTS = ["Your notes", "Old slides and decks", "Reports and papers", "Photos and screenshots", "Who is in the room"];
+const INPUTS = ["Your notes and ideas", "Old slides", "Reports and papers", "Photos and screenshots"];
 const OUTPUTS = [
   "Your Big Idea",
   "A three-act story",
-  "A strong start in 60 seconds",
+  "A strong start",
   "A clear, confident ending",
   "Speaker notes",
   "More powerful language",
@@ -30,7 +30,7 @@ const STEP_2 = ["Sharpen every element", "of your presentation", "until it’s p
 
 // Geometry, in the drawing's own units (1488 x 470), taken from the canvas.
 const CY = 225;
-const IN_Y = [73, 149, 225, 301, 377];
+const IN_Y = [111, 187, 263, 339];
 const OUT_Y = [60, 126, 192, 258, 324, 390];
 const IN_X = 0; // input cards 0..280
 const BUS_IN = 328;
@@ -129,16 +129,15 @@ function Dot({ route, fill, begin, dur }: { route: string; fill: string; begin: 
 // The phone layout, in its own units (360 wide). Two columns of cards either side of a spine at x = 180.
 const P = { L: [0, 156], R: [204, 360], SPINE: 180 };
 const P_IN: Array<{ lines: string[]; col: 0 | 1; y: number }> = [
-  { lines: ["Your notes"], col: 0, y: 66 },
-  { lines: ["Old slides", "and decks"], col: 1, y: 66 },
-  { lines: ["Reports", "and papers"], col: 0, y: 124 },
-  { lines: ["Photos and", "screenshots"], col: 1, y: 124 },
-  { lines: ["Who is in", "the room"], col: 0, y: 182 },
+  { lines: ["Your notes", "and ideas"], col: 0, y: 96 },
+  { lines: ["Old slides"], col: 1, y: 96 },
+  { lines: ["Reports", "and papers"], col: 0, y: 154 },
+  { lines: ["Photos and", "screenshots"], col: 1, y: 154 },
 ];
 const P_OUT: Array<{ lines: string[]; col: 0 | 1; y: number }> = [
   { lines: ["Your Big Idea"], col: 0, y: 662 },
   { lines: ["A three-act story"], col: 1, y: 662 },
-  { lines: ["A strong start", "in 60 seconds"], col: 0, y: 720 },
+  { lines: ["A strong start"], col: 0, y: 720 },
   { lines: ["A clear, confident", "ending"], col: 1, y: 720 },
   { lines: ["Speaker notes"], col: 0, y: 778 },
   { lines: ["More powerful", "language"], col: 1, y: 778 },
@@ -175,7 +174,7 @@ function PhoneDiagram({ play }: { play: boolean }) {
       viewBox="-2 0 364 812"
       className="block w-full md:hidden"
       role="img"
-      aria-label="Input everything you've got: your notes, old slides and decks, reports and papers, photos and screenshots, and who is in the room. Answer a few simple questions about your audience and your goal. StoryMachine. Sharpen every element of your presentation until it's perfect. Output a fully worked presentation: your Big Idea, a three-act story, a strong start in 60 seconds, a clear, confident ending, speaker notes and more powerful language."
+      aria-label="Input everything you've got: your notes and ideas, old slides, reports and papers, photos and screenshots. Answer a few simple questions about your audience and your goal. StoryMachine. Sharpen every element of your presentation until it's perfect. Output a fully developed presentation: your Big Idea, a three-act story, a strong start, a clear, confident ending, speaker notes and more powerful language."
       style={{ fontFamily: "'Instrument Sans', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" }}
     >
       <defs>
@@ -223,7 +222,7 @@ function PhoneDiagram({ play }: { play: boolean }) {
         </svg>
         <text x={P.SPINE} y={P_HUB.cy + P_HUB.r + 24} textAnchor="middle" fontSize={12.5} fill={MUTED}>Jim Harvey&rsquo;s</text>
         <text x={P.SPINE} y={P_HUB.cy + P_HUB.r + 50} textAnchor="middle" fontSize={24} fontWeight={600} fill={INK} letterSpacing="-0.02em">StoryMachine</text>
-        <text x={P.SPINE} y={P_HUB.cy + P_HUB.r + 74} textAnchor="middle" fontSize={16} fill={INK} style={{ fontFamily: "Fraunces, Georgia, serif" }}>Story first. Then slides.</text>
+        <text x={P.SPINE} y={P_HUB.cy + P_HUB.r + 74} textAnchor="middle" fontSize={16} fill={INK} style={{ fontFamily: "Fraunces, Georgia, serif" }}>Story first.</text>
       </g>
 
       <g className="hiw-pop" style={{ ["--d" as string]: "2.1s" }}>
@@ -233,7 +232,7 @@ function PhoneDiagram({ play }: { play: boolean }) {
       </g>
 
       <text x={180} y={P_S2.bottom + 31} textAnchor="middle" fontSize={15} fontWeight={600} fill={RED} className="hiw-fade" style={{ ["--d" as string]: "2.5s", ...label }}>
-        Output a fully worked presentation
+        Output a fully developed presentation
       </text>
 
       {P_OUT.map((c, i) => (
@@ -275,7 +274,7 @@ export function HowItWorksDiagram() {
           viewBox="-8 -40 1504 520"
           className="hidden w-full md:block"
           role="img"
-          aria-label="Input everything you've got: your notes, old slides and decks, reports and papers, photos and screenshots, and who is in the room. Answer a few simple questions about your audience and your goal. StoryMachine. Sharpen every element of your presentation until it's perfect. Output a fully worked presentation: your Big Idea, a three-act story, a strong start in 60 seconds, a clear, confident ending, speaker notes and more powerful language."
+          aria-label="Input everything you've got: your notes and ideas, old slides, reports and papers, photos and screenshots. Answer a few simple questions about your audience and your goal. StoryMachine. Sharpen every element of your presentation until it's perfect. Output a fully developed presentation: your Big Idea, a three-act story, a strong start, a clear, confident ending, speaker notes and more powerful language."
           style={{ fontFamily: "'Instrument Sans', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" }}
         >
           <defs>
@@ -290,7 +289,7 @@ export function HowItWorksDiagram() {
             Input everything you&rsquo;ve got
           </text>
           <text x={1488} y={-14} textAnchor="end" fontSize={16} fontWeight={600} fill={RED} className="hiw-fade" style={{ ["--d" as string]: "2.3s" }}>
-            Output a fully worked presentation
+            Output a fully developed presentation
           </text>
 
           {/* Lines first, so cards sit over their ends */}
@@ -343,7 +342,7 @@ export function HowItWorksDiagram() {
               StoryMachine
             </text>
             <text x={HUB.cx} y={CY + HUB.r + 112} textAnchor="middle" fontSize={21} fill={INK} style={{ fontFamily: "Fraunces, Georgia, serif" }}>
-              Story first. Then slides.
+              Story first.
             </text>
           </g>
 

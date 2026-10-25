@@ -204,7 +204,7 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
     row("What they need to hear", story.audience.needToHear);
     row("What to leave out", story.audience.doNotNeedToHear);
     thinRule();
-    subhead("What you want your presentation to do", "Your statement of intent: what the audience will do as a result.");
+    subhead("What you want your audience to do as a result of your presentation to them", "Your statement of intent. If you can't finish the sentence, the presentation is not ready.");
     text(story.intent, font.sans, 11.5, INK);
     thinRule();
     subhead("Your argument", "Your case in one sentence. Everything in the three acts supports it.");
@@ -229,7 +229,7 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
         ? "The talk from the first word to the last. Words set in this typeface are for saying aloud."
         : "Your Big Idea and the three acts. Add interest and impact in StoryMachine to get the opening, the signposts and the ending."
     );
-    subhead("Your Big Idea", "The one line people repeat in the corridor afterwards. Your whole presentation rests on it.");
+    subhead("Your Big Idea", "The one line people repeat in the corridor afterwards. Everything in the three-act story builds to deliver it clearly and confidently.");
     text(story.bigIdea, font.display, 24, INK, { lineGap: 4 });
     gap(18);
 
@@ -405,7 +405,7 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
         "words",
         "Word for word",
         "The spoken parts in full, for rehearsal.",
-        "Read these aloud to hear whether they sound like you, and change any word that does not. If you must read on the day, read only the Prologue and the Epilogue. The acts are yours to tell."
+        "Read these aloud to hear whether they sound like you, and change any word that does not. Learn the Prologue and the Epilogue by heart. Tell the acts in your own words."
       );
       const script: Array<[string, string]> = [
         ["Prologue", landing.prologue],

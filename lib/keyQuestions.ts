@@ -24,7 +24,7 @@ export const KEY_QUESTIONS: KeyQuestion[] = [
     field: "audience",
     tag: "Who they are and what matters to them",
     question: "Who is the audience, and why does it matter to them?",
-    hint: "For example: the executive committee, eight people, sceptical about cost, who care most about total pipeline value. What do they already know about the topic, and where do they stand on it?",
+    hint: "For example: the executive committee, eight people who are sceptical about any expense and who care most about total pipeline value. What do they already know about the topic, and where do they stand on it?",
   },
   {
     field: "intent",

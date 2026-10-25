@@ -7,6 +7,13 @@
 export const KIND_KEYS = ["progress", "strategy", "sales", "decision", "training", "keynote", "science", "badnews", "other"] as const;
 export type Kind = (typeof KIND_KEYS)[number];
 
+/**
+ * The kinds offered on the form and to the model when it chooses. Training session is held back for launch
+ * (Jim and John, 25 October): a six-hour training day came back as a three-act talk. Workshops are a different job.
+ * The training kind stays in KIND_KEYS so older stories made with it still open, print and edit.
+ */
+export const FORM_KINDS = KIND_KEYS.filter((k) => k !== "training");
+
 export type KindInfo = {
   /** The button label. */
   label: string;
@@ -71,7 +78,7 @@ export const KINDS: Record<Kind, KindInfo> = {
     prologue: "The choice ahead and why it matters now.",
     act1: "The problem or opportunity ahead, and the criteria for a good decision.",
     act2: "Each option, with its costs and benefits measured against the criteria.",
-    act3: "The decision required, the recommendation if one is wanted, who decides, by when and how.",
+    act3: "The decision required, the recommendation if needed, who decides, by when and how.",
     epilogue: "The criteria and the best option recapped, the decision and its first step, and the Big Idea last.",
   },
   training: {
