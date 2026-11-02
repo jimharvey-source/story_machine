@@ -10,8 +10,8 @@ import { LICENCE, METHOD, SIGN_OFF } from "./method";
 
 // The story PDF, redesigned 21 October 2026 (Jim's notes on the PDF of "Trust is the real deliverable.").
 // Page 1 says what the document is and how to use it, with a contents list that links to each section.
-// Then: 1 Your audience and your argument; 2 Your presentation; 3 Suggestions from StoryMachine;
-// 4 Speaker notes; 5 Word for word; 6 How this was made. Story, slides, rehearsal: the slides are made on the
+// Then: 1 Your audience and your argument; 2 Your presentation (with timing, and rhetoric suggestions under their lines);
+// 3 Suggestions from StoryMachine (gaps, then advice); 4 Rehearse it into life (five lines, notes); 5 How this was made. Story, slides, rehearsal: the slides are made on the
 // slides page, so the PDF sends people there before the speaker notes.
 // Type follows the design system: Instrument Sans for everything written, Fraunces for words said aloud.
 
@@ -48,7 +48,16 @@ function loadFonts(): Record<keyof typeof F, Buffer> | null {
 
 type Section = { id: string; title: string; about: string; page: number };
 
-export function renderPdf(title: string, story: Story, landing: Landing | null, rhetoric: Rhetoric | null): Promise<Buffer> {
+// Speaking pace for every timing in the PDF, the same as the prompts use to fit the story to the slot.
+const WPM = 130;
+
+export function renderPdf(
+  title: string,
+  story: Story,
+  landing: Landing | null,
+  rhetoric: Rhetoric | null,
+  minutes: number | null = null,
+): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({
       size: "A4",
@@ -105,8 +114,16 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
     const sections: Section[] = [];
     let sectionNo = 0;
     // A section opens on a new page with its number, a large title and one line on what it is for.
+    // Since 2 November a section starts a new page only when less than half the page is left, so the PDF has no
+    // half-empty pages. Section 1 always starts on page 2: page 1 is the cover and contents.
     const openSection = (id: string, sectionTitle: string, about: string, intro?: string) => {
-      doc.addPage();
+      const usable = bottom() - doc.page.margins.top;
+      if (sectionNo === 0 || bottom() - doc.y < usable * 0.5) doc.addPage();
+      else {
+        gap(26);
+        doc.moveTo(L, doc.y).lineTo(L + W, doc.y).lineWidth(1.2).strokeColor(INK).stroke();
+        gap(22);
+      }
       sectionNo += 1;
       sections.push({ id, title: sectionTitle, about, page: pageIndex() });
       doc.addNamedDestination(id);
@@ -140,7 +157,7 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
     // Label on the left, words on the right: for the audience analysis and the five lines.
     const row = (k: string, v: string, f = font.sans, size = 10.5) => {
       const lw = 118;
-      const h = Math.max(heightOf(v, f, size, W - lw), 12);
+      const h = Math.max(heightOf(v, f, size, W - lw), heightOf(k, font.bold, 8.5, lw - 12), 12);
       keep(h + 8);
       const y = doc.y;
       doc.font(font.bold).fontSize(8.5).fillColor(MUTED).text(k, L, y + 2, { width: lw - 12 });
@@ -161,7 +178,7 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
     const words = (t: string) => t.trim().split(/\s+/).filter(Boolean).length;
     const timing = (t: string) => {
       const n = words(t);
-      const secs = Math.round((n / 140) * 60);
+      const secs = Math.round((n / WPM) * 60);
       return `${n} words, about ${secs < 60 ? `${secs} seconds` : `${Math.round(secs / 60)} minute${secs >= 90 ? "s" : ""}`} spoken`;
     };
     const small = (t: string, colour = MUTED) => {
@@ -190,6 +207,29 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
 
     // ---- Page 1 is reserved for the cover and contents, written last when the page numbers are known. ----
 
+    // ---- Rhetoric suggestions sit under the line they improve (2 November: the reader no longer flips pages) ----
+    const sugg = (rhetoric?.suggestions ?? []).filter((s) => s.path && cleanLine(s.better));
+    const usedPaths = new Set<string>();
+    const suggest = (path: string) => {
+      for (const s of sugg.filter((x) => x.path === path || x.path === `landing.${path}`)) {
+        usedPaths.add(s.path as string);
+        const better = cleanLine(s.better);
+        const what = `${s.device}. ${s.what ?? ""}`.trim();
+        keep(heightOf(better, font.said, 11.5, W - 14) + heightOf(what, font.sans, 9.5, W - 14) + 44);
+        gap(6);
+        const y0 = doc.y;
+        text("Add power to your words. For example, you could say this:", font.bold, 8.5, RED, {}, L + 14, W - 14);
+        gap(3);
+        text(`“${better}”`, font.said, 11.5, INK, {}, L + 14, W - 14);
+        gap(3);
+        doc.font(font.bold).fontSize(9.5).fillColor(INK).text(`${s.device}.`, L + 14, doc.y, { width: W - 14, continued: true, lineGap: 3 });
+        doc.font(font.sans).fillColor(INK2).text(` ${s.what ?? ""}`);
+        doc.x = L;
+        doc.rect(L, y0, 2, doc.y - y0).fillColor(RED).fill();
+        gap(10);
+      }
+    };
+
     // ---- Section 1: Your audience and your argument ----
     openSection(
       "audience",
@@ -209,16 +249,6 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
     thinRule();
     subhead("Your argument", "Your case in one sentence. Everything in the three acts supports it.");
     text(story.argument, font.sans, 11.5, INK);
-    if (landing) {
-      thinRule();
-      const five = [landing.fiveLineStory.prologue, landing.fiveLineStory.why, landing.fiveLineStory.how, landing.fiveLineStory.what, landing.fiveLineStory.epilogue];
-      subhead("Your story in five lines", "The whole talk in 30 seconds. If it works here, it will work in the room.", 50 + five.reduce((n, t) => n + heightOf(t, font.said, 11.5, W - 118) + 8, 0));
-      row("Prologue", landing.fiveLineStory.prologue, font.said, 11.5);
-      row(`Act 1: ${acts[0]}`, landing.fiveLineStory.why, font.said, 11.5);
-      row(`Act 2: ${acts[1]}`, landing.fiveLineStory.how, font.said, 11.5);
-      row(`Act 3: ${acts[2]}`, landing.fiveLineStory.what, font.said, 11.5);
-      row("Epilogue", landing.fiveLineStory.epilogue, font.said, 11.5);
-    }
 
     // ---- Section 2: Your presentation ----
     openSection(
@@ -226,11 +256,12 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
       "Your presentation",
       "Your Big Idea and the talk itself: Prologue, three acts and Epilogue.",
       landing
-        ? "The talk from the first word to the last. Words set in this typeface are for saying aloud."
+        ? "The talk from the first word to the last. Words set in this typeface are for saying aloud. Where a line could carry more power, a suggestion in red sits under it."
         : "Your Big Idea and the three acts. Add interest and impact in StoryMachine to get the opening, the signposts and the ending."
     );
     subhead("Your Big Idea", "The one line people repeat in the corridor afterwards. Everything in the three-act story builds to deliver it clearly and confidently.");
     text(story.bigIdea, font.display, 24, INK, { lineGap: 4 });
+    suggest("bigIdea");
     gap(18);
 
     // The speech structure: five boxes, each a link to its part.
@@ -257,6 +288,26 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
       doc.y = top + 50 + 22;
     }
 
+    // Your timing: the scripted parts measured, the rest of the slot shared between the acts (2 November).
+    if (landing) {
+      const scripted = [landing.prologue, landing.why.signpost, landing.how.signpost, landing.what.signpost, landing.epilogue];
+      const secs = (scripted.reduce((n, t) => n + words(t), 0) / WPM) * 60;
+      const mins = (m: number) => {
+        const r = Math.max(0.5, Math.round(m * 2) / 2);
+        return `${r % 1 ? r.toFixed(1) : r} minute${r === 1 ? "" : "s"}`;
+      };
+      subhead("Your timing", minutes ? `Built for ${minutes} minutes, not counting questions.` : "How long the scripted parts take to say, at an easy speaking pace.", 110);
+      row("Prologue, signposts and Epilogue", `About ${secs < 90 ? `${Math.round(secs)} seconds` : mins(secs / 60)}, word for word.`);
+      if (minutes) {
+        const left = Math.max(0, minutes - secs / 60);
+        row("The three acts", `About ${mins(left)} between them: roughly ${mins(left / 3)} each.`);
+        row("In all", `${minutes} minutes. Time yourself in rehearsal and cut evidence, never the Prologue or the Epilogue.`);
+      } else {
+        row("The three acts", "The rest of your time. Give each act about a third of it.");
+      }
+      gap(10);
+    }
+
     // A part heading never sits alone at the foot of a page: it keeps the start of what follows with it.
     const partHead = (id: string, name: string, about: string, next = 60) => {
       keep(70 + Math.min(next, 320));
@@ -272,6 +323,7 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
       partHead("prologue", "Prologue", "The first 30 to 60 seconds, to grab your audience's attention. State the Big Idea, say why it matters now, and tell them what you need from them.", heightOf(landing.prologue, font.said, 12.5, W - 20) + 20);
       said(landing.prologue);
       small(timing(landing.prologue));
+      suggest("landing.prologue");
       gap(6);
     }
 
@@ -288,20 +340,24 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
       if (landing) {
         label(`Your signpost that introduces Act ${i + 1}`, RED);
         said(landing[key].signpost, 11.5);
+        suggest(`landing.${key}.signpost`);
         gap(12);
       }
       keep(heightOf(act.headline, font.bold, 13.5) + 20);
       label("Headline");
       text(act.headline, font.bold, 13.5, INK);
+      suggest(`${key}.headline`);
       gap(10);
       keep(heightOf(act.coreMessage, font.sans, 10.5) + 20);
       label("What it means");
       text(act.coreMessage, font.sans, 10.5, INK);
+      suggest(`${key}.coreMessage`);
       gap(10);
       keep(60);
       const fromNotes = act.soundbite.source === "material";
       label(fromNotes ? "Soundbite: from your notes" : "Soundbite: our suggestion. Put it in your own words.", fromNotes ? RED : MUTED);
       text(`“${act.soundbite.text}”`, font.said, 13, INK);
+      suggest(`${key}.soundbite.text`);
       gap(10);
       if (act.supportingPoints.length) {
         keep(50);
@@ -314,6 +370,7 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
       partHead("epilogue", "End with certainty: your Epilogue", "Recap your headlines and the actions from here. Send them away with your message ringing in their ears.", heightOf(landing.epilogue, font.said, 12.5, W - 20) + 20);
       said(landing.epilogue);
       small(timing(landing.epilogue));
+      suggest("landing.epilogue");
     }
     const hasFigures = /\d/.test(JSON.stringify([story.why, story.how, story.what]));
     if (hasFigures) {
@@ -326,35 +383,44 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
     openSection(
       "suggestions",
       "Suggestions from StoryMachine",
-      "How to make the first draft stronger, and make it your own.",
+      "The gaps only you can fill, and what to do before you rehearse.",
       "This is a first draft. Here's how we think you can make the message even stronger."
     );
-    const ownIt = [...(landing ? landing.gaps : story.gaps), ...ownItAdvice(story, landing)];
-    subhead("Make it your own", OWN_IT_LEAD, 120);
-    // A tick box beside each one, for the printed copy.
-    for (const it of ownIt) {
-      const h = heightOf(it, font.sans, 10.5, W - 26);
-      keep(h + 10);
-      const y = doc.y;
-      doc.roundedRect(L, y + 1.5, 10, 10, 2).lineWidth(0.9).strokeColor(RED).stroke();
-      doc.font(font.sans).fontSize(10.5).fillColor(INK).text(it, L + 22, y, { width: W - 22, lineGap: 3 });
-      doc.x = L;
-      gap(9);
+    const tick = (items: string[]) => {
+      for (const it of items) {
+        const h = heightOf(it, font.sans, 10.5, W - 26);
+        keep(h + 10);
+        const y = doc.y;
+        doc.roundedRect(L, y + 1.5, 10, 10, 2).lineWidth(0.9).strokeColor(RED).stroke();
+        doc.font(font.sans).fontSize(10.5).fillColor(INK).text(it, L + 22, y, { width: W - 22, lineGap: 3 });
+        doc.x = L;
+        gap(9);
+      }
+    };
+    const gapsList = landing ? landing.gaps : story.gaps;
+    if (gapsList.length) {
+      subhead("Make it your own: fill these gaps", "What your material does not say. Only you can supply these.", 100);
+      tick(gapsList);
+      thinRule();
     }
+    subhead("Before you rehearse", OWN_IT_LEAD, 100);
+    tick(ownItAdvice(story, landing));
 
-    if (landing && hasRhetoric(rhetoric)) {
+    // Any suggestion whose line is not printed in section 2 still has a home.
+    const leftover = sugg.filter((s) => !usedPaths.has(s.path as string));
+    if (landing && hasRhetoric(rhetoric) && leftover.length) {
       thinRule();
       subhead(RHETORIC_TITLE, RHETORIC_LEAD, 140);
-      const where = (p?: string, w?: string) => pathLabel(p, story.kind) || w || "";
-      for (const s of rhetoric.suggestions.filter((x) => cleanLine(x.better))) {
+      for (const s of leftover) {
+        const better = cleanLine(s.better);
         const what = `${s.device}. ${s.what ?? ""}`.trim();
-        keep(heightOf(s.better, font.said, 11.5, W - 12) + heightOf(what, font.sans, 9.5, W - 12) + 56);
+        keep(heightOf(better, font.said, 11.5, W - 12) + heightOf(what, font.sans, 9.5, W - 12) + 56);
         const y0 = doc.y;
-        text(where(s.path, s.where), font.bold, 9, MUTED, {}, L + 12, W - 12);
+        text(pathLabel(s.path, story.kind) || s.where || "", font.bold, 9, MUTED, {}, L + 12, W - 12);
         gap(4);
         text("For example, you could say this:", font.sans, 9.5, INK2, {}, L + 12, W - 12);
         gap(3);
-        text(`“${s.better}”`, font.said, 11.5, INK, {}, L + 12, W - 12);
+        text(`“${better}”`, font.said, 11.5, INK, {}, L + 12, W - 12);
         gap(4);
         doc.font(font.bold).fontSize(9.5).fillColor(INK).text(`${s.device}.`, L + 12, doc.y, { width: W - 12, continued: true, lineGap: 3 });
         doc.font(font.sans).fillColor(INK2).text(` ${s.what ?? ""}`);
@@ -362,71 +428,74 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
         doc.rect(L, y0, 2, doc.y - y0).fillColor(RED).fill();
         gap(12);
       }
-      text("To use a line, edit it into your story in StoryMachine, or press Use this line under it.", font.sans, 8.5, MUTED);
     }
 
     if (landing) {
-      // ---- Section 4: Speaker notes ----
+      // ---- Section 4: Rehearse it into life (2 November: speaker notes and word for word in one place) ----
       const notes = landing.speechNotes;
-      const beats: Array<[string, string[], string]> = [
-        ["Prologue", notes.prologue, "The first minute"],
-        [`Act 1: ${acts[0]}`, notes.why, story.why.headline],
-        [`Act 2: ${acts[1]}`, notes.how, story.how.headline],
-        [`Act 3: ${acts[2]}`, notes.what, story.what.headline],
-        ["Epilogue", notes.epilogue, "End with certainty"],
-      ];
-      if (beats.some(([, cues]) => cues.length > 0)) {
-        openSection(
-          "notes",
-          "Speaker notes",
-          "The cues to rehearse from, once your slides are made.",
-          "Story first, then slides, then rehearsal. Make your slides on the StoryMachine slides page, then rehearse from these notes. Speak from them, never from a script: each cue reminds you what comes next, and the words come from you in the room, so they sound like you."
-        );
-        for (const [name, cues, sub] of beats) {
-          keep(40 + cues.length * 24);
-          text(name, font.bold, 12, RED);
-          gap(2);
-          text(sub, font.sans, 9, MUTED);
-          gap(8);
-          for (const cue of cues) {
-            keep(24);
-            const y = doc.y;
-            doc.rect(L, y + 4, 2, 11).fillColor(RED).fill();
-            doc.font(font.said).fontSize(13).fillColor(INK).text(cue, L + 14, y, { width: W - 14, lineGap: 4 });
-            doc.x = L;
-            gap(7);
-          }
-          gap(14);
-        }
-      }
-
-      // ---- Section 5: Word for word ----
       openSection(
-        "words",
-        "Word for word",
-        "The spoken parts in full, for rehearsal.",
-        "Read these aloud to hear whether they sound like you, and change any word that does not. Learn the Prologue and the Epilogue by heart. Tell the acts in your own words."
+        "rehearse",
+        "Rehearse it into life",
+        "Your story in five lines, and the cues to speak from.",
+        "Story first, then slides, then rehearsal. Make your slides on the StoryMachine slides page, then rehearse from this section. Speak from the cues, never from a script: each one reminds you what comes next, and the words come from you in the room. Learn the Prologue and the Epilogue by heart. Tell the acts in your own words."
       );
-      const script: Array<[string, string]> = [
-        ["Prologue", landing.prologue],
-        [`Signpost into Act 1: ${acts[0]}`, landing.why.signpost],
-        [`Signpost into Act 2: ${acts[1]}`, landing.how.signpost],
-        [`Signpost into Act 3: ${acts[2]}`, landing.what.signpost],
-        ["Epilogue", landing.epilogue],
-      ];
-      for (const [name, t] of script) {
-        // Keep each spoken block on one page: a two-line orphan on a fresh page is no use in rehearsal.
-        doc.font(font.said).fontSize(13);
-        keep(Math.min(doc.heightOfString(t, { width: W, lineGap: 7 }) + 34, bottom() - 80));
-        text(name, font.bold, 10, RED);
-        gap(5);
-        doc.font(font.said).fontSize(13).fillColor(INK).text(t, L, doc.y, { width: W, lineGap: 7 });
+      const five = [landing.fiveLineStory.prologue, landing.fiveLineStory.why, landing.fiveLineStory.how, landing.fiveLineStory.what, landing.fiveLineStory.epilogue];
+      subhead("Your story in five lines", "The whole talk in 30 seconds. Say it first. If it works here, it will work in the room.", 50 + five.reduce((n, t) => n + heightOf(t, font.said, 11.5, W - 118) + 8, 0));
+      row("Prologue", landing.fiveLineStory.prologue, font.said, 11.5);
+      row(`Act 1: ${acts[0]}`, landing.fiveLineStory.why, font.said, 11.5);
+      row(`Act 2: ${acts[1]}`, landing.fiveLineStory.how, font.said, 11.5);
+      row(`Act 3: ${acts[2]}`, landing.fiveLineStory.what, font.said, 11.5);
+      row("Epilogue", landing.fiveLineStory.epilogue, font.said, 11.5);
+      thinRule();
+      const cues = (list: string[]) => {
+        for (const cue of list) {
+          keep(24);
+          const y = doc.y;
+          doc.rect(L, y + 4, 2, 11).fillColor(RED).fill();
+          doc.font(font.said).fontSize(13).fillColor(INK).text(cue, L + 14, y, { width: W - 14, lineGap: 4 });
+          doc.x = L;
+          gap(7);
+        }
+      };
+      // A link back to the words in full, for the parts to learn by heart.
+      const wordsLink = (dest: string, what: string) => {
+        keep(18);
+        const y = doc.y;
+        doc.font(font.bold).fontSize(9).fillColor(RED).text(`Word for word: ${what}`, L + 14, y, { width: W - 14, lineGap: 2 });
+        doc.goTo(L + 14, y - 2, W - 14, doc.y - y + 4, dest);
         doc.x = L;
-        gap(18);
+        gap(14);
+      };
+      subhead("Speaker notes", "One cue per line, in the order you say them.", 80);
+      const beats: Array<[string, string, string[], () => void]> = [
+        ["Prologue", "The first minute. Learn it by heart.", notes.prologue, () => wordsLink("prologue", "the Prologue is in section 2. Learn it by heart.")],
+        ...actKeys.map((k, i): [string, string, string[], () => void] => [
+          `Act ${i + 1}: ${acts[i]}`,
+          story[k].headline,
+          notes[k],
+          () => {
+            keep(40);
+            label("Your signpost, word for word", RED);
+            said(landing[k].signpost, 11.5);
+            gap(10);
+          },
+        ]),
+        ["Epilogue", "End with certainty. Learn it by heart.", notes.epilogue, () => wordsLink("epilogue", "the Epilogue is in section 2. Learn it by heart.")],
+      ];
+      for (const [name, sub, list, extra] of beats) {
+        keep(60 + list.length * 24);
+        text(name, font.bold, 12, RED);
+        gap(2);
+        text(sub, font.sans, 9, MUTED);
+        gap(8);
+        if (!name.startsWith("Prologue") && !name.startsWith("Epilogue")) extra();
+        cues(list);
+        if (name.startsWith("Prologue") || name.startsWith("Epilogue")) extra();
+        gap(12);
       }
     }
 
-    // ---- Section 6: How this was made ----
+    // ---- Last section: How this was made ----
     openSection("method", "How this was made", "The method behind your story.");
     for (const [name, t] of METHOD) {
       keep(50);
@@ -476,10 +545,10 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
         "This is the first draft of your presentation story, built by StoryMachine from your notes and your answers. It holds everything you need to finish the story, make your slides and rehearse.";
       const steps: Array<[string, string]> = [
         ["Check the foundations.", "Section 1 sets out your audience and your argument. If either is wrong, everything built on it will be too."],
-        ["Read the talk out loud.", "Section 2 is your presentation, from the first word to the last."],
-        ["Make it yours.", "Section 3 has StoryMachine's suggestions. Add the examples only you have, and put any proposed line in your own words."],
+        ["Read the talk out loud.", "Section 2 is your presentation, from the first word to the last, with your timing. Suggestions in red sit under the lines they would strengthen."],
+        ["Make it yours.", "Section 3 lists the gaps only you can fill, and what to do before you rehearse."],
         landing
-          ? ["Make your slides, then rehearse.", "Build your slides from the StoryMachine slides page, then rehearse from the speaker notes in section 4."]
+          ? ["Make your slides, then rehearse.", "Build your slides from the StoryMachine slides page, then rehearse from section 4: your story in five lines and your speaker notes."]
           : ["Add interest and impact.", "Press Add interest and impact in StoryMachine to get your opening, signposts, ending and speaker notes."],
       ];
       const inner = W - 8;

@@ -8,7 +8,7 @@ import type { LandingInputSchema, Rhetoric, StoryInputSchema } from "./schema";
 import { RHETORIC_LEAD, RHETORIC_TITLE, cleanLine, hasRhetoric, suggestionLine } from "./rhetoric";
 import { KINDS, kindOf } from "./kinds";
 import { LICENCE, METHOD, SIGN_OFF } from "./method";
-import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "./ownIt";
+import { OWN_IT_LEAD, ownItAdvice } from "./ownIt";
 
 type Story = z.infer<typeof StoryInputSchema>;
 type Landing = z.infer<typeof LandingInputSchema>;
@@ -28,11 +28,17 @@ function words(t: string): number {
 }
 function timing(t: string): string {
   const n = words(t);
-  const secs = Math.round((n / 140) * 60);
+  const secs = Math.round((n / 130) * 60);
   return `${n} words, about ${secs < 60 ? `${secs} seconds` : `${Math.round(secs / 60)} minute${secs >= 90 ? "s" : ""}`} spoken`;
 }
 
-export async function renderDocx(title: string, story: Story, landing: Landing | null, rhetoric: Rhetoric | null = null): Promise<Buffer> {
+export async function renderDocx(
+  title: string,
+  story: Story,
+  landing: Landing | null,
+  rhetoric: Rhetoric | null = null,
+  minutes: number | null = null,
+): Promise<Buffer> {
   const kind = KINDS[kindOf(story.kind)];
   const acts = kind.acts;
   const isOther = kindOf(story.kind) === "other";
@@ -45,6 +51,15 @@ export async function renderDocx(title: string, story: Story, landing: Landing |
     n += 1;
     out.push(h1(`${n}. ${name}`, true));
     out.push(p(lead, { italic: true }));
+  };
+  // Rhetoric suggestions sit under the line they improve, as in the PDF (2 November).
+  const sugg = (rhetoric?.suggestions ?? []).filter((x) => x.path && cleanLine(x.better));
+  const used = new Set<string>();
+  const suggest = (path: string) => {
+    for (const x of sugg.filter((y) => y.path === path || y.path === `landing.${path}`)) {
+      used.add(x.path as string);
+      out.push(label("Add power to your words. For example, you could say this", `“${cleanLine(x.better)}” ${x.device}${x.what ? `: ${x.what}` : "."}`));
+    }
   };
 
   // Cover: the same order as the PDF's first page.
@@ -68,32 +83,41 @@ export async function renderDocx(title: string, story: Story, landing: Landing |
   out.push(p(story.intent));
   out.push(h2("Your argument"));
   out.push(p(story.argument));
-  if (landing) {
-    out.push(h2("Your story in five lines"));
-    out.push(p("The whole talk in 30 seconds. If it works here, it will work in the room.", { italic: true, small: true }));
-    out.push(label("Prologue", landing.fiveLineStory.prologue));
-    out.push(label(`Act 1: ${acts[0]}`, landing.fiveLineStory.why));
-    out.push(label(`Act 2: ${acts[1]}`, landing.fiveLineStory.how));
-    out.push(label(`Act 3: ${acts[2]}`, landing.fiveLineStory.what));
-    out.push(label("Epilogue", landing.fiveLineStory.epilogue));
-  }
 
   // ---- 2 Your presentation ----
   section(
     "Your presentation",
     landing
-      ? "The talk from the first word to the last. The indented lines are for saying aloud."
+      ? "The talk from the first word to the last. The indented lines are for saying aloud. Where a line could carry more power, a suggestion sits under it."
       : "Your Big Idea and the three acts. Add interest and impact in StoryMachine to get the opening, the signposts and the ending."
   );
   out.push(h2("Your Big Idea"));
   out.push(spoken(story.bigIdea));
+  suggest("bigIdea");
   out.push(h2("Your speech structure"));
   out.push(p(landing ? `Prologue, Act 1: ${acts[0]}, Act 2: ${acts[1]}, Act 3: ${acts[2]}, Epilogue.` : `Act 1: ${acts[0]}, Act 2: ${acts[1]}, Act 3: ${acts[2]}. The Prologue and Epilogue come with Stage 2.`));
   if (landing) {
+    const scripted = [landing.prologue, landing.why.signpost, landing.how.signpost, landing.what.signpost, landing.epilogue];
+    const secs = (scripted.reduce((k, t) => k + words(t), 0) / 130) * 60;
+    const mins = (m: number) => {
+      const r = Math.max(0.5, Math.round(m * 2) / 2);
+      return `${r % 1 ? r.toFixed(1) : r} minute${r === 1 ? "" : "s"}`;
+    };
+    out.push(h2("Your timing"));
+    if (minutes) out.push(p(`Built for ${minutes} minutes, not counting questions.`, { italic: true, small: true }));
+    out.push(label("Prologue, signposts and Epilogue", `About ${secs < 90 ? `${Math.round(secs)} seconds` : mins(secs / 60)}, word for word.`));
+    if (minutes) {
+      const left = Math.max(0, minutes - secs / 60);
+      out.push(label("The three acts", `About ${mins(left)} between them: roughly ${mins(left / 3)} each.`));
+      out.push(label("In all", `${minutes} minutes. Time yourself in rehearsal and cut evidence, never the Prologue or the Epilogue.`));
+    } else {
+      out.push(label("The three acts", "The rest of your time. Give each act about a third of it."));
+    }
     out.push(h2("Prologue"));
     out.push(p("The first 30 to 60 seconds, to grab your audience's attention. State the Big Idea, say why it matters now, and tell them what you need from them.", { italic: true, small: true }));
     out.push(spoken(landing.prologue));
     out.push(p(timing(landing.prologue), { small: true }));
+    suggest("landing.prologue");
   }
   const actKeys = ["why", "how", "what"] as const;
   const actJobs = [kind.act1, kind.act2, kind.act3];
@@ -104,10 +128,14 @@ export async function renderDocx(title: string, story: Story, landing: Landing |
     if (landing) {
       out.push(p(`Your signpost that introduces Act ${i + 1}`, { bold: true }));
       out.push(spoken(landing[key].signpost));
+      suggest(`landing.${key}.signpost`);
     }
     out.push(label("Headline", act.headline));
+    suggest(`${key}.headline`);
     out.push(label("What it means", act.coreMessage));
+    suggest(`${key}.coreMessage`);
     out.push(label(act.soundbite.source === "material" ? "Soundbite, from your notes" : "Soundbite, our suggestion. Put it in your own words", `“${act.soundbite.text}”`));
+    suggest(`${key}.soundbite.text`);
     if (act.supportingPoints.length) {
       out.push(p("Evidence: only what carries the point", { bold: true }));
       for (const pt of act.supportingPoints) out.push(bullet(pt));
@@ -118,6 +146,7 @@ export async function renderDocx(title: string, story: Story, landing: Landing |
     out.push(p("Recap your headlines and the actions from here. Send them away with your message ringing in their ears.", { italic: true, small: true }));
     out.push(spoken(landing.epilogue));
     out.push(p(timing(landing.epilogue), { small: true }));
+    suggest("landing.epilogue");
   }
   if (/\d/.test(JSON.stringify([story.why, story.how, story.what]))) {
     out.push(p("Every figure here comes from your material. Check each one against its source before you present.", { small: true }));
@@ -125,55 +154,52 @@ export async function renderDocx(title: string, story: Story, landing: Landing |
 
   // ---- 3 Suggestions from StoryMachine ----
   section("Suggestions from StoryMachine", "This is a first draft. Here's how we think you can make the message even stronger.");
-  out.push(h2(OWN_IT_TITLE));
+  const gapsList = landing ? landing.gaps : story.gaps;
+  if (gapsList.length) {
+    out.push(h2("Make it your own: fill these gaps"));
+    out.push(p("What your material does not say. Only you can supply these.", { italic: true }));
+    for (const g of gapsList) out.push(bullet(g));
+  }
+  out.push(h2("Before you rehearse"));
   out.push(p(OWN_IT_LEAD, { italic: true }));
-  for (const g of [...(landing ? landing.gaps : story.gaps), ...ownItAdvice(story, landing)]) out.push(bullet(g));
-  if (landing && hasRhetoric(rhetoric)) {
+  for (const g of ownItAdvice(story, landing)) out.push(bullet(g));
+  const leftover = sugg.filter((x) => !used.has(x.path as string));
+  if (landing && hasRhetoric(rhetoric) && leftover.length) {
     out.push(h2(RHETORIC_TITLE));
     out.push(p(RHETORIC_LEAD, { italic: true }));
-    for (const s of rhetoric.suggestions.filter((x) => cleanLine(x.better))) out.push(bullet(suggestionLine(s)));
+    for (const x of leftover) out.push(bullet(suggestionLine(x)));
   }
 
   if (landing) {
-    // ---- 4 Speaker notes ----
+    // ---- 4 Rehearse it into life: five lines, speaker notes, signposts ----
     const notes = landing.speechNotes;
-    const beats: Array<[string, string[]]> = [
-      ["Prologue", notes.prologue],
-      [`Act 1: ${acts[0]}`, notes.why],
-      [`Act 2: ${acts[1]}`, notes.how],
-      [`Act 3: ${acts[2]}`, notes.what],
-      ["Epilogue", notes.epilogue],
-    ];
-    if (beats.some(([, c]) => c.length)) {
-      section(
-        "Speaker notes",
-        "Story first, then slides, then rehearsal. Make your slides on the StoryMachine slides page, then rehearse from these notes. Speak from them, never from a script: each cue reminds you what comes next, and the words come from you in the room, so they sound like you."
-      );
-      for (const [name, cues] of beats) {
-        out.push(h2(name));
-        for (const c of cues) out.push(bullet(c));
-      }
-    }
-
-    // ---- 5 Word for word ----
     section(
-      "Word for word",
-      "Read these aloud to hear whether they sound like you, and change any word that does not. Learn the Prologue and the Epilogue by heart. Tell the acts in your own words."
+      "Rehearse it into life",
+      "Story first, then slides, then rehearsal. Make your slides on the StoryMachine slides page, then rehearse from this section. Speak from the cues, never from a script. Learn the Prologue and the Epilogue by heart: the words are in section 2. Tell the acts in your own words."
     );
-    for (const [name, text] of [
-      ["Prologue", landing.prologue],
-      [`Signpost into Act 1: ${acts[0]}`, landing.why.signpost],
-      [`Signpost into Act 2: ${acts[1]}`, landing.how.signpost],
-      [`Signpost into Act 3: ${acts[2]}`, landing.what.signpost],
-      ["Epilogue", landing.epilogue],
-    ] as const) {
-      out.push(h2(name));
-      out.push(p(text));
-    }
+    out.push(h2("Your story in five lines"));
+    out.push(p("The whole talk in 30 seconds. Say it first. If it works here, it will work in the room.", { italic: true, small: true }));
+    out.push(label("Prologue", landing.fiveLineStory.prologue));
+    out.push(label(`Act 1: ${acts[0]}`, landing.fiveLineStory.why));
+    out.push(label(`Act 2: ${acts[1]}`, landing.fiveLineStory.how));
+    out.push(label(`Act 3: ${acts[2]}`, landing.fiveLineStory.what));
+    out.push(label("Epilogue", landing.fiveLineStory.epilogue));
+    out.push(h2("Speaker notes"));
+    out.push(p("One cue per line, in the order you say them.", { italic: true, small: true }));
+    out.push(h2("Prologue"));
+    for (const c of notes.prologue) out.push(bullet(c));
+    out.push(p("Word for word: the Prologue is in section 2. Learn it by heart.", { small: true }));
+    actKeys.forEach((k, i) => {
+      out.push(h2(`Act ${i + 1}: ${acts[i]}`));
+      out.push(label("Your signpost, word for word", landing[k].signpost));
+      for (const c of notes[k]) out.push(bullet(c));
+    });
+    out.push(h2("Epilogue"));
+    for (const c of notes.epilogue) out.push(bullet(c));
+    out.push(p("Word for word: the Epilogue is in section 2. Learn it by heart.", { small: true }));
   }
 
-  // ---- How this was made ----
-  section("How this was made", "The method behind your story.");
+  out.push(h1(`${n + 1}. How this was made`, true));
   for (const [name, text] of METHOD) {
     out.push(h2(name));
     out.push(p(text));

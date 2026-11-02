@@ -526,7 +526,7 @@ export default function Build() {
       const res = await fetch("/api/export", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: story.bigIdea, story, landing, rhetoric, storyId: storyId ?? undefined, format }),
+        body: JSON.stringify({ title: story.bigIdea, story, landing, rhetoric, storyId: storyId ?? undefined, format, minutes: minutesFrom(intent) ?? undefined }),
       });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));

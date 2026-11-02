@@ -173,7 +173,7 @@ Everything saves as you work. Open **My stories** at the top of the page to retu
 
 Press **My story is ready** and StoryMachine gives you three things to do, in order, or only the ones you need:
 
-1. **Download your story.** **PDF:** the whole story in one document: Stage 1, Stage 2, the suggestions, the speaker notes, the words in full and a final page on the method. Use it to rehearse, to share with a colleague, to keep. **Word:** the same content as an editable document.
+1. **Download your story.** **PDF:** the whole story in one document: your audience and argument; your presentation with its timing, and the suggestions in red under the lines they would strengthen; the gaps only you can fill; your story in five lines and your speaker notes; and a final page on the method. Use it to rehearse, to share with a colleague, to keep. **Word:** the same content as an editable document.
 2. **If you need them, make your slides.**
 3. **Rehearse it into life.**
 

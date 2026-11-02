@@ -20,6 +20,8 @@ const ExportSchema = z.object({
   storyId: z.string().uuid().optional(),
   /** pdf (default), docx (the same content as a Word document), pptx (the slide text, stage 2 only). */
   format: z.enum(["pdf", "docx", "pptx"]).default("pdf"),
+  /** The talk's length in minutes, from the key questions, for the timing plan (2 November). Optional for old pages. */
+  minutes: z.number().int().min(1).max(600).nullable().optional(),
 });
 
 const TYPES = {
@@ -40,7 +42,7 @@ export async function POST(req: Request) {
   }
   const parsed = ExportSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid" }, { status: 400 });
-  const { title, story, landing, rhetoric, storyId, format } = parsed.data;
+  const { title, story, landing, rhetoric, storyId, format, minutes } = parsed.data;
   if (format === "pptx" && !landing) {
     return NextResponse.json({ error: "The slides come with stage 2. Add interest and impact first." }, { status: 400 });
   }
@@ -50,9 +52,9 @@ export async function POST(req: Request) {
   if (!allowed) return purchaseRequired();
 
   const buf =
-    format === "docx" ? await renderDocx(title, story, landing, rhetoric)
+    format === "docx" ? await renderDocx(title, story, landing, rhetoric, minutes ?? null)
     : format === "pptx" && landing ? await renderPptx(story, landing)
-    : await renderPdf(title, story, landing, rhetoric);
+    : await renderPdf(title, story, landing, rhetoric, minutes ?? null);
   // Trim the title at a word boundary, so the file name never ends mid-word.
   const words = title.replace(/[^\w\- ]+/g, "").trim().split(/\s+/).filter(Boolean);
   let safe = "";
