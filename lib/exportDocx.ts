@@ -5,7 +5,7 @@
 import { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun } from "docx";
 import { z } from "zod";
 import type { LandingInputSchema, Rhetoric, StoryInputSchema } from "./schema";
-import { RHETORIC_LEAD, RHETORIC_TITLE, hasRhetoric, suggestionLine } from "./rhetoric";
+import { RHETORIC_LEAD, RHETORIC_TITLE, cleanLine, hasRhetoric, suggestionLine } from "./rhetoric";
 import { KINDS, kindOf } from "./kinds";
 import { LICENCE, METHOD, SIGN_OFF } from "./method";
 import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "./ownIt";
@@ -131,7 +131,7 @@ export async function renderDocx(title: string, story: Story, landing: Landing |
   if (landing && hasRhetoric(rhetoric)) {
     out.push(h2(RHETORIC_TITLE));
     out.push(p(RHETORIC_LEAD, { italic: true }));
-    for (const s of rhetoric.suggestions) out.push(bullet(suggestionLine(s)));
+    for (const s of rhetoric.suggestions.filter((x) => cleanLine(x.better))) out.push(bullet(suggestionLine(s)));
   }
 
   if (landing) {

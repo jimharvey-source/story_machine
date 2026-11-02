@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Landing, Question, Rhetoric, Story } from "@/lib/schema";
-import { RHETORIC_LEAD, RHETORIC_TITLE, hasRhetoric } from "@/lib/rhetoric";
+import { RHETORIC_LEAD, RHETORIC_TITLE, cleanLine, hasRhetoric } from "@/lib/rhetoric";
 import { Editable, EditableList } from "@/components/Editable";
 import { Refine, type ChatMessage } from "@/components/Refine";
 import { AccountBar, Paywall, SignIn, type Me } from "@/components/Account";
@@ -199,8 +199,8 @@ export default function Build() {
   const [questions, setQuestions] = useState<Question[] | null>(null);
   const [answers, setAnswers] = useState<string[]>([]);
   const [rhetoric, setRhetoric] = useState<Rhetoric | null>(null);
-  // The finished story, or the slides made from it (18 October: the slides come last, on a view of their own).
-  const [view, setView] = useState<"story" | "slides">("story");
+  // The story, then (2 November) a page for the finished story, the slides and rehearsal, each on a view of its own.
+  const [view, setView] = useState<"story" | "ready" | "slides" | "rehearse">("story");
   // A capped story that has used an allowance: the message, with an Upgrade button beside it.
   const [capNotice, setCapNotice] = useState<string | null>(null);
   const [saveState, setSaveState] = useState<
@@ -556,7 +556,7 @@ export default function Build() {
     }
   }
 
-  // Email first (11 October): one button, then up to three questions, then the whole story in one go.
+  // Email first (11 October): one button, then up to two questions, then Stage 1. Stage 2 waits for its own button (2 November).
   // Signed out: open the sign-in box and carry on by ourselves once they are in.
   async function start(justSignedIn = false) {
     setError(null);
@@ -602,7 +602,7 @@ export default function Build() {
     await findStory([]);
   }
 
-  // Stage 1, then Stage 2 and the rhetoric notes straight after, with no button in between.
+  // Stage 1 only. Stage 2 and the rhetoric suggestions follow when the user presses Add interest and impact.
   async function findStory(given: Array<{ question: string; answer: string }>) {
     setBusy("story");
     setError(null);
@@ -644,7 +644,8 @@ export default function Build() {
       setBusy(null);
     }
     loadMe();
-    if (found) await makeItLand(found.story, found.id);
+    // Stage 1 stops here (Jim and John, 2 November): the user gets the story straight, then asks for Stage 2.
+    void found;
   }
 
   async function makeItLand(s: Story | null = story, id: string | null = storyId) {
@@ -663,6 +664,7 @@ export default function Build() {
       setAiUsage((u) => ({ ...u, land: (u.land ?? 0) + 1 }));
       landed = data.landing;
       loadMe();
+      window.scrollTo({ top: 0 });
     } catch (e) {
       handleApiError(e, "Something went wrong");
     } finally {
@@ -888,7 +890,7 @@ export default function Build() {
     <RhetoricNotes rhetoric={rhetoric} path={path} current={current} onUse={(p, t) => applyPath(p, t)} />
   );
   const legacySuggestions = rhetoric ? rhetoric.suggestions.filter((x) => !x.path) : [];
-  const inPlaceCount = rhetoric ? rhetoric.suggestions.filter((x) => x.path).length : 0;
+  const inPlaceCount = rhetoric ? rhetoric.suggestions.filter((x) => x.path && cleanLine(x.better)).length : 0;
 
   return (
     <main className="mx-auto w-full max-w-3xl px-5 pb-24 pt-10 sm:pt-16 lg:max-w-5xl lg:px-10 2xl:max-w-6xl">
@@ -964,7 +966,7 @@ export default function Build() {
             <h1 className="display text-3xl leading-[1.05] sm:text-4xl">Start with the key questions.</h1>
             <p className="mt-3 max-w-2xl text-ink-2">
               Answer some questions about your presentation, your audience, your objective and your message. Add any
-              relevant material. StoryMachine builds the story, start to finish.
+              relevant material. StoryMachine writes the first draft of your story. You get it straight, then add interest and impact.
               {me && !me.signedIn && " Your first story is free. Just your email, no credit card."}
             </p>
           </div>
@@ -1100,7 +1102,7 @@ export default function Build() {
               title={signedIn ? "Your story" : "Your email"}
               sub={
                 signedIn
-                  ? "Press the button. If something important is still open, StoryMachine asks you up to two more questions. Then the whole story arrives."
+                  ? "Press the button. If something important is still open, StoryMachine asks you up to two more questions. Then the first draft of your story arrives."
                   : <>Press <strong className="font-semibold text-ink">Find my story</strong> and enter your email. We will send you a six-digit code to type here. Then you get the complete story for your presentation, to edit and refine. Everything you have typed stays on this page.</>
               }
             />
@@ -1209,7 +1211,7 @@ export default function Build() {
       )}
 
 
-      {story && landing && view === "slides" && (
+      {story && landing && view === "ready" && (
         <article className="panel rise space-y-10">
           <button
             type="button"
@@ -1217,6 +1219,83 @@ export default function Build() {
             className="text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink"
           >
             Back to your story
+          </button>
+          <div>
+            <p className="eyebrow">Your story is ready</p>
+            <h1 className="display mt-2 text-3xl leading-[1.05] sm:text-4xl">Congratulations. You have done the hard work.</h1>
+            <p className="said mt-4 text-xl text-ink">{story.bigIdea}</p>
+            <p className="mt-4 max-w-2xl text-ink-2">Now turn your story into a presentation. Take each step in turn, or only the ones you need.</p>
+          </div>
+          <ol className="grid gap-4 md:grid-cols-3">
+            <li className="rounded-md border border-rule bg-paper-2 p-5">
+              <p className="eyebrow text-red">1</p>
+              <h2 className="display mt-1 text-xl">Download your story</h2>
+              <p className="mt-2 text-sm text-ink-2">The whole story with your speaker notes, to keep, print or share with a colleague.</p>
+              <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+                <button
+                  type="button"
+                  onClick={() => exportFile("pdf")}
+                  disabled={busy !== null || locked}
+                  className="rounded-md bg-ink px-4 py-2.5 text-sm font-medium text-paper disabled:opacity-40"
+                >
+                  {busy === "export-pdf" ? "Making the PDF..." : "Download the PDF"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => exportFile("docx")}
+                  disabled={busy !== null || locked}
+                  className="text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink disabled:opacity-40"
+                >
+                  {busy === "export-docx" ? "Making the Word file..." : "or a Word document"}
+                </button>
+              </div>
+              {pdf && !busy?.startsWith("export") && (
+                <a href={pdf.url} download={pdf.name} className="mt-2 inline-block text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink">
+                  Nothing downloaded? Save {pdf.name}
+                </a>
+              )}
+            </li>
+            <li className="rounded-md border border-rule bg-paper-2 p-5">
+              <p className="eyebrow text-red">2</p>
+              <h2 className="display mt-1 text-xl">If you need them, make your slides</h2>
+              <p className="mt-2 text-sm text-ink-2">A PowerPoint outline, a slide brief and a prompt for your own AI tool.</p>
+              <button
+                type="button"
+                onClick={() => { setView("slides"); window.scrollTo({ top: 0 }); }}
+                className="mt-4 rounded-md border border-ink bg-paper-2 px-4 py-2.5 text-sm font-medium text-ink"
+              >
+                Make your slides
+              </button>
+            </li>
+            <li className="rounded-md border border-rule bg-paper-2 p-5">
+              <p className="eyebrow text-red">3</p>
+              <h2 className="display mt-1 text-xl">Rehearse it into life</h2>
+              <p className="mt-2 text-sm text-ink-2">Your speaker notes, and the opening, signposts and ending in full. Say it out loud.</p>
+              <button
+                type="button"
+                onClick={() => { setView("rehearse"); window.scrollTo({ top: 0 }); }}
+                className="mt-4 rounded-md border border-ink bg-paper-2 px-4 py-2.5 text-sm font-medium text-ink"
+              >
+                Rehearse
+              </button>
+            </li>
+          </ol>
+          <p className="max-w-2xl text-sm text-muted">
+            Want to change something? Go back to your story and edit any line. Your downloads, slides and notes always follow the
+            story as it stands.
+          </p>
+          {error && <p className="text-sm text-red">{error}</p>}
+        </article>
+      )}
+
+      {story && landing && view === "slides" && (
+        <article className="panel rise space-y-10">
+          <button
+            type="button"
+            onClick={() => { setView("ready"); window.scrollTo({ top: 0 }); }}
+            className="text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink"
+          >
+            Back: your story is ready
           </button>
           <div>
             <p className="eyebrow">Your slides</p>
@@ -1250,43 +1329,75 @@ export default function Build() {
           </div>
           {error && <p className="text-sm text-red">{error}</p>}
           <Slides story={story} landing={landing} />
-          <div id="rehearse" className="scroll-mt-8 space-y-10">
-            <Rehearse story={story} landing={landing} />
+          <div className="border-t border-rule pt-8">
+            <button
+              type="button"
+              onClick={() => { setView("rehearse"); window.scrollTo({ top: 0 }); }}
+              className="rounded-md bg-ink px-6 py-3 text-base font-medium text-paper"
+            >
+              Next: rehearse it into life
+            </button>
           </div>
+        </article>
+      )}
+
+      {story && landing && view === "rehearse" && (
+        <article className="panel rise space-y-10">
+          <button
+            type="button"
+            onClick={() => { setView("ready"); window.scrollTo({ top: 0 }); }}
+            className="text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink"
+          >
+            Back: your story is ready
+          </button>
+          <Rehearse story={story} landing={landing} />
         </article>
       )}
 
       {story && view === "story" && (
         <article className="panel rise space-y-14">
           <ol className="stages">
-            <li data-done="true" aria-current={landing ? undefined : "step"}>
-              <span className="font-semibold text-red">1</span> Get your story straight <span className="text-red">&#10003;</span>
+            <li data-done={landing ? "true" : undefined} aria-current={landing ? undefined : "step"}>
+              <span className="font-semibold text-red">1</span> Get your story straight {landing && <span className="text-red">&#10003;</span>}
             </li>
             <li aria-current={landing ? "step" : undefined}>
               <span className="font-semibold text-red">2</span> Add interest and impact {landing && <span className="text-red">&#10003;</span>}
             </li>
           </ol>
           {busy === "land" && (
-            <div className="space-y-3 rounded-md bg-panel px-4 py-3 text-sm text-ink-2" role="status">
-              <p>
-                Stage 1 is here. Now adding interest and impact: the first minute, signposts, the ending and your speaker
-                notes. Read on while it works.
-              </p>
+            <div className="rounded-md bg-panel px-4 py-3 text-sm text-ink-2" role="status">
               <Progress label="Stage 2: adding interest and impact" expected={45} />
             </div>
           )}
-          {/* John's line (draft 5): say at once that this is a draft, and how to change it. */}
-          <p className="max-w-2xl text-ink-2">
-            Below is the first draft of your story. Click any text in a box to change it as often as you like. In many places
-            you can also ask StoryMachine to make it clearer, sharper or simpler.
-          </p>
+          {/* Two stages, each checked before the next (Jim and John, 2 November). */}
+          {landing ? (
+            <div className="max-w-2xl space-y-2 text-ink-2">
+              <p className="display text-2xl text-ink">Stage 2: interest and impact.</p>
+              <p>
+                StoryMachine has added the first minute (your Prologue), a signpost into each act, the ending (your Epilogue)
+                and your speaker notes. Under some lines you will also find a suggestion in red for more powerful language.
+                Use it, change it or ignore it.
+              </p>
+              <p>Click any text in a box to change it. When you are happy with every line, your story is ready.</p>
+            </div>
+          ) : (
+            <div className="max-w-2xl space-y-2 text-ink-2">
+              <p className="display text-2xl text-ink">Here is the first draft of your story.</p>
+              <p>
+                First, get your story straight. Check your audience, your argument and your three acts. Click any text in a box
+                to change it as often as you like. In many places you can also ask StoryMachine to make it clearer, sharper or
+                simpler.
+              </p>
+              <p>When the story is right, add interest and impact at the foot of the page.</p>
+            </div>
+          )}
           {/* The story page follows the PDF (21 October): three sections, with a contents bar that stays in view. */}
           <nav aria-label="Your story" className="sticky top-0 z-20 -mx-2 flex flex-wrap gap-x-5 gap-y-1 border-b border-rule bg-paper-2/95 px-2 py-3 text-sm backdrop-blur">
             {[
               ["s-audience", "1 Your audience and your argument"],
               ["s-presentation", "2 Your presentation"],
               ["s-suggestions", "3 Suggestions"],
-              ...(landing && signedIn && !locked ? [["s-finished", "Next: slides and rehearsal"]] : []),
+              ...(signedIn && !locked ? [["s-next", landing ? "Next: your story is ready" : "Next: add interest and impact"]] : []),
             ].map(([id, t]) => (
               <a key={id} href={`#${id}`} className="text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
                 {t}
@@ -1595,34 +1706,46 @@ export default function Build() {
             )}
           </section>
 
-          {landing && signedIn && !locked && (
-            <section id="s-finished" className="scroll-mt-20 rounded-md bg-ink px-6 py-8 text-paper sm:px-10 sm:py-10">
-              <h2 className="display mt-2 text-3xl leading-tight">Congratulations, you&apos;ve finished your story.</h2>
+          {signedIn && <Refine messages={chat} busy={busy === "refine"} onSend={refine} />}
+
+          {!landing && signedIn && !locked && (
+            <section id="s-next" className="scroll-mt-20 rounded-md bg-ink px-6 py-8 text-paper sm:px-10 sm:py-10">
+              <p className="eyebrow text-paper/70">Stage 1: Get your story straight</p>
+              <h2 className="display mt-2 text-3xl leading-tight">Is your story straight?</h2>
               <p className="mt-3 max-w-2xl text-paper/80">
-                You have done the hard work. Download your story as a PDF or a Word file below.
+                Everything that follows is built on your audience, your argument and your three acts. Check them now. When they
+                are right, StoryMachine adds interest and impact: the first minute, a signpost into each act, the ending, your
+                speaker notes, and suggestions for more powerful language.
               </p>
-              <p className="mt-3 max-w-2xl text-paper/80">
-                Next come the slides: StoryMachine gives you a slide brief, a PowerPoint outline and a prompt for your own AI
-                tool. Choose whatever works best for you.
-              </p>
-              <p className="mt-3 max-w-2xl text-paper/80">Then rehearse it into life from your speaker notes.</p>
               <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
                 <button
                   type="button"
-                  onClick={() => { setView("slides"); window.scrollTo({ top: 0 }); }}
-                  className="rounded-md bg-paper px-6 py-3 text-base font-medium text-ink hover:opacity-90"
+                  onClick={() => makeItLand()}
+                  disabled={busy !== null}
+                  className="rounded-md bg-paper px-6 py-3 text-base font-medium text-ink hover:opacity-90 disabled:opacity-40"
                 >
-                  Now make your slides
+                  {busy === "land" ? "Adding interest and impact..." : "Add interest and impact"}
                 </button>
+                <span className="text-sm text-paper/70">About a minute.</span>
+              </div>
+            </section>
+          )}
+
+          {landing && signedIn && !locked && (
+            <section id="s-next" className="scroll-mt-20 rounded-md bg-ink px-6 py-8 text-paper sm:px-10 sm:py-10">
+              <p className="eyebrow text-paper/70">Stage 2: Add interest and impact</p>
+              <h2 className="display mt-2 text-3xl leading-tight">Is your story ready?</h2>
+              <p className="mt-3 max-w-2xl text-paper/80">
+                When you are happy with every line, your story is ready. Then download it, make your slides if you need them,
+                and rehearse.
+              </p>
+              <div className="mt-6">
                 <button
                   type="button"
-                  onClick={() => {
-                    setView("slides");
-                    setTimeout(() => document.getElementById("rehearse")?.scrollIntoView({ behavior: "smooth" }), 50);
-                  }}
-                  className="text-sm text-paper/80 underline decoration-paper/40 underline-offset-4 hover:text-paper"
+                  onClick={() => { setView("ready"); window.scrollTo({ top: 0 }); }}
+                  className="rounded-md bg-paper px-6 py-3 text-base font-medium text-ink hover:opacity-90"
                 >
-                  No slides? Go straight to rehearsal
+                  My story is ready
                 </button>
               </div>
             </section>
@@ -1655,26 +1778,15 @@ export default function Build() {
             )}
             {!landing && signedIn && !locked && (
               <button
-                onClick={() => makeItLand()}
-                disabled={busy !== null}
-                className="rounded-md bg-ink px-6 py-3 text-base font-medium text-paper disabled:opacity-40"
-              >
-                {busy === "land"
-                  ? "Adding interest and impact..."
-                  : "Finish the story: add interest and impact"}
-              </button>
-            )}
-            {signedIn && !locked && (
-              <button
                 type="button"
                 onClick={() => exportFile("pdf")}
                 disabled={busy !== null}
                 className="rounded-md border border-ink bg-paper-2 px-5 py-3 text-base font-medium text-ink disabled:opacity-40"
               >
-                {busy === "export-pdf" ? "Making the PDF..." : landing ? "Download your story as a PDF" : "Download the PDF (stage 1 so far)"}
+                {busy === "export-pdf" ? "Making the PDF..." : "Download the PDF (Stage 1 so far)"}
               </button>
             )}
-            {signedIn && !locked && (
+            {!landing && signedIn && !locked && (
               <span className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
                 <button
                   type="button"
@@ -1767,9 +1879,6 @@ export default function Build() {
             {error && <p className="w-full text-sm text-red">{error}</p>}
           </section>
 
-          {signedIn && (
-            <Refine messages={chat} busy={busy === "refine"} onSend={refine} />
-          )}
 
           {meta && (
             <p className="font-mono text-[0.68rem] text-muted">

@@ -1,6 +1,7 @@
 "use client";
 
 import type { Rhetoric } from "@/lib/schema";
+import { cleanLine } from "@/lib/rhetoric";
 
 // A rhetoric suggestion for one line of the story, shown under it (John Zimmer's change, 18 October).
 // Since 23 October: the suggested line first, then the device and what it is. No notes on devices already used.
@@ -18,7 +19,10 @@ export function RhetoricNotes({
   onUse?: (path: string, text: string) => void;
 }) {
   if (!rhetoric) return null;
-  const suggestions = rhetoric.suggestions.filter((s) => s.path === path);
+  const suggestions = rhetoric.suggestions
+    .filter((s) => s.path === path)
+    .map((s) => ({ ...s, better: cleanLine(s.better) }))
+    .filter((s) => s.better);
   if (!suggestions.length) return null;
   return (
     <div className="mt-4 space-y-3">

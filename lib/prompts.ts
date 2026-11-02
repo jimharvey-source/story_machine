@@ -96,6 +96,11 @@ const KIND_RULES: Partial<Record<Kind, string>> = {
   training: `Practice opens Act 3: what the audience does, how, and how long they have, then testing and feedback. Use the material's own exercise if it has one, in its own terms. This is the one kind where an exercise is part of the story rather than supporting material.`,
   keynote: `A keynote speaks to a wide audience, many of them strangers to the speaker's organisation. Act 1 connects the talk to the conference theme and this audience's concerns. Act 2 shows the field as it is now through the speaker's own experience, with one or two vivid examples rather than a catalogue. Act 3 looks ahead and asks the audience to think or do one specific thing.`,
   science: `The audience is expert. Keep every figure, unit and claim exactly as the material gives it, and never overstate certainty: say what the evidence shows and what it does not. Act 1 says why these experts should care now. Act 2 names what remains unsolved. Act 3 states what the presenter is doing and asks the audience for something specific: collaboration, scrutiny, data or adoption.`,
+  funding: `Every figure stays exactly as the material gives it. Act 3 states the amount, what it pays for and when the audience will see the result. Never promise a return the material does not support; a missing figure is a gap.`,
+  change: `Respect the audience's concerns: name what people will lose or worry about, and what stays the same. Act 3 is personal: what changes for the people in the room, the support they will have, and one first step.`,
+  launch: `Show the product working in the audience's world: one demonstration, customer or example beats a list of features. Act 3 says exactly when, where and how to get it.`,
+  kickoff: `Speak to the team as partners, not as an audience to be sold to. Act 3 gives the first actions with owners and dates.`,
+  lessons: `Facts, not blame. Name what worked as well as what did not. Act 3 turns each lesson into a change with an owner.`,
   badnews: `State facts. Explain how it happened without blame. Never give a legal judgement: no statement of fault, liability or what the law requires. Act 3 says where the people affected can find help and information.`,
 };
 
@@ -117,7 +122,7 @@ function structureBlock(kind: Kind | null): string {
 
 ${kindBlock(kind)}`;
   }
-  return `The kind of presentation: the presenter has not said. Read the material, the audience and the intent, and choose the likeliest of the eight kinds below. Set "kind" to it and give every part that kind's job. If none fits well, choose "other".
+  return `The kind of presentation: the presenter has not said. Read the material, the audience and the intent, and choose the likeliest of the twelve kinds below. Set "kind" to it and give every part that kind's job. If none fits well, choose "other".
 
 ${FORM_KINDS.map(kindBlock).join("\n\n")}`;
 }

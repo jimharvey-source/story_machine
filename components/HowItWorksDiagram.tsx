@@ -255,7 +255,7 @@ function PhoneDiagram({ play }: { play: boolean }) {
   );
 }
 
-export function HowItWorksDiagram() {
+export function HowItWorksDiagram({ children }: { children?: React.ReactNode }) {
   const { ref, seen } = useInView<HTMLDivElement>();
   const reduced = useReducedMotion();
   const state = reduced ? "still" : seen ? "play" : "wait";
@@ -384,6 +384,7 @@ export function HowItWorksDiagram() {
         {/* Phones: the same drawing turned upright, so it reads top to bottom at full width (Jim, 23 October). */}
         <PhoneDiagram play={state === "play"} />
       </div>
+      {children}
     </section>
   );
 }

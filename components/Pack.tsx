@@ -63,7 +63,7 @@ export function Rehearse({ story, landing }: { story: Story; landing: Landing })
 
       <section className="border-t border-rule pt-8">
         <p className="eyebrow">Word for word</p>
-        <Why>The spoken parts in full, for rehearsal. Hear whether they sound like you and change any that do not. Word for word is for legal and political speeches; for everything else, the notes.</Why>
+        <Why>The spoken parts in full, for rehearsal. Hear whether they sound like you and change any that do not. Learn the Prologue and the Epilogue by heart. Tell the acts in your own words.</Why>
         <button
           type="button"
           onClick={() => setShowScript((v) => !v)}

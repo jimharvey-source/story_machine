@@ -2,15 +2,16 @@
 
 You have an upcoming presentation. You have notes, documents, maybe some old slides, or perhaps just a head full of rough thinking. StoryMachine helps you turn that material into a story built for your audience, then gives you what you need to deliver it: the words for the first and last minute; speaker notes; and, if you need it, a brief for your slides.
 
-It takes five steps and less than 30 minutes:
+It takes six steps and less than 30 minutes:
 
-1. **Key questions.** What kind of presentation is it? What is it about? Who is your audience, and why does it matter to them? What do you want them to do? What is your message? How long is it?
-2. **Your material.** Type or paste your notes and upload your files.
-3. **Your email.** We send you a six-digit code. No credit card necessary.
-4. **Your story.** It arrives, ready to read, revise and download.
-5. **Slides, then rehearsal.** If you need slides, a PowerPoint outline, a slide brief and a prompt for your own AI tool. Then speaker notes to help you rehearse.
+1. **Answer some key questions.** What kind of presentation is it? What is it about? Who is your audience, and why does it matter to them? What do you want them to do? What is your message? How long is it?
+2. **Add what you have.** Type or paste your notes and upload your files.
+3. **Get your story straight.** StoryMachine writes the first draft of your story. You make it right.
+4. **Add interest and impact.** One button adds a strong start, signposts, a clear ending, speaker notes and suggestions for more powerful language.
+5. **If you need them, make your slides.** A PowerPoint outline, a slide brief and a prompt for your own AI tool.
+6. **Rehearse it into life.** Speaker notes and the words in full.
 
-Your first story is free. Each part arrives with a line saying why it is there, so you learn the method as you work with it.
+Your first story is free. You need only your email; no credit card required. Each part arrives with a line saying why it is there, so you learn the method as you work with it.
 
 ## Step 1: Key questions
 
@@ -26,8 +27,12 @@ Think carefully about these questions. They are the foundation of your presentat
 | Strategy recommendation | **Why change.** Where we are now, where we want to be, and why it matters. | **The strategy.** The route we recommend, step by step, and why it beats the alternatives. | **What happens next.** The recommendation, the actions from here, and the decision we need. |
 | Sales pitch | **The need.** The need, what it is costing them, and the gap to close. | **The solution.** The product, idea or service, and how it closes the gap. | **The proof and the close.** The proof, the price, and the next step we agree. |
 | Choosing between options | **The choice.** The problem or opportunity ahead, and the criteria for a good decision. | **The options.** Each option, with its costs and benefits measured against the criteria. | **The decision.** The decision required, the recommendation if needed, who decides, by when and how. |
+| Funding request | **The opportunity.** The problem or opportunity, who it matters to, and what it is worth. | **The plan.** What you will do, who will do it, the milestones, and the evidence it will work. | **The ask.** The amount, what it pays for, the return or result, and the decision you need. |
+| Leading change | **Why change.** Where we are, why staying here is not an option, and what it costs us. | **The change.** What the change is, how it will happen, step by step, and what stays the same. | **What it means for you.** What changes for each person, the support they will have, and the first thing we ask of them. |
+| Product launch | **The need.** The need or frustration this audience knows, and what it costs them today. | **What is new.** What the product does, how it meets the need, and the proof. | **How to get it.** When and how to get it, the price or offer, and the first step. |
+| Team kickoff | **Why we are here.** What we are here to achieve, why it matters, and what success looks like. | **How we will work.** Roles, the plan, the milestones and the ways of working we agree. | **What happens first.** The first actions, owners and dates, and what we ask of each person. |
+| Lessons learned | **What happened.** What we set out to do, what happened, and the result, in facts. | **What we learned.** What worked, what did not, and why, most important first. | **What we will do differently.** Each change, who owns it, and what we ask of this audience. |
 | Conference keynote | **Why it matters.** How your talk fits the conference and the audience. | **The present.** How you and your organisation are navigating the field. | **The future.** What happens next, what it means, and what you want from this audience. |
-| Scientific presentation | **Why the experts should care.** The implications of the latest developments in your field. | **The challenges.** What remains unsolved, and what it means for the field and for society. | **The ask.** What you are doing, and how the audience can benefit from your insights. |
 | Bad news | **What happened.** What happened, the impact on people, and why, in facts. | **Putting it right.** What we are doing now to contain it, and the longer-term fix. | **Where this ends.** The future state when all is put right, and the help and information for people affected. |
 | Something else | **Why.** The context and the challenge. | **How.** The answer, and how it works. | **What.** What we need from this audience. |
 
@@ -75,11 +80,11 @@ These kinds of files stay on your computer. StoryMachine reads the words and add
 
 Photos and screenshots have to be uploaded to our servers for StoryMachine to read them and convert them to text. Once this is done, the photo or screenshot is immediately deleted.
 
-Before moving to Step 3, review what landed in the box and delete anything that does not belong.
+Before you press **Find my story**, review what landed in the box and delete anything that does not belong.
 
-## Step 3: Your email
+## Your email
 
-*Sign in with a six-digit code.*
+*Sign in with a six-digit code, the first time you press Find my story.*
 
 Press **Find my story**. If this is your first visit, a box opens beside the button. Enter your email and we will send you a code. Type it in the box. No credit card required.
 
@@ -93,29 +98,19 @@ If you already have an account, click **Already a user? Sign in** at the top of 
 
 Signing in also adds you to the Presentation Guru mailing list. One helpful email a month, full of useful ideas for your presentations. Unsubscribe any time.
 
-## Step 4: Your story
+## Step 3: Get your story straight
 
-*Perhaps a question or two, then the whole story.*
+*Stage 1. A first draft of your story, for you to make right.*
 
 **Follow-up questions.** If something important is still missing after your answers and your material, StoryMachine will ask you up to two short questions before it writes the story. Each question comes with an example of a possible answer. A couple of lines will do, but the more detail you give, the better the story. If you really don't know, leave it blank and press **Write my story**: StoryMachine will name what is missing as a gap.
 
-**The story.** Stage 1 arrives first, with a bar to show how far it has got. Stage 2 follows straight on, in the same run, with its own bar. Read Stage 1 while Stage 2 is on its way.
-
-Everything saves as you work. Open **My stories** at the top of the page to return to any of your stories at any time.
-
-## Stage 1: Get your story straight
-
-*Together with StoryMachine, you build a three-act story.*
-
-Here is what arrives, from the top.
+**The first draft.** A bar shows how far StoryMachine has got. Then the first draft of your story arrives, from the top:
 
 **The Big Idea.** The one line that people will repeat in the corridor afterwards. It is the memorable form of your argument. Everything else rests on it, so spend whatever time it takes to get it right.
 
-**The audience.** Who they are, what they need to hear, and what to leave out. The "leave out" list matters: it keeps your story free of unnecessary detail and leaves space for what is truly important.
+**The audience.** Who they are, what they want, what stands in the way, what they need to hear, and what to leave out. The "leave out" list matters: it keeps your story free of unnecessary detail and leaves space for what is truly important.
 
-**The hero.** Your audience is the hero of the story, and you are the faithful friend who helps them.
-
-**The statement of intent.** Your completion of the sentence "After my presentation, the audience will...". If you can't finish this sentence, the presentation is not ready.
+**What you want your audience to do.** Your completion of the sentence "After my presentation, the audience will...". If you can't finish this sentence, the presentation is not ready.
 
 **The argument.** Your case in one sentence. Everything in the three acts supports the argument.
 
@@ -128,11 +123,13 @@ Here is what arrives, from the top.
 
 **The gaps.** What your material does not say and only you can supply: examples, numbers, the reason your presentation matters to you. StoryMachine never guesses. It asks.
 
-## Stage 2: Add interest and impact
+**Now make it right.** This is the most important step. Everything that follows is built on your audience, your argument and your three acts, so check them before you go on. Change any line (see **Make it your own** below). When the story is right, press **Add interest and impact** at the foot of the page.
 
-*Headlines, soundbites and signposts.*
+## Step 4: Add interest and impact
 
-Stage 2 arrives automatically after Stage 1. There is nothing to press.
+*Stage 2. The opening, the signposts, the ending and your speaker notes.*
+
+Press **Add interest and impact** when your Stage 1 story is right. It takes about a minute. StoryMachine adds:
 
 **The Prologue: the golden minute.** Your opening, written in words for you to say. It earns attention in the first sentence, states the Big Idea, explains why it matters now and tells the audience what to expect. The word count and speaking time sit underneath. Aim for about a minute.
 
@@ -142,41 +139,53 @@ Stage 2 arrives automatically after Stage 1. There is nothing to press.
 
 **Your story in five lines.** The whole talk in 30 seconds. If it works here, it will work with your audience.
 
+**Speaker notes.** Short cues for each part, in the order you say them.
+
+**Add power to your words.** A well-made line sticks in an audience's mind like the hook of a song. Strong speakers choose their words deliberately. StoryMachine suggests up to four lines that would gain power from a rhetorical device. Each suggestion sits in red under its line. It shows the line rewritten ("For example, you could say this:"), then the name of the device and what it is: tricolon, anaphora, chiasmus, hypophora and many more. Press **Use this line** to put it in your story if you like it. Using a suggestion counts as an edit by hand, so it is always free. After you edit, press **Suggest again after your edits**.
+
+Every addition is a suggestion. Use it, change it or leave it. When you are happy with every line, press **My story is ready** at the foot of the page.
+
 ### If you change the Big Idea after Stage 2
 
 The Epilogue ends on the Big Idea. If you change the Big Idea afterwards, a red panel appears above the Epilogue. Press **Rewrite the ending** and StoryMachine rewrites the Epilogue, the final line in the five-line summary, and the speaker notes so they land on the new Big Idea. Your Prologue and your acts stay exactly as you left them.
 
-## Add power to your words
-
-*A rhetorical device, suggested under the line it would strengthen.*
-
-A well-made line sticks in an audience's mind like the hook of a song. Strong speakers choose their words deliberately.
-
-After Stage 2, StoryMachine suggests up to four lines that would gain power from a rhetorical device. Each suggestion sits in red under its line. It shows the line rewritten ("For example, you could say this:"), then the name of the device and what it is: tricolon, anaphora, chiasmus, hypophora and many more. Press **Use this line** to put it in your story if you like it.
-
-Using a suggestion counts as an edit by hand, so it is always free. After you edit, press **Suggest again after your edits**. The suggestions print in the PDF and the Word file.
-
 ## Make it your own
 
-*You can add or edit every section.*
+*You can add or edit every section, at either stage.*
 
 **Type.** Click any line and change it. Your edits save as you go.
 
-**Ask for another version.** Each line has quick edits, such as “sharper”, “simpler” or “more memorable”. You can also type your own instruction, such as "use the hospital example" or "make this about the customer". StoryMachine rewrites that one line and keeps the rest of the story true to it.
+**Ask for another version.** Each line has quick edits, such as "sharper", "simpler" or "more memorable". You can also type your own instruction, such as "use the hospital example" or "make this about the customer". StoryMachine rewrites that one line and keeps the rest of the story true to it.
 
-**Argue with StoryMachine.** Talk the story through. Tell it what feels wrong, push back on its choices, ask it to try a different angle. It explains its thinking and, when you agree, revises the story accordingly. Remember, this is a collaborative process.
+**Argue with StoryMachine.** Under your story, **Refine the story** lets you talk it through. Tell it what feels wrong, push back on its choices, ask it to try a different angle. It explains its thinking and, when you agree, revises the story accordingly. Remember, this is a collaborative process.
 
 **Run it again.** Press **Rework the notes**, change your material or your answers, and press **Find my story again**. This rebuilds the whole story.
 
-**Your free story** includes one rerun and five AI edits. A rerun rebuilds the whole story from your changed notes. An AI edit is one line StoryMachine rewrites for you, or one reply when you argue with it. A line under the downloads shows how many reruns and AI edits remain. Edits by hand are always free. A story you pay for has no limits.
+**Your free story** includes one rerun and five AI edits. A rerun rebuilds the whole story from your changed notes. An AI edit is one line StoryMachine rewrites for you, or one reply when you argue with it. A line at the foot of the story shows how many reruns and AI edits remain. Edits by hand are always free. A story you pay for has no limits.
 
-Every story ends with a panel headed **Make it your own**: the details only you can add, followed by advice to help you rehearse. Do these things before you present. Audiences believe speakers who sound authentic.
+Every story has a panel headed **Make it your own**: the details only you can add, followed by advice to help you rehearse. Do these things before you present. Audiences believe speakers who sound authentic.
 
-## If you need them, add slides
+Everything saves as you work. Open **My stories** at the top of the page to return to any of your stories at any time.
+
+## Your story is ready
+
+*Download it, then make your slides and rehearse.*
+
+Press **My story is ready** and StoryMachine gives you three things to do, in order, or only the ones you need:
+
+1. **Download your story.** **PDF:** the whole story in one document: Stage 1, Stage 2, the suggestions, the speaker notes, the words in full and a final page on the method. Use it to rehearse, to share with a colleague, to keep. **Word:** the same content as an editable document.
+2. **If you need them, make your slides.**
+3. **Rehearse it into life.**
+
+Want to change something? Go back to your story and edit any line. Your downloads, slides and notes always follow the story as it stands.
+
+Every figure in the story comes from your material. Check each one against its source before you present.
+
+## Step 5: If you need them, make your slides
 
 *A PowerPoint outline or a prompt for your AI tool.*
 
-Story first, then slides, then rehearsal. That is the order of the method. When your story is finished, if you need slides, press **Now make your slides**. The slides page gives you:
+Story first, then slides, then rehearsal. That is the order of the method. Press **Make your slides**. The slides page gives you:
 
 - **What great slides do.** One idea per slide, the three-second rule, titles that tell the story.
 - **The slide brief.** Every slide in order: the words, the picture and the part of the story it serves. You can build your slides from this brief.
@@ -185,29 +194,23 @@ Story first, then slides, then rehearsal. That is the order of the method. When 
 
 If you tell StoryMachine you will not use slides, it says so, and still gives you a brief in case you change your mind. A talk built for words alone is a strength.
 
-## Rehearse from your speaker notes
+## Step 6: Rehearse it into life
 
-*Your story in PDF or Word.*
+*Say it out loud.*
 
-Below the slides you will find **Rehearse it into life**. No slides? Press **No slides? Go straight to rehearsal** under your finished story.
+Press **Rehearse**, or **Next: rehearse it into life** at the foot of the slides page.
 
 **Speaker notes.** Short cues, in the order you say them. Speak from these. A cue reminds you what comes next; the actual words will come from you in the room, so they sound like you. Word for word is for legal and political speeches only.
 
 **The words in full.** The Prologue, the signposts and the Epilogue written out, for rehearsal. Learn the Prologue and the Epilogue by heart. Tell the acts in your own words.
-
-Download your story to rehearse from it:
-
-**PDF.** The whole story in one document: Stage 1, Stage 2, the suggestions, the speaker notes, the words in full and a final page on the method. Use it to rehearse, to share with a colleague, to keep.
-
-**Word.** The same content as an editable document.
-
-Every figure in the story comes from your material. Check each one against its source before you present.
 
 Then:
 
 1. **Review StoryMachine's suggestions.** Add the example, the number or the anecdote only you have.
 2. **Say the Prologue and Epilogue aloud.** Change any word that does not feel natural for you.
 3. **Rehearse from the speaker notes.** Talk it through with a colleague and ask three questions: What was my argument? What do I want you to do? What will you remember tomorrow? If your colleague's answers match your intent, the story works. If not, fix the story. Slides cannot repair a weak argument.
+
+A story you pay for can change at any time: go back, refine it, make new slides and rehearse again.
 
 ## Choose a payment plan
 

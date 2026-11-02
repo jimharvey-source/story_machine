@@ -1,63 +1,15 @@
 import Link from "next/link";
 import { Icon, IconTile, type IconName } from "@/components/Icon";
+import { HowItWorksDiagram } from "@/components/HowItWorksDiagram";
 
-// The case for the StoryMachine, from the problem to the method. Shared by the landing page and the
+// The case for the StoryMachine, from the problem to the method (order of 2 November: problem, how it works with the
+// diagram, what you get, types, make it your own, confidential, method). Who we are lives on /about. Shared by the landing page and the
 // programme welcome pages. With `programme`, nothing mentions money: the stories are already paid for.
 // Copy: claude/storymachine-landing-page.md. Lines in quotation marks there are Jim's, word for word.
 
 export function Tour({ programme = false }: { programme?: boolean }) {
   return (
     <>
-        {/* 1b. Who we are (18 October): the "we" behind "our advice" and "65 years between us". */}
-        <section className="mt-20 border-t border-rule pt-16 sm:mt-28">
-          <p className="eyebrow">Who we are</p>
-          <h2 className="display mt-3 max-w-3xl text-3xl leading-tight sm:text-[2.6rem]">
-            Two people who have spent 65 years helping others make their case.
-          </h2>
-          <div className="mt-10 grid gap-5 md:grid-cols-2">
-            <div className="panel overflow-hidden !p-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/team/jim.jpg" alt="Jim Harvey" width={640} height={800} loading="lazy" className="aspect-[5/4] w-full bg-ink object-cover object-top" />
-              <div className="p-7 sm:p-8">
-              <p className="display text-2xl">Jim Harvey</p>
-              <p className="mt-4 text-lg leading-relaxed text-ink-2">
-                Jim started his first business 35 years ago and had to learn to sell as he built it. Before long, clients
-                were asking him to help them launch products, run conferences and train their people. Today his company, The
-                Message Business, works with teams around the world in the technology, retail,
-                consulting and finance sectors. Jim has also written for television, done hundreds of gigs as a stand-up
-                comedian, and hosts conferences as a core part of his work.
-              </p>
-              <a href="https://www.themessagebusiness.com" target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
-                The Message Business
-              </a>
-              </div>
-            </div>
-            <div className="panel overflow-hidden !p-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/team/john.jpg" alt="John Zimmer" width={640} height={800} loading="lazy" className="aspect-[5/4] w-full bg-ink object-cover object-top" />
-              <div className="p-7 sm:p-8">
-              <p className="display text-2xl">John Zimmer</p>
-              <p className="mt-4 text-lg leading-relaxed text-ink-2">
-                John is an internationally recognised expert on public speaking and presentation skills. He gives keynotes,
-                moderates events, and helps organisations around the world communicate more effectively. Before becoming a
-                full-time speaker, John worked as a lawyer at one of Canada&apos;s premier law firms, the United Nations and the
-                World Health Organization. A TEDx speaker and co-creator of <em>Rhetoric: The Public Speaking Game</em>, John is
-                a nine-time European champion in Toastmasters contests and coach of the 2025 and 2026 World Champions of Public
-                Speaking. His blog, <em>Manner of Speaking</em>, has been a leading voice on public speaking since 2009.
-              </p>
-              <a href="https://mannerofspeaking.org" target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
-                Manner of Speaking
-              </a>
-              </div>
-            </div>
-          </div>
-          <p className="mt-8 max-w-3xl text-lg leading-relaxed text-ink-2">
-            Jim and John met through a shared obsession with presentations, started{" "}
-            <a href="https://www.presentation-guru.com" target="_blank" rel="noopener noreferrer" className="underline decoration-rule underline-offset-4 hover:text-ink"><em>Presentation Guru</em></a>{" "}
-            together, and have worked side by side ever since.
-          </p>
-        </section>
-
         {/* 2. The problem */}
         <Section icon="backwards" label="The problem" title="Most presentations are built backwards.">
           <p>
@@ -77,20 +29,37 @@ export function Tour({ programme = false }: { programme?: boolean }) {
         </Section>
 
         {/* 3. How it works */}
-        <Section icon="acts" label="How it works" title="Five steps. Under 30 minutes.">
-          <ol className="mt-2 border-b border-rule">
-            {(programme ? HOW_PROGRAMME : HOW).map(([head, body], i) => (
+        {/* 3. How it works (2 November): the diagram and the steps are one section, with a way to start straight away. */}
+        <HowItWorksDiagram>
+          <h3 className="display mt-16 text-2xl sm:text-3xl">Six steps. Under 30 minutes.</h3>
+          <ol className="mt-6 max-w-3xl border-b border-rule">
+            {HOW.map(([head, body], i) => (
               <li key={head} className="grid grid-cols-[1.5rem_1fr_auto] items-start gap-3 border-t border-rule py-6">
                 <span className="text-base font-semibold text-red pt-0.5">{i + 1}</span>
                 <span>
                   <span className="block text-lg font-semibold text-ink">{head}</span>
-                  <span className="mt-1 block text-ink-2">{body}</span>
+                  <span className="mt-1 block text-lg leading-relaxed text-ink-2">{body}</span>
                 </span>
-                <IconTile name={(programme ? STEP_ICONS_PROGRAMME : STEP_ICONS)[i]} size="sm" />
+                <IconTile name={STEP_ICONS[i]} size="sm" />
               </li>
             ))}
           </ol>
-        </Section>
+          <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
+            {programme ? (
+              <a href="#signin" className="inline-flex items-center justify-center rounded-md bg-ink px-7 py-3.5 text-base font-medium text-paper hover:opacity-90">
+                Sign in to start
+              </a>
+            ) : (
+              <Link href="/build" className="inline-flex items-center justify-center rounded-md bg-ink px-7 py-3.5 text-base font-medium text-paper hover:opacity-90">
+                Start your first story
+              </Link>
+            )}
+            <Link href="/guide" className="text-base text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
+              Or follow the step-by-step guide
+            </Link>
+          </div>
+          {!programme && <p className="mt-3 text-sm text-muted">Your first story is free. Just your email, no credit card.</p>}
+        </HowItWorksDiagram>
 
         {/* 4. What you get */}
         <section className="border-t border-rule pt-16 mt-20 sm:mt-28">
@@ -180,7 +149,8 @@ export function Tour({ programme = false }: { programme?: boolean }) {
         <Section icon="book" label="The method behind it" title="65 years of the same method, in one tool.">
           <p>
             Between us, we have used this method for 65 years with teams at AstraZeneca, Ford, Givaudan, Gore, Grifols, JP
-            Morgan, Mercer, Mott MacDonald, Nokia, Puig, Rolls-Royce, UEFA, the United Nations, Zalando and many others.
+            Morgan, Mercer, Mott MacDonald, Nokia, Puig, Rolls-Royce, UEFA, the United Nations, Zalando and many others.{" "}
+            <Link href="/about" className="underline decoration-rule underline-offset-4 hover:text-ink">Who we are</Link>
           </p>
           <p className="mt-4">
             Each part of your story has a line explaining why it is there, so you learn the method while you work with
@@ -214,37 +184,27 @@ export function Section({ icon, label, title, children }: { icon: IconName; labe
   );
 }
 
-// Five steps, in the order the public visitor meets them (John Zimmer's working draft 4, 18 October).
+// Six steps, in the order the visitor meets them (2 November: no email step; the two stages are steps 3 and 4;
+// slides and rehearsal are separate). The same on the landing page and the programme welcome pages.
 const HOW: Array<[string, string]> = [
   [
     "Answer some key questions.",
     "What kind of presentation is it? What is it about? Who is your audience, and why does it matter to them? What do you want them to do as a result? What is your message, and why should they care? How long is your presentation?",
   ],
+  ["Add what you have.", "Paste or type your notes. Upload any relevant documents, or a photo of your whiteboard."],
   [
-    "Add what you have.",
-    "Paste or type your notes. Upload any relevant documents, or a photo of your whiteboard.",
+    "Get your story straight.",
+    "StoryMachine writes the first draft: your Big Idea, your argument and your three acts. Read it and change any line. Ask for a sharper version, or argue with StoryMachine until it says what you mean.",
   ],
   [
-    "Enter your email.",
-    "We will send you a six-digit code. Type it on the page. No credit card required. Your first story is free.",
+    "Add interest and impact.",
+    "When the story is right, press one button. StoryMachine adds a strong start, signposts, a clear ending, speaker notes and suggestions for more powerful language. Use them, change them or leave them.",
   ],
   [
-    "Read and revise your story.",
-    "Edit any line, ask for a sharper version, or argue with StoryMachine until it says what you mean. When you are satisfied, download your story as a PDF or Word file.",
+    "If you need them, make your slides.",
+    "Download your story as a PDF or Word file. Then take the PowerPoint outline, or a detailed prompt for your preferred AI tool.",
   ],
-  [
-    "Add slides, then rehearse.",
-    "If you need slides, StoryMachine will produce a PowerPoint outline and generate a detailed prompt for your slides to use in your preferred AI tool. Then rehearse from your speaker notes.",
-  ],
-];
-
-// On a programme welcome page the person signs in at the top first.
-const HOW_PROGRAMME: Array<[string, string]> = [
-  ["Sign in at the top of this page.", "Your work email and the six-digit code we send you."],
-  HOW[0],
-  HOW[1],
-  HOW[3],
-  HOW[4],
+  ["Rehearse it into life.", "Say it out loud from your speaker notes, with your slides if you have them."],
 ];
 
 const STAGES = [
@@ -283,11 +243,72 @@ const KINDS: Array<[string, IconName]> = [
   ["Strategy recommendation", "strategy"],
   ["Sales pitch", "pitch"],
   ["Choosing between options", "options"],
+  ["Funding request", "tag"],
+  ["Leading change", "backwards"],
+  ["Product launch", "upload"],
+  ["Team kickoff", "target"],
+  ["Lessons learned", "book"],
   ["Conference keynote", "mic"],
-  ["Scientific presentation", "science"],
   ["Bad news", "badnews"],
   ["Something else", "quote"],
 ];
 
-const STEP_ICONS: IconName[] = ["questions", "notes", "mail", "acts", "slides"];
-const STEP_ICONS_PROGRAMME: IconName[] = ["mail", "questions", "notes", "acts", "slides"];
+const STEP_ICONS: IconName[] = ["questions", "notes", "target", "acts", "slides", "mic"];
+
+/** Who we are: Jim's and John's bios. On /about since 2 November. */
+export function WhoWeAre() {
+  return (
+    <>
+        {/* Who we are (18 October; on its own page since 2 November). */}
+        <section className="mt-20 border-t border-rule pt-16 sm:mt-28">
+          <p className="eyebrow">Who we are</p>
+          <h2 className="display mt-3 max-w-3xl text-3xl leading-tight sm:text-[2.6rem]">
+            Two people who have spent 65 years helping others make their case.
+          </h2>
+          <div className="mt-10 grid gap-5 md:grid-cols-2">
+            <div className="panel overflow-hidden !p-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/team/jim.jpg" alt="Jim Harvey" width={640} height={800} loading="lazy" className="aspect-[5/4] w-full bg-ink object-cover object-top" />
+              <div className="p-7 sm:p-8">
+              <p className="display text-2xl">Jim Harvey</p>
+              <p className="mt-4 text-lg leading-relaxed text-ink-2">
+                Jim started his first business 35 years ago and had to learn to sell as he built it. Before long, clients
+                were asking him to help them launch products, run conferences and train their people. Today his company, The
+                Message Business, works with teams around the world in the technology, retail,
+                consulting and finance sectors. Jim has also written for television, done hundreds of gigs as a stand-up
+                comedian, and hosts conferences as a core part of his work.
+              </p>
+              <a href="https://www.themessagebusiness.com" target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
+                The Message Business
+              </a>
+              </div>
+            </div>
+            <div className="panel overflow-hidden !p-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/team/john.jpg" alt="John Zimmer" width={640} height={800} loading="lazy" className="aspect-[5/4] w-full bg-ink object-cover object-top" />
+              <div className="p-7 sm:p-8">
+              <p className="display text-2xl">John Zimmer</p>
+              <p className="mt-4 text-lg leading-relaxed text-ink-2">
+                John is an internationally recognised expert on public speaking and presentation skills. He gives keynotes,
+                moderates events, and helps organisations around the world communicate more effectively. Before becoming a
+                full-time speaker, John worked as a lawyer at one of Canada&apos;s premier law firms, the United Nations and the
+                World Health Organization. A TEDx speaker and co-creator of <em>Rhetoric: The Public Speaking Game</em>, John is
+                a nine-time European champion in Toastmasters contests and coach of the 2025 and 2026 World Champions of Public
+                Speaking. His blog, <em>Manner of Speaking</em>, has been a leading voice on public speaking since 2009.
+              </p>
+              <a href="https://mannerofspeaking.org" target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
+                Manner of Speaking
+              </a>
+              </div>
+            </div>
+          </div>
+          <p className="mt-8 max-w-3xl text-lg leading-relaxed text-ink-2">
+            Jim and John met through a shared obsession with presentations, started{" "}
+            <a href="https://www.presentation-guru.com" target="_blank" rel="noopener noreferrer" className="underline decoration-rule underline-offset-4 hover:text-ink"><em>Presentation Guru</em></a>{" "}
+            together, and have worked side by side ever since.
+          </p>
+        </section>
+
+    </>
+  );
+}

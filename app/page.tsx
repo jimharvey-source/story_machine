@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { Lockup } from "@/components/Logo";
 import { Icon, IconTile } from "@/components/Icon";
 import { Tour } from "@/components/Tour";
-import { HowItWorksDiagram } from "@/components/HowItWorksDiagram";
 import { CONTACT_EMAIL } from "@/lib/method";
 
 // The front door. Signed-out visitors read the case and press "Build your first story"; the tool lives at /build.
@@ -41,6 +40,7 @@ export default async function Landing({ searchParams }: Props) {
       <header className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-5 pt-6 lg:px-10">
         <Lockup href={null} />
         <nav className="ml-auto flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+          <Link href="/about" className="text-ink-2 hover:text-ink">About us</Link>
           <Link href="/guide" className="text-ink-2 hover:text-ink">User Guide</Link>
           {!signedIn && <Link href="/build#signin" className="text-ink-2 hover:text-ink">Sign in</Link>}
           <BuildButton small signedIn={signedIn} />
@@ -66,9 +66,6 @@ export default async function Landing({ searchParams }: Props) {
           </div>
           <HeroStory />
         </section>
-
-        {/* How StoryMachine works, in one picture (23 October): the diagram from the design canvas, animated. */}
-        <HowItWorksDiagram />
 
         <Tour />
 

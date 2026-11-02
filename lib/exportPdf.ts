@@ -3,7 +3,7 @@ import path from "node:path";
 import PDFDocument from "pdfkit";
 import type { z } from "zod";
 import type { LandingInputSchema, Rhetoric, StoryInputSchema } from "./schema";
-import { RHETORIC_LEAD, RHETORIC_TITLE, hasRhetoric, pathLabel } from "./rhetoric";
+import { RHETORIC_LEAD, RHETORIC_TITLE, cleanLine, hasRhetoric, pathLabel } from "./rhetoric";
 import { OWN_IT_LEAD, ownItAdvice } from "./ownIt";
 import { KINDS, kindOf } from "./kinds";
 import { LICENCE, METHOD, SIGN_OFF } from "./method";
@@ -346,7 +346,7 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
       thinRule();
       subhead(RHETORIC_TITLE, RHETORIC_LEAD, 140);
       const where = (p?: string, w?: string) => pathLabel(p, story.kind) || w || "";
-      for (const s of rhetoric.suggestions) {
+      for (const s of rhetoric.suggestions.filter((x) => cleanLine(x.better))) {
         const what = `${s.device}. ${s.what ?? ""}`.trim();
         keep(heightOf(s.better, font.said, 11.5, W - 12) + heightOf(what, font.sans, 9.5, W - 12) + 56);
         const y0 = doc.y;
@@ -480,7 +480,7 @@ export function renderPdf(title: string, story: Story, landing: Landing | null, 
         ["Make it yours.", "Section 3 has StoryMachine's suggestions. Add the examples only you have, and put any proposed line in your own words."],
         landing
           ? ["Make your slides, then rehearse.", "Build your slides from the StoryMachine slides page, then rehearse from the speaker notes in section 4."]
-          : ["Add interest and impact.", "Finish the story in StoryMachine to get your opening, signposts, ending and speaker notes."],
+          : ["Add interest and impact.", "Press Add interest and impact in StoryMachine to get your opening, signposts, ending and speaker notes."],
       ];
       const inner = W - 8;
       let h = 14 + heightOf("What is in this document", font.bold, 11, inner) + 4 + heightOf(what, font.sans, 10, inner) + 12;

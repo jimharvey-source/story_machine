@@ -33,3 +33,13 @@ export function suggestionLine(s: Rhetoric["suggestions"][number]): string {
 export function hasRhetoric(r: Rhetoric | null | undefined): r is Rhetoric {
   return Boolean(r && r.suggestions.length);
 }
+
+/**
+ * A suggested line worth showing: quotation marks and stray punctuation stripped, and at least three words.
+ * The model once returned a line that was only a pair of quotation marks (John Zimmer, 2 November): Use this line
+ * then emptied the headline. Such a suggestion is dropped, on the server and again on the page for saved stories.
+ */
+export function cleanLine(t: string | null | undefined): string {
+  const s = (t ?? "").trim().replace(/^[\s"'“”‘’«».,;:-]+|[\s"'“”‘’»«,;:-]+$/g, "").trim();
+  return s.split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length >= 3 ? s : "";
+}
