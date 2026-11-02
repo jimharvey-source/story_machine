@@ -1364,11 +1364,6 @@ export default function Build() {
               <span className="font-semibold text-red">2</span> Add interest and impact {landing && <span className="text-red">&#10003;</span>}
             </li>
           </ol>
-          {busy === "land" && (
-            <div className="rounded-md bg-panel px-4 py-3 text-sm text-ink-2" role="status">
-              <Progress label="Stage 2: adding interest and impact" expected={45} />
-            </div>
-          )}
           {/* Two stages, each checked before the next (Jim and John, 2 November). */}
           {landing ? (
             <div className="max-w-2xl space-y-2 text-ink-2">
@@ -1726,8 +1721,14 @@ export default function Build() {
                 >
                   {busy === "land" ? "Adding interest and impact..." : "Add interest and impact"}
                 </button>
-                <span className="text-sm text-paper/70">About a minute.</span>
+                {busy !== "land" && <span className="text-sm text-paper/70">About a minute.</span>}
               </div>
+              {/* The Stage 2 bar sits by the button that started it, where the user is looking (2 November). */}
+              {busy === "land" && (
+                <div className="mt-6" role="status">
+                  <Progress label="Stage 2: adding interest and impact" expected={60} dark />
+                </div>
+              )}
             </section>
           )}
 
