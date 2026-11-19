@@ -7,7 +7,7 @@ export const OWN_IT_TITLE = "Additional suggestions from StoryMachine";
 export const OWN_IT_LEAD =
   "StoryMachine gives you the structure and a first draft. Audiences believe speakers who sound like themselves, so this part is yours. Follow this advice before you rehearse.";
 
-export function ownItAdvice(story: Story, landing: Landing | null): string[] {
+export function ownItAdvice(story: Story, landing: Omit<Landing, "supportingSlides"> | null): string[] {
   const out: string[] = [];
   // The StoryMachine gives no legal advice. For bad news, this line always comes first.
   if (story.kind === "badnews") out.push("Take legal advice before you explain how it happened.");

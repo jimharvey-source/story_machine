@@ -4,6 +4,8 @@ import { unlockStory } from "@/lib/guest";
 import { describeKey, generateStructured } from "@/lib/anthropic";
 import { landSystem, landUserMessage } from "@/lib/prompts";
 import { namesToAvoid } from "@/lib/voice";
+import { supportingCap } from "@/lib/slideCap";
+import { capSupporting } from "@/lib/slides";
 import { LandRequestSchema, LandingSchema } from "@/lib/schema";
 
 export const runtime = "nodejs";
@@ -43,8 +45,10 @@ export async function POST(req: Request) {
       voice: { contractionsInWritten: register === "conversational", source: notes, avoid: namesToAvoid(story.audience.doNotNeedToHear), bigIdea: story.bigIdea },
     });
     await logGeneration(profile.id, "land", { attempts: result.attempts, violationsBefore: result.violationsBefore, violationsAfter: result.violationsAfter });
+    // The ceiling on supporting slides is checked here as well as asked for in the prompt.
+    const landing = { ...result.data, supportingSlides: capSupporting(result.data.supportingSlides, supportingCap(minutes)) };
     return NextResponse.json({
-      landing: result.data,
+      landing,
       meta: {
         model: result.model,
         attempts: result.attempts,

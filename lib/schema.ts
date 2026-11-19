@@ -86,6 +86,16 @@ export const LandingActSchema = z.object({
     ),
 });
 
+// Supporting slides (John Zimmer, 19 November 2026): beyond the three act slides, only where the audience
+// needs to see something. Each is written in the act slide's shape: Words: "..." Picture: ...
+const supportingList = z
+  .array(z.string())
+  .describe('Supporting slides for this beat, in the order they come. Each in exactly this shape: Words: "what the audience reads, ten words or fewer" Picture: one sentence, or "none; the words carry the slide". Empty when the beat needs none.');
+export const SupportingSlidesSchema = z
+  .object({ prologue: supportingList, why: supportingList, how: supportingList, what: supportingList, epilogue: supportingList })
+  .describe("Supporting slides beyond the three act slides, grouped by beat. Most beats need none.");
+export type SupportingSlides = z.infer<typeof SupportingSlidesSchema>;
+
 export const LandingSchema = z.object({
   prologue: z
     .string()
@@ -107,8 +117,6 @@ export const LandingSchema = z.object({
     what: z.string(),
     epilogue: z.string(),
   }),
-  titleSlide: z.string().describe("Words on the title slide: the Big Idea, word for word."),
-  closingSlide: z.string().describe("Words on the closing slide: the Big Idea, word for word, as the last line of the epilogue."),
   speechNotes: z
     .object({
       prologue: z.array(z.string()),
@@ -120,6 +128,7 @@ export const LandingSchema = z.object({
     .describe(
       "Speech notes for the presenter to hold: three to five cues per beat, each ten words or fewer, memory hooks rather than sentences, in the order they are said."
     ),
+  supportingSlides: SupportingSlidesSchema,
   gaps: z
     .array(z.string())
     .describe(
@@ -129,12 +138,17 @@ export const LandingSchema = z.object({
 
 export type Landing = z.infer<typeof LandingSchema>;
 
-/** A landing coming back from the browser or the database. Older ones lack the two slide lines. */
+/**
+ * A landing coming back from the browser or the database. Older ones carry two slide lines the AI no longer
+ * writes, and lack supporting slides. A landing without supporting slides keeps the old deck (one slide per
+ * cue) until its Stage 2 is run again (Jim, 19 November 2026).
+ */
 const EMPTY_NOTES = { prologue: [], why: [], how: [], what: [], epilogue: [] };
 export const LandingInputSchema = LandingSchema.extend({
-  titleSlide: z.string().default(""),
-  closingSlide: z.string().default(""),
+  titleSlide: z.string().optional(),
+  closingSlide: z.string().optional(),
   speechNotes: LandingSchema.shape.speechNotes.default(EMPTY_NOTES),
+  supportingSlides: SupportingSlidesSchema.optional(),
 });
 
 export const RegisterSchema = z.enum(["formal", "business", "conversational"]).default("business");

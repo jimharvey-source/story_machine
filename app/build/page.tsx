@@ -702,8 +702,6 @@ export default function Build() {
               epilogue: data.ending.epilogue,
               fiveLineStory: { ...prev.fiveLineStory, epilogue: data.ending.fiveLineEpilogue },
               speechNotes: { ...prev.speechNotes, epilogue: data.ending.epilogueNotes },
-              titleSlide: story.bigIdea,
-              closingSlide: story.bigIdea,
             }
           : prev,
       );

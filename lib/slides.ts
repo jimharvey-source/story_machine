@@ -22,7 +22,7 @@ function actsOf(story: Story): Array<[keyof Pick<Story, "why" | "how" | "what">,
 export type Slide = { name: string; words: string; picture: string; serves: string; notes: string[] };
 
 // Labels a cue uses to tell the presenter what to do. On a slide they go: the rest of the cue is the title.
-const CUE_LABEL = /^(?:open with|close on|close|quote|recap|ask|preview|land it|tell|show|state|say|mention|remind them)\s*:\s*/i;
+const CUE_LABEL = /^(?:open with|close on|close|quote|recap|ask|preview|land it|tell|show|state|say|mention|remind them|soundbite|action)\s*:\s*/i;
 
 // Short words that carry no meaning of their own, so they never decide whether a cue repeats a slide.
 const FILLER = new Set(["this", "that", "these", "those", "with", "from", "your", "their", "they", "them", "have", "here", "there", "what", "when", "into", "onto", "about", "just", "also", "very", "then", "than", "will", "were", "been", "being"]);
@@ -56,12 +56,13 @@ function cueSlide(cue: string, name: string, serves: string): Slide {
 }
 
 /**
- * The deck. The titles narrate the story: read in order, they tell it.
+ * The old deck, kept for stories whose Stage 2 ran before 19 November 2026 (they have no supporting slides).
+ * The titles narrate the story: read in order, they tell it.
  * Title (the Big Idea), the Prologue's cues, then for each act its picture slide and one slide per cue,
  * then the Epilogue's cues and the closing slide (the Big Idea again). Cues that only repeat the Big Idea are
  * left to the title and closing slides, and cues that repeat their act's picture slide are left to that slide. A story without speech notes gets the five-slide deck.
  */
-export function deck(story: Story, landing: Landing): Slide[] {
+function legacyDeck(story: Story, landing: Landing): Slide[] {
   const cues = landing.speechNotes;
   const big = story.bigIdea;
   // A cue that repeats the Big Idea is left to the title and closing slides; one that repeats its act's
@@ -96,11 +97,13 @@ export function deck(story: Story, landing: Landing): Slide[] {
 
 /** The deck as brief lines: name, the words and picture, the part it serves. */
 export function slideList(story: Story, landing: Landing): SlideLine[] {
-  return deck(story, landing).map((s): SlideLine => [s.name, `Words: "${s.words}" Picture: ${s.picture}.`.replace(/\.\.$/, "."), s.serves]);
+  if (isNewDeck(landing)) return deck(story, landing).map((s): SlideLine => [s.name, briefText(s), s.serves]);
+  return legacyDeck(story, landing).map((s): SlideLine => [s.name, `Words: "${s.words}" Picture: ${s.picture}.`.replace(/\.\.$/, "."), s.serves]);
 }
 
 /** The prompt a presenter pastes into their own AI slide tool. Our rules for slides, then their brief. */
 export function slidePrompt(story: Story, landing: Landing, slides: SlideLine[] = slideList(story, landing)): string {
+  if (isNewDeck(landing)) return newSlidePrompt(story, landing);
   const rules = [
     "Make a slide deck of exactly the slides listed below, in that order, 16:9.",
     "One idea per slide. If a slide needs two ideas, it is two slides.",
@@ -129,4 +132,138 @@ export function slidePrompt(story: Story, landing: Landing, slides: SlideLine[] 
     `The presentation is for: ${story.audience.who}`,
     "Return the deck, then one line per slide saying what job it does for the audience. If a slide has no job, leave it out and say so.",
   ].join("\n");
+}
+
+
+// ---------------------------------------------------------------------------------------------------------
+// The deck from 19 November 2026 (John Zimmer's slide rules). Cues stay in the speaker notes and never become
+// slides. The AI chooses a few supporting slides where the audience needs to see something. Order: title, any
+// prologue slides, then for each act its act slide and its supporting slides, any epilogue slides, close.
+// ---------------------------------------------------------------------------------------------------------
+
+type Beat = "prologue" | "why" | "how" | "what" | "epilogue";
+
+/** A landing made since 19 November carries supporting slides (even an empty set). Older ones keep the old deck. */
+export function isNewDeck(landing: Landing): boolean {
+  return !!landing.supportingSlides;
+}
+
+/** The picture is real when it names something to draw, rather than "none". */
+export function hasPicture(s: Slide): boolean {
+  return !!s.picture && !/^none\b/i.test(s.picture.trim());
+}
+
+function supportingSlide(raw: string, name: string, serves: string): Slide | null {
+  const { words, picture } = splitSlideIdea(raw);
+  // Labels never reach a slide: if the AI leaves one on, it comes off here.
+  const text = (words || "").trim().replace(CUE_LABEL, "").replace(/[;,]\s*$/, "");
+  if (!text) return null;
+  return {
+    name,
+    words: text.charAt(0).toUpperCase() + text.slice(1),
+    picture: picture.replace(/\.$/, "").trim() || "none; the words carry the slide",
+    serves,
+    notes: [],
+  };
+}
+
+/** Share a beat's cues across its slides in spoken order: the first cues to the first slide, and so on. */
+function shareCues(slides: Slide[], cues: string[]): void {
+  const list = (cues ?? []).map((c) => c.trim()).filter(Boolean);
+  if (!slides.length) return;
+  list.forEach((c, i) => slides[Math.floor((i * slides.length) / list.length)].notes.push(c));
+}
+
+/** The deck for a landing with supporting slides. */
+export function deck(story: Story, landing: Landing): Slide[] {
+  if (!isNewDeck(landing)) return legacyDeck(story, landing);
+  const big = story.bigIdea;
+  const support = landing.supportingSlides!;
+  const cues = landing.speechNotes;
+  const kept = (beat: Beat, name: string, serves: string, also = "") =>
+    (support[beat] ?? [])
+      .map((r) => supportingSlide(r, name, serves))
+      .filter((s): s is Slide => !!s && !echoes(s.words, big) && !(also && echoes(s.words, also)));
+
+  // Title and closing slides carry the Big Idea word for word, set here, never by the AI.
+  const title: Slide = { name: "Title", words: big, picture: "none, or one image that carries the big idea", serves: "Prologue", notes: [] };
+  const close: Slide = { name: "Close", words: big, picture: "none", serves: "Epilogue", notes: [] };
+
+  const opening = [title, ...kept("prologue", "Prologue", "Prologue")];
+  shareCues(opening, cues.prologue);
+  const out: Slide[] = [...opening];
+
+  for (const [key, label] of actsOf(story)) {
+    const { words, picture } = splitSlideIdea(landing[key].visualIdea);
+    const short = label.split(",")[0];
+    const anchorWords = words || story[key].headline;
+    const act: Slide = { name: short, words: anchorWords, picture: picture.replace(/\.$/, "").trim() || "none", serves: label, notes: [] };
+    const group = [act, ...kept(key, short, label, anchorWords)];
+    shareCues(group, cues[key]);
+    act.notes.unshift(label, `Signpost: ${landing[key].signpost}`);
+    out.push(...group);
+  }
+
+  const ending = [...kept("epilogue", "Epilogue", "Epilogue"), close];
+  shareCues(ending, cues.epilogue);
+  out.push(...ending);
+  return out;
+}
+
+/** One slide as a brief line: words, picture, and the cues that go in its notes. */
+function briefText(s: Slide, withNotes = false): string {
+  const cues = s.notes.filter((n) => !/^(Act \d|Signpost:)/.test(n));
+  const notes = withNotes && cues.length ? ` Notes: ${cues.join("; ")}` : "";
+  return `Words: "${s.words}" Picture: ${s.picture}.${notes}`.replace(/\.\.(\s|$)/, ".$1");
+}
+
+/** The prompt a presenter pastes into their own AI slide tool, in John Zimmer's wording (19 November 2026). */
+function newSlidePrompt(story: Story, landing: Landing): string {
+  const slides = deck(story, landing);
+  const rules = [
+    "Build the slides listed below, in that order, 16:9. Keep the title and closing slides, and their words, exactly as given. Leave out any other slide that does no job for the audience. If you leave out a slide, add its notes to the speaker notes of the slide before it.",
+    "One idea per slide. If a slide carries two ideas, split it into two slides.",
+    "Read in order, the slide titles should tell the story. The words for each slide are a strong starting point. Keep their meaning. On every slide except the title and closing slides, you may tighten the words so they fit on two lines, but never cut a title down to a label. List any words you changed.",
+    "The three-second rule: the audience should grasp the point of every slide in three seconds. A chart or diagram may hold more detail, but its title and the one element the eye goes to first make the point at a glance. If a slide needs reading, it needs cutting.",
+    "Use the standard layouts and their placeholders, so the deck can move onto a company template without rebuilding a slide. Title and closing slides: the Title Slide layout. The words go in the title placeholder. Delete the subtitle placeholder. Slides with a picture: the Title and Content layout. The words go in the title placeholder. An image or a chart goes in the content placeholder. A diagram is one grouped object that fills the content area; delete the empty content placeholder. Slides with words only: the Title Only layout, with the title placeholder centred on the slide. Set this in the layout, not on each slide.",
+    "Never add a text box or a shape outside the placeholders, except a grouped diagram. Never put each item in its own box. Where a slide lists several items (stages, steps, a comparison), they are lines in the one content placeholder, one item per line, no bullet characters. A chart is one native chart object, with its labels inside it.",
+    "Nothing else on the slides. No subtitles, no logos, no slide numbers, no footers.",
+    "Words large, and two lines at most: 54 points on the title, closing and words-only slides; 36 points on slides with a picture, to leave room for it. Labels inside a chart or diagram at least 18 points. One typeface, two weights at most. Set fonts, sizes and colours in the slide master, its layouts and the theme, never on individual slides, so a company template can replace them.",
+    "One picture per slide at most, as described below. A picture illustrates and supports. It never decorates.",
+    "Where a slide has a list or a chart, build it one item at a time: lines appear by paragraph, a chart by category.",
+    "A quiet palette: one dark, one light, one accent. Plenty of empty space. Television quality: a viewer across the room reads it at a glance.",
+    "No transitions, no clip art, no gradients, no stock-photo people shaking hands.",
+    "Put each slide's notes in its speaker notes, as given. They are for the presenter and never appear on the slide.",
+    "If your tool cannot make a PowerPoint file, follow the same rules in its own format.",
+  ];
+  const label = (s: Slide, i: number) => (i === 0 ? "Title" : i === slides.length - 1 ? "Closing" : s.serves);
+  const list = slides.map((s, i) => `Slide ${i + 1} (${label(s, i)}): ${briefText(s, true)}`).join("\n");
+  return [
+    "You are a slide designer. Build the deck for a spoken presentation.",
+    "",
+    `The big idea: "${story.bigIdea}"`,
+    `The subject: ${story.argument}`,
+    `The audience: ${story.audience.who}`,
+    "",
+    "Rules:",
+    ...rules.map((r, i) => `${i + 1}. ${r}`),
+    "",
+    "The slides:",
+    list,
+    "",
+    "Return the deck. Then give one line per slide saying what job it does for the audience. List any slides you split, and any words you changed.",
+  ].join("\n");
+}
+
+/** Keep the supporting slides within the ceiling: trim from the beat that has most, from its end. */
+export function capSupporting<T extends Record<Beat, string[]>>(support: T, cap: number): T {
+  const beats: Beat[] = ["prologue", "why", "how", "what", "epilogue"];
+  const out = Object.fromEntries(beats.map((b) => [b, [...(support[b] ?? [])]])) as T;
+  let total = beats.reduce((n, b) => n + out[b].length, 0);
+  while (total > cap) {
+    const most = beats.reduce((a, b) => (out[b].length > out[a].length ? b : a));
+    out[most].pop();
+    total--;
+  }
+  return out;
 }

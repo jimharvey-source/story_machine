@@ -194,7 +194,7 @@ Press **Make your slides**. The slides page gives you:
 - **A summary of what great slides do.** One idea per slide, the three-second rule, titles that tell the story.
 - **The slide brief.** Every slide in order: the words, the picture and the part of the story it serves. You can build your slides from this brief.
 - **A prompt for your own AI tool.** The prompt with the rules for slides built in. Press **Copy the prompt** and paste it into whichever AI tool you use to make slides.
-- **The PowerPoint outline.** Each slide's words in the title placeholder and its picture brief in the content placeholder, with the cue in the speaker notes. Apply your company template and the slides take on its look.
+- **The PowerPoint outline.** Each slide's words in the title placeholder. Slides with a picture leave the content area empty for you to fill, with the picture brief in the speaker notes beside your cues. Apply your company template and the slides take on its look.
 
 If you tell StoryMachine you will not use slides, it says so, and still gives you a brief in case you change your mind. A talk built for words alone is a strength.
 
