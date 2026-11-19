@@ -7,7 +7,8 @@ import { HowItWorksDiagram } from "@/components/HowItWorksDiagram";
 // programme welcome pages. With `programme`, nothing mentions money: the stories are already paid for.
 // Copy: claude/storymachine-landing-page.md. Lines in quotation marks there are Jim's, word for word.
 
-export function Tour({ programme = false }: { programme?: boolean }) {
+// `signedIn` (19 November, John): a returning user sees "Go to my stories" and no "first story is free" line.
+export function Tour({ programme = false, signedIn = false }: { programme?: boolean; signedIn?: boolean }) {
   return (
     <>
         {/* 2. The problem */}
@@ -51,51 +52,41 @@ export function Tour({ programme = false }: { programme?: boolean }) {
               </a>
             ) : (
               <Link href="/build" className="inline-flex items-center justify-center rounded-md bg-ink px-7 py-3.5 text-base font-medium text-paper hover:opacity-90">
-                Start your first story
+                {signedIn ? "Go to my stories" : "Start your first story"}
               </Link>
             )}
             <Link href="/guide" className="text-base text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
               Or follow the step-by-step guide
             </Link>
           </div>
-          {!programme && <p className="mt-3 text-sm text-muted">Your first story is free. Just your email, no credit card.</p>}
+          {!programme && !signedIn && <p className="mt-3 text-sm text-muted">Your first story is free. Just your email, no credit card.</p>}
         </HowItWorksDiagram>
 
-        {/* 4. What you get */}
+        {/* 4. What you get (draft 9, John, 19 November): what the presenter takes away, not the process. */}
         <section className="border-t border-rule pt-16 mt-20 sm:mt-28">
           <p className="eyebrow">What you get</p>
-          <h2 className="display mt-3 max-w-3xl text-3xl leading-tight sm:text-[2.6rem]">A compelling story that you can take to your audience.</h2>
+          <h2 className="display mt-3 max-w-3xl text-3xl leading-tight sm:text-[2.6rem]">A compelling story designed for your audience.</h2>
+          {programme && <p className="mt-3 text-ink-2">Included in your programme.</p>}
           <div className="mt-8">
             <IconTile name="download" size="xl" />
           </div>
-          <div className="mt-10 grid gap-5 md:grid-cols-2">
-            {STAGES.map((st) => (
-              <div key={st.n} className="panel flex flex-col !p-7 sm:!p-9">
-                <IconTile name={st.icon} />
-                <p className="tag mt-5 text-red">{st.n}</p>
-                <p className="display mt-1 text-2xl">{st.name}</p>
-                <p className="mt-1 text-ink-2">{st.sub}</p>
-                {programme && <p className="mt-1 text-sm text-muted">Included in your programme.</p>}
-                <ul className="mt-6 space-y-4">
-                  {st.steps.map(([head, sub]) => (
-                    <li key={head}>
-                      <span className="block font-semibold text-ink">{head}</span>
-                      <span className="block text-ink-2">{sub}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+          <div className="panel mt-10 !p-7 sm:!p-9">
+            <p className="text-lg font-semibold text-ink">A compelling story designed for your audience that has:</p>
+            {/* Columns, not a grid, so the list reads down in John's order. */}
+            <ul className="mt-5 gap-x-10 sm:columns-2">
+              {GET.map((g) => (
+                <li key={g} className="mb-3 flex break-inside-avoid items-start gap-3 text-lg text-ink-2">
+                  <span className="mt-[0.6rem] h-1.5 w-1.5 shrink-0 rounded-full bg-red" aria-hidden="true" />
+                  {g}
+                </li>
+              ))}
+            </ul>
           </div>
           <div className="mt-5 grid gap-5 md:grid-cols-2">
-            {AFTER.map(([tag, head, sub, icon]) => (
-              <div key={head} className="flex items-start gap-4 rounded-md border border-rule bg-paper-2 p-6">
+            {AFTER.map(([head, icon]) => (
+              <div key={head} className="flex items-center gap-4 rounded-md border border-rule bg-paper-2 p-6">
                 <IconTile name={icon} size="sm" />
-                <span>
-                  <span className="tag block text-red">{tag}</span>
-                  <span className="mt-1 block font-semibold text-ink">{head}</span>
-                  <span className="block text-ink-2">{sub}</span>
-                </span>
+                <span className="font-semibold text-ink">{head}</span>
               </div>
             ))}
           </div>
@@ -115,17 +106,22 @@ export function Tour({ programme = false }: { programme?: boolean }) {
           </ul>
         </Section>
 
-        {/* 6. Make it your own */}
-        <Section icon="pen" label="StoryMachine works only from what you give it" title="Make it your own.">
+        {/* 6. Make it your own. The panel at the end of the story is now "Additional suggestions from StoryMachine" (call, 16 November). */}
+        <Section icon="pen" label="StoryMachine works from what you give it" title="Make it your own.">
           <p>
             StoryMachine only works from your notes, your documents and your ideas. If it needs more information,
-            StoryMachine will ask you questions.
+            StoryMachine will ask you for it.
           </p>
           <p className="mt-4">
             Every story ends with a panel headed{" "}
-            <span className="font-semibold text-ink">Make it your own</span>. Here, you add the example, the number, the
-            reason it matters to you. You then get concrete advice before you rehearse. Audiences believe speakers who are
-            authentic.
+            <span className="font-semibold text-ink">Additional suggestions from StoryMachine</span>. This is a critical
+            part of the process because it is the moment for you to add what StoryMachine cannot: your examples, your
+            numbers, your stories, the reason this talk matters to you. StoryMachine is not designed to do all the work for
+            you; it is designed to help you do the necessary thinking that every presenter must do before they go on stage.
+          </p>
+          <p className="mt-4">
+            Once you have done the work to make the story your own, you will get concrete advice to help you rehearse so
+            that you sound authentic.
           </p>
         </Section>
 
@@ -154,7 +150,7 @@ export function Tour({ programme = false }: { programme?: boolean }) {
           </p>
           <p className="mt-4">
             Each part of your story has a line explaining why it is there, so you learn the method while you work with
-            StoryMachine. The PDF ends with a summary of the method, so you can do it yourself next time.
+            StoryMachine. The PDF ends with a summary of the method, that you can use for your next presentation.
           </p>
           <p className="said mt-8 text-2xl leading-snug text-ink sm:text-[1.7rem]">
             You don&apos;t have to be a superstar to speak and present well. And even the superstars had help. Steve Jobs,
@@ -191,65 +187,50 @@ const HOW: Array<[string, string]> = [
     "Answer some key questions.",
     "What kind of presentation is it? What is it about? Who is your audience, and why does it matter to them? What do you want them to do as a result? What is your message, and why should they care? How long is your presentation?",
   ],
-  ["Add what you have.", "Paste or type your notes. Upload any relevant documents, or a photo of your whiteboard."],
+  ["Add what you have.", "Paste or type your notes. Upload any relevant documents, photos (such as of your whiteboard) and screenshots."],
   [
     "Get your story straight.",
-    "StoryMachine writes the first draft: your Big Idea, your argument and your three acts. Read it and change any line. Ask for a sharper version, or argue with StoryMachine until it says what you mean.",
+    "StoryMachine writes the first draft: your big idea, your argument and your three acts. Read it and change any line. Ask for a sharper version, or argue with StoryMachine until it says what you mean.",
   ],
   [
     "Add interest and impact.",
-    "When the story is right, press one button. StoryMachine adds a strong start, signposts, a clear ending, speaker notes and suggestions for more powerful language. Use them, change them or leave them.",
+    "When the storyline is right, StoryMachine adds a strong start, signposts, a clear ending, speaker notes and suggestions for more powerful language. Use them, change them or omit them as you prefer.",
   ],
   [
     "If you need them, make your slides.",
-    "Download your story as a PDF or Word file. Then take the PowerPoint outline, or a detailed prompt for your preferred AI tool.",
+    "StoryMachine will generate a PowerPoint outline or a detailed prompt for your preferred AI tool.",
   ],
-  ["Rehearse it into life.", "Say it out loud from your speaker notes, with your slides if you have them."],
+  ["Rehearse it into life.", "Practise your presentation with your speaker notes and slides."],
 ];
 
-const STAGES = [
-  {
-    n: "Stage 1",
-    icon: "target" as IconName,
-    name: "Get your story straight",
-    sub: "The essential elements that form the backbone of your story.",
-    steps: [
-      ["Understand the audience", "Who is in the room, what they need to hear, what to leave out."],
-      ["Set a clear goal", "After my presentation, the audience will..."],
-      ["Build a three-act story", "Beginning, middle, end."],
-    ],
-  },
-  {
-    n: "Stage 2",
-    icon: "acts" as IconName,
-    name: "Add interest and impact",
-    sub: "Refine and reinforce your story.",
-    steps: [
-      ["A confident start", "The first minute that captures attention."],
-      ["Headlines and signposts", "The lines the audience will remember, and the sentences that drive home the key points."],
-      ["A powerful ending", "A clear call to action and a message that sticks."],
-    ],
-  },
+// What you get (draft 9, John): the story's parts, then slides and speaker notes.
+const GET = [
+  "A clear goal.",
+  "A confident start that captures attention.",
+  "A three-act story with a beginning, middle and end.",
+  "Headlines and signposts as you go.",
+  "A message that sticks.",
+  "A clear call to action.",
+  "A powerful ending.",
 ];
 
-// After the two stages: story, slides, rehearsal (Jim, 21 October).
-const AFTER: Array<[string, string, string, IconName]> = [
-  ["Then, if you need them", "An outline for powerful visuals", "One idea per slide, with a brief and a prompt for your own AI tool.", "slides"],
-  ["Finally", "Rehearse it into life", "Speaker notes, and the words in full. Say it out loud, with your slides, before you present.", "mic"],
+const AFTER: Array<[string, IconName]> = [
+  ["An outline and AI prompt for powerful slides.", "slides"],
+  ["Comprehensive speaker notes to help you practise and sound authentic.", "mic"],
 ];
 
 const KINDS: Array<[string, IconName]> = [
   ["Project update", "update"],
   ["Strategy recommendation", "strategy"],
-  ["Sales pitch", "pitch"],
   ["Choosing between options", "options"],
+  ["Sales pitch", "pitch"],
   ["Funding request", "tag"],
-  ["Leading change", "backwards"],
   ["Product launch", "upload"],
+  ["Leading change", "backwards"],
   ["Team kickoff", "target"],
+  ["Bad news", "badnews"],
   ["Lessons learned", "book"],
   ["Conference keynote", "mic"],
-  ["Bad news", "badnews"],
   ["Something else", "quote"],
 ];
 
@@ -305,7 +286,7 @@ export function WhoWeAre() {
           <p className="mt-8 max-w-3xl text-lg leading-relaxed text-ink-2">
             Jim and John met through a shared obsession with presentations, started{" "}
             <a href="https://www.presentation-guru.com" target="_blank" rel="noopener noreferrer" className="underline decoration-rule underline-offset-4 hover:text-ink"><em>Presentation Guru</em></a>{" "}
-            together, and have worked side by side ever since.
+            together, and have worked together ever since.
           </p>
         </section>
 

@@ -6,5 +6,5 @@ export const LEGAL = {
   office: "14 North Street, Bourne, Lincolnshire PE10 9AB, United Kingdom",
   /** The address the legal pages give for privacy requests, refunds and questions. Someone must read it. */
   contact: "jim.harvey@themessagebusiness.com",
-  updated: "2 October 2026",
+  updated: "19 November 2026",
 };

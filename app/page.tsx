@@ -7,7 +7,7 @@ import { Icon, IconTile } from "@/components/Icon";
 import { Tour } from "@/components/Tour";
 import { CONTACT_EMAIL } from "@/lib/method";
 
-// The front door. Signed-out visitors read the case and press "Build your first story"; the tool lives at /build.
+// The front door. Signed-out visitors read the case and press "Build your first story"; signed-in ones see "Go to my stories". The tool lives at /build.
 // Copy: claude/storymachine-landing-page.md. Lines in quotation marks there are Jim's, word for word.
 
 export const metadata: Metadata = {
@@ -61,13 +61,13 @@ export default async function Landing({ searchParams }: Props) {
           <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink-2 sm:text-xl">And now there is a tool that walks you through the process.</p>
           <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-3">
             <BuildButton signedIn={signedIn} />
-            <p className="text-sm text-muted">Your first story is free. Just your email, no credit card.</p>
+            {!signedIn && <p className="text-sm text-muted">Your first story is free. Just your email, no credit card.</p>}
           </div>
           </div>
           <HeroStory />
         </section>
 
-        <Tour />
+        <Tour signedIn={signedIn} />
 
         {/* 9. What it costs */}
         <section className="mt-20 border-t border-rule pt-16 sm:mt-28">
@@ -132,7 +132,7 @@ function HeroStory() {
       <div className="panel relative ml-auto mt-24 w-[90%] !p-6 sm:!p-7">
         <div className="flex items-center gap-2">
           <Icon name="quote" className="!h-5 !w-5" />
-          <span className="eyebrow">Your Big Idea</span>
+          <span className="eyebrow">Your big idea</span>
         </div>
         <p className="said mt-3 text-[1.4rem] leading-[1.3] text-ink">Everyone admires the ceiling. The genius is in the walls.</p>
         <div className="mt-6 grid grid-cols-3 gap-2">
@@ -146,7 +146,7 @@ function HeroStory() {
         </div>
         <div className="mt-5 flex items-center gap-2 border-t border-rule pt-4 text-sm text-muted">
           <Icon name="mic" className="!h-[18px] !w-[18px]" />
-          Prologue, signposts, three acts, Epilogue, speaker notes
+          Prologue, signposts, three acts, epilogue, speaker notes
         </div>
       </div>
     </div>

@@ -5,7 +5,7 @@
 import { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun } from "docx";
 import { z } from "zod";
 import type { LandingInputSchema, Rhetoric, StoryInputSchema } from "./schema";
-import { RHETORIC_LEAD, RHETORIC_TITLE, cleanLine, hasRhetoric, suggestionLine } from "./rhetoric";
+import { DEVICE_INTRO, RHETORIC_LEAD, RHETORIC_TITLE, checkDevice, cleanLine, hasRhetoric, suggestionLine } from "./rhetoric";
 import { KINDS, kindOf } from "./kinds";
 import { LICENCE, METHOD, SIGN_OFF } from "./method";
 import { OWN_IT_LEAD, ownItAdvice } from "./ownIt";
@@ -58,7 +58,7 @@ export async function renderDocx(
   const suggest = (path: string) => {
     for (const x of sugg.filter((y) => y.path === path || y.path === `landing.${path}`)) {
       used.add(x.path as string);
-      out.push(label("Add power to your words. For example, you could say this", `“${cleanLine(x.better)}” ${x.device}${x.what ? `: ${x.what}` : "."}`));
+      { const d = checkDevice(x); out.push(label("Add power to your words. For example, you could say this", `“${cleanLine(x.better)}” ${DEVICE_INTRO} ${d.device}.${d.what ? ` ${d.what}` : ""}`)); }
     }
   };
 
@@ -79,7 +79,7 @@ export async function renderDocx(
   if (story.hero?.obstacle) out.push(label("What stands in the way", story.hero.obstacle));
   out.push(label("What they need to hear", story.audience.needToHear));
   out.push(label("What to leave out", story.audience.doNotNeedToHear));
-  out.push(h2("What you want your audience to do as a result of your presentation to them"));
+  out.push(h2("What you want your audience to do when you finish your presentation"));
   out.push(p(story.intent));
   out.push(h2("Your argument"));
   out.push(p(story.argument));
@@ -89,9 +89,9 @@ export async function renderDocx(
     "Your presentation",
     landing
       ? "The talk from the first word to the last. The indented lines are for saying aloud. Where a line could carry more power, a suggestion sits under it."
-      : "Your Big Idea and the three acts. Add interest and impact in StoryMachine to get the opening, the signposts and the ending."
+      : "Your big idea and the three acts. Add interest and impact in StoryMachine to get the opening, the signposts and the ending."
   );
-  out.push(h2("Your Big Idea"));
+  out.push(h2("Your big idea"));
   out.push(spoken(story.bigIdea));
   suggest("bigIdea");
   out.push(h2("Your speech structure"));
@@ -114,7 +114,7 @@ export async function renderDocx(
       out.push(label("The three acts", "The rest of your time. Give each act about a third of it."));
     }
     out.push(h2("Prologue"));
-    out.push(p("The first 30 to 60 seconds, to grab your audience's attention. State the Big Idea, say why it matters now, and tell them what you need from them.", { italic: true, small: true }));
+    out.push(p("The first 30 to 60 seconds, to grab your audience's attention. State the big idea, say why it matters, and tell them what you need from them.", { italic: true, small: true }));
     out.push(spoken(landing.prologue));
     out.push(p(timing(landing.prologue), { small: true }));
     suggest("landing.prologue");
@@ -153,10 +153,10 @@ export async function renderDocx(
   }
 
   // ---- 3 Suggestions from StoryMachine ----
-  section("Suggestions from StoryMachine", "This is a first draft. Here's how we think you can make the message even stronger.");
+  section("Suggestions from StoryMachine", "This is a first draft. Here's how you can make the message even stronger.");
   const gapsList = landing ? landing.gaps : story.gaps;
   if (gapsList.length) {
-    out.push(h2("Make it your own: fill these gaps"));
+    out.push(h2("Fill these gaps"));
     out.push(p("What your material does not say. Only you can supply these.", { italic: true }));
     for (const g of gapsList) out.push(bullet(g));
   }
@@ -178,7 +178,7 @@ export async function renderDocx(
       "Story first, then slides, then rehearsal. Make your slides on the StoryMachine slides page, then rehearse from this section. Speak from the cues, never from a script. Learn the Prologue and the Epilogue by heart: the words are in section 2. Tell the acts in your own words."
     );
     out.push(h2("Your story in five lines"));
-    out.push(p("The whole talk in 30 seconds. Say it first. If it works here, it will work in the room.", { italic: true, small: true }));
+    out.push(p("The entire talk in 30 seconds. Say it first. It gives you a bird's eye view to make sure that the flow is complete and coherent.", { italic: true, small: true }));
     out.push(label("Prologue", landing.fiveLineStory.prologue));
     out.push(label(`Act 1: ${acts[0]}`, landing.fiveLineStory.why));
     out.push(label(`Act 2: ${acts[1]}`, landing.fiveLineStory.how));

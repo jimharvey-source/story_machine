@@ -2,11 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Lockup } from "@/components/Logo";
 import { WhoWeAre } from "@/components/Tour";
+import { isSignedIn } from "@/lib/signedIn";
 
 // About us (2 November 2026): Who we are moved here from the landing page, so the front page leads with the problem.
 export const metadata: Metadata = { title: "About us | Jim Harvey's StoryMachine" };
 
-export default function About() {
+export default async function About() {
+  const signedIn = await isSignedIn();
+  const start = signedIn ? "Go to my stories" : "Build your first story";
   return (
     <>
       <header className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-5 pt-6 lg:px-10">
@@ -18,7 +21,7 @@ export default function About() {
             href="/build"
             className="inline-flex items-center justify-center rounded-md bg-ink px-4 py-2 text-sm font-medium text-paper hover:opacity-90"
           >
-            Build your first story
+            {start}
           </Link>
         </nav>
       </header>
@@ -28,9 +31,9 @@ export default function About() {
           <h2 className="display max-w-2xl text-3xl leading-tight sm:text-[2.6rem]">Try it for your next presentation.</h2>
           <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
             <Link href="/build" className="inline-flex items-center justify-center rounded-md bg-ink px-7 py-3.5 text-base font-medium text-paper hover:opacity-90">
-              Build your first story
+              {start}
             </Link>
-            <p className="text-sm text-muted">Your first story is free. Just your email, no credit card.</p>
+            {!signedIn && <p className="text-sm text-muted">Your first story is free. Just your email, no credit card.</p>}
           </div>
         </section>
       </main>

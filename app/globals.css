@@ -210,7 +210,7 @@ input:focus-visible {
   background: var(--panel);
   border-radius: 999px;
   list-style: none;
-  margin: 0;
+  /* No margin rule here: an unlayered margin overrode the article's space-y and pressed the title against the tracker (John, draft 9). */
 }
 .stages li {
   display: inline-flex;

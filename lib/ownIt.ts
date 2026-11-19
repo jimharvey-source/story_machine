@@ -1,11 +1,11 @@
-// "Make it your own": the coach's advice before the first rehearsal.
+// "Additional suggestions from StoryMachine" (was "Make it your own" until the call of 16 November): the coach's advice before the first rehearsal.
 // The story's own gaps come first; these standing suggestions follow. Shared by the page and the PDF.
 
 import type { Landing, Story } from "./schema";
 
-export const OWN_IT_TITLE = "Make it your own";
+export const OWN_IT_TITLE = "Additional suggestions from StoryMachine";
 export const OWN_IT_LEAD =
-  "StoryMachine gives you the structure and a first draft. Audiences believe speakers who sound like themselves, so this part is yours. Do these before you rehearse.";
+  "StoryMachine gives you the structure and a first draft. Audiences believe speakers who sound like themselves, so this part is yours. Follow this advice before you rehearse.";
 
 export function ownItAdvice(story: Story, landing: Landing | null): string[] {
   const out: string[] = [];
@@ -16,7 +16,7 @@ export function ownItAdvice(story: Story, landing: Landing | null): string[] {
   out.push("Add one story from your own experience to the act that feels thinnest. Stories are what an audience remembers and retells.");
   out.push(
     landing
-      ? "Say the Prologue and Epilogue out loud, then change any word that feels borrowed. Rehearse the acts from the speaker notes."
+      ? "Say the prologue and epilogue out loud, then change any word that feels borrowed. Rehearse the acts from the speaker notes."
       : "Read the three headlines out loud. If one sounds like someone else, rewrite it until it sounds like you."
   );
   return out;

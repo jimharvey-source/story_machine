@@ -29,8 +29,8 @@ export const KEY_QUESTIONS: KeyQuestion[] = [
   {
     field: "intent",
     tag: "Objective",
-    question: "What is your objective? What do you want the audience to do as a result?",
-    hint: "For example: approve the pilot budget at this meeting.",
+    question: "What is your objective? What do you want the audience to do after your presentation?",
+    hint: "For example: approve the pilot budget.",
   },
   {
     field: "intent",

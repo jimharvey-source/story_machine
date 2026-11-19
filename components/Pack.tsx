@@ -22,7 +22,6 @@ export function Rehearse({ story, landing }: { story: Story; landing: Landing })
     ["Epilogue", notes.epilogue, "end with certainty"],
   ];
   const hasNotes = beats.some(([, cues]) => cues.length > 0);
-  const [showScript, setShowScript] = useState(false);
 
   const script: Array<[string, string]> = [
     ["Prologue", landing.prologue],
@@ -36,12 +35,13 @@ export function Rehearse({ story, landing }: { story: Story; landing: Landing })
     <>
       <section className="border-t border-rule pt-8">
         <h2 className="display text-3xl leading-[1.05] sm:text-4xl">Rehearse it into life.</h2>
-        <p className="said mt-3 text-xl leading-snug text-ink">Now say it out loud, with your slides if you have them. Use the notes as a guide; read only if you must.</p>
+        <p className="said mt-3 text-xl leading-snug text-ink">Now say your presentation out loud, with slides if you have them. Use the notes as a guide; read only if you must.</p>
       </section>
       {hasNotes && (
         <section>
-          <p className="eyebrow">Speaker notes</p>
-          <Why>Speak from these. Never from a script. One cue per line, in the order you say them; the words come from you in the room, so they sound like you.</Why>
+          {/* Draft 9 (John): headings the size of "Rehearse it into life", and everything on the page at once. */}
+          <h2 className="display text-3xl leading-[1.05] sm:text-4xl">Speaker notes.</h2>
+          <p className="mt-3 mb-6 text-ink-2">Speak from these notes. Never from a script. One cue per line, in the order you say them. The words should come from you in the room, so they sound like you.</p>
           <div className="grid gap-6 sm:grid-cols-2">
             {beats.map(([name, cues, sub]) => (
               <div key={name}>
@@ -62,28 +62,34 @@ export function Rehearse({ story, landing }: { story: Story; landing: Landing })
       )}
 
       <section className="border-t border-rule pt-8">
-        <p className="eyebrow">Word for word</p>
-        <Why>The spoken parts in full, for rehearsal. Hear whether they sound like you and change any that do not. Learn the Prologue and the Epilogue by heart. Tell the acts in your own words.</Why>
-        <button
-          type="button"
-          onClick={() => setShowScript((v) => !v)}
-          className="text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink"
-        >
-          {showScript ? "Hide the spoken parts" : "Show the spoken parts in full"}
-        </button>
-        {showScript && (
-          <div className="mt-4 space-y-5">
-            {script.map(([name, text]) => (
-              <div key={name}>
-                <p className="tag text-red">{name}</p>
-                <p className="said mt-1 text-lg leading-[1.7]">{text}</p>
-              </div>
-            ))}
-          </div>
-        )}
+        <h2 className="display text-3xl leading-[1.05] sm:text-4xl">The key lines, word for word.</h2>
+        <p className="mt-3 text-ink-2">Hear whether they sound like you and change them if they do not. Learn the prologue and the epilogue by heart. Deliver the acts in your own words.</p>
+        <div className="mt-6 space-y-5">
+          {script.map(([name, text]) => (
+            <div key={name}>
+              <p className="tag text-red">{name}</p>
+              <p className="said mt-1 text-lg leading-[1.7]">{text}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
     </>
+  );
+}
+
+/** What great slides do: at the top of the slides page, before the options (draft 9, John). */
+export function GreatSlides() {
+  return (
+    <section>
+      <p className="eyebrow">What great slides do</p>
+      <ul className="mt-3 space-y-2 text-ink-2">
+        <li className="border-l-2 border-red pl-4">One idea per slide. The slide illustrates; your words explain.</li>
+        <li className="border-l-2 border-red pl-4">The three-second rule: if the audience cannot understand your slide at a glance, it is too complicated.</li>
+        <li className="border-l-2 border-red pl-4">When read in order, the slide titles should tell your story.</li>
+        <li className="border-l-2 border-red pl-4">Large font, one picture at most, no bullet lists.</li>
+      </ul>
+    </section>
   );
 }
 
@@ -112,19 +118,9 @@ export function Slides({ story, landing }: { story: Story; landing: Landing }) {
           Your talk is built for words alone, and that is a strength. If you want slides, here is a brief that serves the story.
         </section>
       )}
-      <section>
-        <p className="eyebrow">What great slides do</p>
-        <ul className="mt-3 space-y-2 text-ink-2">
-          <li className="border-l-2 border-red pl-4">One idea per slide. The slide illustrates; your words explain.</li>
-          <li className="border-l-2 border-red pl-4">The three-second rule: if the audience cannot understand your slide at a glance, it is too complicated.</li>
-          <li className="border-l-2 border-red pl-4">The slide titles should tell the story. Read in order, they are your argument.</li>
-          <li className="border-l-2 border-red pl-4">Large font, one picture at most, no bullet lists.</li>
-        </ul>
-      </section>
       <section className="border-t border-rule pt-8">
         <p className="eyebrow">Slide brief</p>
-        <Why>One idea per slide. The words carry the story; the slide reinforces it. Build the deck from this list, in this order, and nothing else goes on the slide.</Why>
-        <ol className="space-y-3">
+        <ol className="mt-3 space-y-3">
           {slides.map(([name, text, serves], i) => (
             <li key={i} className="rounded-md bg-panel p-4">
               <p className="tag text-muted">

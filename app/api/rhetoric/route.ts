@@ -3,7 +3,7 @@ import { capReached, currentProfile, logGeneration, refundAi, signInRequired, sp
 import { generateStructured } from "@/lib/anthropic";
 import { RHETORIC_SYSTEM, rhetoricUserMessage } from "@/lib/prompts";
 import { RhetoricGenSchema, RhetoricRequestSchema, type Rhetoric } from "@/lib/schema";
-import { cleanLine, pathLabel } from "@/lib/rhetoric";
+import { checkDevice, cleanLine, pathLabel } from "@/lib/rhetoric";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
     const taken = new Set<string>();
     const same = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
     const suggestions = result.data.suggestions
-      .map((sg) => ({ ...sg, better: cleanLine(sg.better) }))
+      .map((sg) => checkDevice({ ...sg, better: cleanLine(sg.better) }))
       .filter((sg) => sg.better && textAt(sg.path) && !same(textAt(sg.path), sg.better) && !taken.has(sg.path) && (taken.add(sg.path), true))
       .slice(0, 4)
       .map((sg) => ({ ...sg, now: textAt(sg.path), where: pathLabel(sg.path, story.kind) }));

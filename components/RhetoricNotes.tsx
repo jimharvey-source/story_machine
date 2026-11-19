@@ -1,7 +1,7 @@
 "use client";
 
 import type { Rhetoric } from "@/lib/schema";
-import { cleanLine } from "@/lib/rhetoric";
+import { DEVICE_INTRO, checkDevice, cleanLine } from "@/lib/rhetoric";
 
 // A rhetoric suggestion for one line of the story, shown under it (John Zimmer's change, 18 October).
 // Since 23 October: the suggested line first, then the device and what it is. No notes on devices already used.
@@ -21,7 +21,7 @@ export function RhetoricNotes({
   if (!rhetoric) return null;
   const suggestions = rhetoric.suggestions
     .filter((s) => s.path === path)
-    .map((s) => ({ ...s, better: cleanLine(s.better) }))
+    .map((s) => checkDevice({ ...s, better: cleanLine(s.better) }))
     .filter((s) => s.better);
   if (!suggestions.length) return null;
   return (
@@ -34,7 +34,7 @@ export function RhetoricNotes({
             <p className="mt-2 text-ink-2">For example, you could say this:</p>
             <p className="said mt-1 text-base text-ink">&ldquo;{s.better}&rdquo;</p>
             <p className="mt-2 text-ink-2">
-              <span className="font-semibold text-ink">{s.device}.</span> {s.what}
+              {DEVICE_INTRO} <span className="font-semibold text-ink">{s.device}</span>. {s.what}
             </p>
             {onUse && (
               <button

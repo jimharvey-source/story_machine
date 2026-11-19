@@ -302,10 +302,12 @@ export function Paywall({ me, onChange, onClose }: { me: Me; onChange: () => voi
   }
 
   const started = me.storiesStarted ?? 0;
+  // Wording from the call of 16 November: John's "You have used your free story", Jim's well done and the ways to more.
+  const usedFree = (me.storiesLeft ?? 0) === 0 && started > 0;
   return (
     <section className="rounded-md border border-ink bg-paper-2 p-6 sm:p-8">
       <div className="flex items-start justify-between gap-4">
-        <p className="eyebrow">{(me.storiesLeft ?? 0) === 0 && started > 0 ? "Your free story is used" : "Upgrade"}</p>
+        <p className="eyebrow">{usedFree ? "You have used your free story" : "Upgrade"}</p>
         {onClose && (
           <button type="button" onClick={onClose} className="text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink">
             Close
@@ -314,7 +316,9 @@ export function Paywall({ me, onChange, onClose }: { me: Me; onChange: () => voi
       </div>
       <h2 className="display mt-2 text-2xl sm:text-3xl">Your next story, start to finish.</h2>
       <p className="mt-3 max-w-xl text-ink-2">
-        Unlimited reruns and AI edits.
+        {usedFree
+          ? "Well done on your first story. For more, choose one more story, a month or a year. Each comes with unlimited reruns and AI edits."
+          : "Unlimited reruns and AI edits."}
       </p>
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
         {(["story", "monthly", "annual"] as PlanKey[]).map((k) => {

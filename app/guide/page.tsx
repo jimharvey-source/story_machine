@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { isSignedIn } from "@/lib/signedIn";
 import { Lockup } from "@/components/Logo";
 import { Icon, IconTile, type IconName } from "@/components/Icon";
 
@@ -93,7 +94,8 @@ const iconFor = (heading: string): IconName => ICONS[heading] ?? "quote";
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-export default function Guide() {
+export default async function Guide() {
+  const signedIn = await isSignedIn();
   const md = fs.readFileSync(path.join(process.cwd(), "content", "user-guide.md"), "utf8");
   const blocks = parse(md);
   const contents = blocks.filter((b): b is { t: "h2"; text: string } => b.t === "h2");
@@ -106,7 +108,7 @@ export default function Guide() {
           href="/build"
           className="ml-auto inline-flex items-center rounded-md bg-ink px-4 py-2 text-sm font-medium text-paper hover:opacity-90"
         >
-          Build your first story
+          {signedIn ? "Go to my stories" : "Build your first story"}
         </Link>
       </header>
 

@@ -38,8 +38,8 @@ export function Refine({ messages, busy, onSend }: Props) {
     <section className="border-t border-rule pt-8">
       <p className="eyebrow">Refine the story</p>
       <p className="mt-2 max-w-xl text-ink-2">
-        Argue with StoryMachine. Say what is wrong, what the room is like, or what the real point is. The story
-        above changes as you go.
+        Discuss with StoryMachine. Say what is wrong, what you would like to add or remove or change. The story
+        above will change as you work with StoryMachine.
       </p>
 
       {messages.length === 0 && (

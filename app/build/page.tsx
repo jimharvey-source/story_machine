@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Landing, Question, Rhetoric, Story } from "@/lib/schema";
-import { RHETORIC_LEAD, RHETORIC_TITLE, cleanLine, hasRhetoric } from "@/lib/rhetoric";
+import { DEVICE_INTRO, RHETORIC_LEAD, RHETORIC_TITLE, cleanLine, hasRhetoric } from "@/lib/rhetoric";
 import { Editable, EditableList } from "@/components/Editable";
 import { Refine, type ChatMessage } from "@/components/Refine";
 import { AccountBar, Paywall, SignIn, type Me } from "@/components/Account";
@@ -14,7 +14,7 @@ import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "@/lib/ownIt";
 import { FORM_KINDS, KINDS, kindOf, type Kind } from "@/lib/kinds";
 import Progress from "@/components/Progress";
 import { BLANK_KEYS, KEY_QUESTIONS, composeAnswers, minutesFrom, splitAnswers } from "@/lib/keyQuestions";
-import { Rehearse, Slides } from "@/components/Pack";
+import { GreatSlides, Rehearse, Slides } from "@/components/Pack";
 import { RhetoricNotes } from "@/components/RhetoricNotes";
 
 const DRAFT_KEY = "storymachine.draft";
@@ -118,12 +118,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 }
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
-  return <p className="mb-1 text-xs font-semibold text-muted">{children}</p>;
-}
-
-// The process explains itself as the story appears: one line under each part saying why it is there.
-function Why({ children }: { children: React.ReactNode }) {
-  return <p className="mt-1 mb-2 text-xs leading-relaxed text-muted">{children}</p>;
+  return <p className="mb-2.5 text-xs font-semibold text-muted">{children}</p>;
 }
 
 /** Whether the Epilogue still says the Big Idea. If the Big Idea was changed after Stage 2, it will not. */
@@ -966,8 +961,8 @@ export default function Build() {
             <h1 className="display text-3xl leading-[1.05] sm:text-4xl">Start with the key questions.</h1>
             <p className="mt-3 max-w-2xl text-ink-2">
               Answer some questions about your presentation, your audience, your objective and your message. Add any
-              relevant material. StoryMachine writes the first draft of your story. You get it straight, then add interest and impact.
-              {me && !me.signedIn && " Your first story is free. Just your email, no credit card."}
+              relevant material. StoryMachine writes the first draft of your story. You work on the storyline until you are
+              happy with it. Then you add interest and impact.
             </p>
           </div>
 
@@ -1062,7 +1057,7 @@ export default function Build() {
           </div>
 
           <div>
-            <StepHead n={2} title="Your material" sub="Upload your documents. Type or paste your notes and rough thinking; it does not have to be neat." />
+            <StepHead n={2} title="Your material" sub="Upload your documents. Type or paste your notes and rough thinking. It does not have to be neat." />
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -1082,7 +1077,7 @@ export default function Build() {
               </button>
               <span>
                 Choose up to ten at once. Your documents stay on your computer: only the words are read. The one exception is a photo or
-                screenshot, which goes to our servers, is read, and is then deleted. You can also paste a photo or screenshot into the box.
+                screenshot, which goes to our servers, is read for the text, and then deleted. You can also paste a photo or screenshot into the box above.
               </span>
               <input
                 ref={fileRef}
@@ -1102,8 +1097,8 @@ export default function Build() {
               title={signedIn ? "Your story" : "Your email"}
               sub={
                 signedIn
-                  ? "Press the button. If something important is still open, StoryMachine asks you up to two more questions. Then the first draft of your story arrives."
-                  : <>Press <strong className="font-semibold text-ink">Find my story</strong> and enter your email. We will send you a six-digit code to type here. Then you get the complete story for your presentation, to edit and refine. Everything you have typed stays on this page.</>
+                  ? "Press the button. If something important is still open, StoryMachine will ask you up to two more questions. Then the first draft of your story will arrive."
+                  : <>Press <strong className="font-semibold text-ink">Find my story</strong> and enter your email. We will send you a six-digit code to type here. You then get the complete story for your presentation, to edit and refine. Everything you have typed stays on this page.</>
               }
             />
 
@@ -1189,7 +1184,7 @@ export default function Build() {
                       : "Find my story"}
               </button>
               {busy === null && notes.trim().length < 40 && (
-                <span className="text-sm text-muted">Add some material in step 2 first.</span>
+                <span className="text-sm text-muted">Add some material in step 2 above.</span>
               )}
               {busy === "questions" && <span className="text-sm text-muted">A few seconds.</span>}
               {busy === "story" && <Progress label="Stage 1: getting your story straight" expected={45} />}
@@ -1230,7 +1225,7 @@ export default function Build() {
             <li className="rounded-md border border-rule bg-paper-2 p-5">
               <p className="eyebrow text-red">1</p>
               <h2 className="display mt-1 text-xl">Download your story</h2>
-              <p className="mt-2 text-sm text-ink-2">The whole story with your speaker notes, to keep, print or share with a colleague.</p>
+              <p className="mt-2 text-sm text-ink-2">The entire story with your speaker notes, to keep, print or share with a colleague.</p>
               <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
                 <button
                   type="button"
@@ -1282,7 +1277,7 @@ export default function Build() {
           </ol>
           <p className="max-w-2xl text-sm text-muted">
             Want to change something? Go back to your story and edit any line. Your downloads, slides and notes always follow the
-            story as it stands.
+            most recent version of the story.
           </p>
           {error && <p className="text-sm text-red">{error}</p>}
         </article>
@@ -1301,14 +1296,37 @@ export default function Build() {
             <p className="eyebrow">Your slides</p>
             <h1 className="display mt-2 text-3xl leading-[1.05] sm:text-4xl">If you need them, add slides.</h1>
             <p className="mt-3 max-w-2xl text-ink-2">
-              If you think slides can support your story rather than replace it, you can now create them. You have three options:
+              If you think slides can support your story rather than replace it, you can now create them.
             </p>
-            <ol className="mt-3 max-w-2xl list-decimal space-y-1 pl-5 text-ink-2">
+            <p className="said mt-4 text-xl text-ink">{story.bigIdea}</p>
+          </div>
+          <GreatSlides />
+          {/* Draft 9 (John, 19 November): the options, then what the outline is and is not. */}
+          <div className="max-w-2xl text-ink-2">
+            <p>You have three options:</p>
+            <ol className="mt-3 list-decimal space-y-1 pl-5">
               <li>Download the PowerPoint outline and work from that.</li>
-              <li>Follow the slide brief below and build your slides from that.</li>
+              <li>Follow the slide brief below and build your slides from that. The slide brief mirrors the downloadable PowerPoint outline.</li>
               <li>Copy the prompt at the bottom of this page and paste it into your preferred AI tool.</li>
             </ol>
-            <p className="said mt-4 text-xl text-ink">{story.bigIdea}</p>
+            <p className="mt-5">
+              The outline, brief and prompt are designed to give you a sense of the flow of your slide presentation with the
+              topic to be covered on each slide. They are not meant to be the final slides or even the final wording on the
+              slides.
+            </p>
+            <p className="mt-4">
+              It is up to you to design your slides in the most appropriate manner for your audience. This means that you have
+              to decide:
+            </p>
+            <ul className="mt-3 list-disc space-y-1 pl-5">
+              <li>Whether to delete some of the suggested slides.</li>
+              <li>Whether to add slides to those suggested.</li>
+              <li>Whether to change the order of the slides.</li>
+              <li>What text and numbers to put on the slides.</li>
+              <li>What images to put on the slides.</li>
+              <li>What graphs or charts to put on the slides.</li>
+              <li>Whether to include animations on the slides.</li>
+            </ul>
           </div>
           <div className="flex flex-wrap items-center gap-4">
             <button
@@ -1367,10 +1385,10 @@ export default function Build() {
           {/* Two stages, each checked before the next (Jim and John, 2 November). */}
           {landing ? (
             <div className="max-w-2xl space-y-2 text-ink-2">
-              <p className="display text-2xl text-ink">Stage 2: interest and impact.</p>
+              <p className="display text-2xl text-ink">Stage 2: Add interest and impact.</p>
               <p>
-                StoryMachine has added the first minute (your Prologue), a signpost into each act, the ending (your Epilogue)
-                and your speaker notes. Under some lines you will also find a suggestion in red for more powerful language.
+                StoryMachine has added the following to the work that you did in Stage 1: the first minute (your prologue), a
+                signpost into each act, the ending (your epilogue) and your speaker notes. Under some lines you will also find a suggestion in red for more powerful language.
                 Use it, change it or ignore it.
               </p>
               <p>Click any text in a box to change it. When you are happy with every line, your story is ready.</p>
@@ -1408,7 +1426,7 @@ export default function Build() {
               intro="These are the foundations of your story. Check them first. If one is wrong, everything built on it will be too. Click any line to change it."
             />
             <div>
-              <SubHead title="Your audience analysis" about="Who is in the room, and what they need from you. A message for everyone lands with no one." />
+              <SubHead title="Your audience analysis" about="Who is in the room, and what they need from you." />
               <div className="space-y-4">
                 <Row label="Who they are">
                   <Editable value={story.audience.who} onChange={(v) => applyPath("audience.who", v)} className="font-medium" />
@@ -1432,7 +1450,7 @@ export default function Build() {
               </div>
             </div>
             <div className="border-t border-rule pt-8">
-              <SubHead title="What you want your audience to do as a result of your presentation to them" about="Your statement of intent. If you can't finish the sentence, the presentation is not ready." />
+              <SubHead title="What you want your audience to do when you finish your presentation" about="Your statement of intent. If you can't state it clearly, the presentation is not ready." />
               <Editable
                 value={story.intent}
                 busy={busy === "intent"}
@@ -1455,7 +1473,7 @@ export default function Build() {
             </div>
             {landing && (
               <div className="rounded-md bg-panel p-6 sm:p-8">
-                <SubHead title="Your story in five lines" about="The whole talk in 30 seconds. If it works here, it will work in the room." />
+                <SubHead title="Your story in five lines" about="The entire talk in 30 seconds. It gives you a bird's eye view to make sure that the flow is complete and coherent." />
                 <ol className="space-y-3">
                   {(["prologue", "why", "how", "what", "epilogue"] as const).map((k, i) => (
                     <li key={k} className="grid gap-1 sm:grid-cols-[9rem_1fr] sm:gap-4">
@@ -1477,12 +1495,12 @@ export default function Build() {
               title="Your presentation"
               intro={
                 landing
-                  ? "The talk from the first word to the last. Words in this typeface are for saying aloud. The red notes under some lines suggest a rhetorical device to add power: section 3 explains them."
-                  : "Your Big Idea and the three acts. The opening, signposts and ending follow in Stage 2."
+                  ? "Your talk from the first word to the last. Words with a quotation mark are for saying aloud. The red notes under some lines suggest a rhetorical device to add power: section 3 explains them."
+                  : "Your big idea and the three acts. The opening, signposts and ending follow in Stage 2."
               }
             />
             <div>
-              <SubHead title="Your Big Idea" about="The one line people repeat in the corridor afterwards. Everything in the three-act story builds to deliver it clearly and confidently." />
+              <SubHead title="Your big idea" about="The one line people repeat in the corridor afterwards. Everything in your story builds to deliver it clearly and confidently." />
               <Editable
                 as="h2"
                 value={story.bigIdea}
@@ -1524,7 +1542,7 @@ export default function Build() {
             </div>
 
             {landing && (
-              <Part id="p-prologue" title="Prologue" about="The first 30 to 60 seconds, to grab your audience's attention. State the Big Idea, say why it matters now, and tell them what you need from them.">
+              <Part id="p-prologue" title="Prologue" about="The first 30 to 60 seconds, to grab your audience's attention. State the big idea, say why it matters, and tell them what you need from them.">
                 <Editable
                   value={landing.prologue}
                   busy={busy === "landing.prologue"}
@@ -1616,11 +1634,11 @@ export default function Build() {
             })}
 
             {landing && (
-              <Part id="p-epilogue" title="End with certainty: your Epilogue" about="Recap your headlines and the actions from here. Send them away with your message ringing in their ears.">
+              <Part id="p-epilogue" title="End with certainty: your epilogue" about="Recap your headlines and the actions from here. Send them away with your message ringing in their ears.">
                 {!endsOnBigIdea(landing.epilogue, story.bigIdea) && (
                   <div className="flex flex-wrap items-center gap-3 rounded-md border border-red bg-red-soft px-4 py-3">
                     <p className="text-sm text-ink">
-                      Your Big Idea has changed. The Epilogue, the five lines and the closing notes still end on the old one.
+                      Your big idea has changed. The epilogue, the five lines and the closing notes still end on the old one.
                     </p>
                     <button
                       type="button"
@@ -1650,7 +1668,7 @@ export default function Build() {
 
           {/* 3. Suggestions from StoryMachine */}
           <section id="s-suggestions" className="scroll-mt-20 space-y-10">
-            <SectionHead n={3} title="Suggestions from StoryMachine" intro="This is a first draft. Here's how we think you can make the message even stronger." />
+            <SectionHead n={3} title="Suggestions from StoryMachine" intro="This is a first draft. Here's how you can make the message even stronger." />
             <div className="rounded-md bg-red-soft px-5 py-6 sm:px-8 sm:py-8">
               <p className="eyebrow text-red">{OWN_IT_TITLE}</p>
               <p className="said mt-2 text-xl leading-snug text-ink">{OWN_IT_LEAD}</p>
@@ -1661,7 +1679,6 @@ export default function Build() {
                   </li>
                 ))}
               </ul>
-              <Why>StoryMachine never invents. Where your notes were silent, it asks.</Why>
             </div>
 
             {landing && (busy === "rhetoric" || hasRhetoric(rhetoric) || storyId) && (
@@ -1682,7 +1699,7 @@ export default function Build() {
                         <p className="text-muted">{sg.where}</p>
                         <p className="mt-1 text-ink-2">For example, you could say this:</p>
                         <p className="said mt-1 text-ink">&ldquo;{sg.better}&rdquo;</p>
-                        <p className="mt-1 text-ink-2"><span className="font-semibold text-ink">{sg.device}.</span> {sg.what}</p>
+                        <p className="mt-1 text-ink-2">{DEVICE_INTRO} <span className="font-semibold text-ink">{sg.device}</span>. {sg.what}</p>
                       </li>
                     ))}
                   </ul>
@@ -1705,11 +1722,11 @@ export default function Build() {
 
           {!landing && signedIn && !locked && (
             <section id="s-next" className="scroll-mt-20 rounded-md bg-ink px-6 py-8 text-paper sm:px-10 sm:py-10">
-              <p className="eyebrow text-paper/70">Stage 1: Get your story straight</p>
+              <p className="eyebrow text-paper/70">Get your story straight</p>
               <h2 className="display mt-2 text-3xl leading-tight">Is your story straight?</h2>
               <p className="mt-3 max-w-2xl text-paper/80">
-                Everything that follows is built on your audience, your argument and your three acts. Check them now. When they
-                are right, StoryMachine adds interest and impact: the first minute, a signpost into each act, the ending, your
+                Everything that follows is built on your audience, your argument and your three acts. Check them now before you
+                click the button below. When you are satisfied with Stage 1, StoryMachine adds interest and impact: the first minute, a signpost into each act, the ending, your
                 speaker notes, and suggestions for more powerful language.
               </p>
               <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -1734,7 +1751,7 @@ export default function Build() {
 
           {landing && signedIn && !locked && (
             <section id="s-next" className="scroll-mt-20 rounded-md bg-ink px-6 py-8 text-paper sm:px-10 sm:py-10">
-              <p className="eyebrow text-paper/70">Stage 2: Add interest and impact</p>
+              <p className="eyebrow text-paper/70">Add interest and impact</p>
               <h2 className="display mt-2 text-3xl leading-tight">Is your story ready?</h2>
               <p className="mt-3 max-w-2xl text-paper/80">
                 When you are happy with every line, your story is ready. Then download it, make your slides if you need them,

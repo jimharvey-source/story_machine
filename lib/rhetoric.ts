@@ -27,7 +27,30 @@ export function pathLabel(path: string | undefined, kind?: string | null): strin
 }
 
 export function suggestionLine(s: Rhetoric["suggestions"][number]): string {
-  return `${s.where ? s.where + ". " : ""}For example, you could say this: “${s.better}” ${s.device}${s.what ? `: ${s.what}` : "."}`;
+  const d = checkDevice(s);
+  return `${s.where ? s.where + ". " : ""}For example, you could say this: “${s.better}” ${DEVICE_INTRO} ${d.device}.${d.what ? ` ${d.what}` : ""}`;
+}
+
+/**
+ * The words before the device's name (call of 16 November): a reader working in English should not meet a Greek
+ * word with nothing to say it is the name of a device.
+ */
+export const DEVICE_INTRO = "The rhetorical device is known as";
+
+const ANADIPLOSIS_WHAT = "Anadiplosis ends one sentence or clause with a word and starts the next with the same word, to link the two ideas.";
+
+/**
+ * A check on the model's naming (John Zimmer, 16 November): "Contact WIPO this week. This week is how..." came back as
+ * epizeuxis. Epizeuxis repeats a word straight away ("weak, weak, weak"); a word that ends one sentence and opens the
+ * next is anadiplosis. When the line shows the second and not the first, the name and the definition are corrected.
+ */
+export function checkDevice<T extends { better: string; device: string; what?: string }>(s: T): T {
+  if (!/^epizeuxis$/i.test(s.device.trim())) return s;
+  const line = s.better ?? "";
+  const repeated = /\b([A-Za-z']+)\b(?:[\s,!…-]+)\1\b/i.test(line);
+  const linked = /\b([A-Za-z']+(?:\s+[A-Za-z']+)?)\s*[.;:?!]\s+\1\b/i.test(line);
+  if (!repeated && linked) return { ...s, device: "Anadiplosis", what: ANADIPLOSIS_WHAT };
+  return s;
 }
 
 export function hasRhetoric(r: Rhetoric | null | undefined): r is Rhetoric {

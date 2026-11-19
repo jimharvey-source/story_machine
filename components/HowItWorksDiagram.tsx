@@ -18,10 +18,10 @@ const RULE = "#d9d6d0";
 
 const INPUTS = ["Your notes and ideas", "Old slides", "Reports and papers", "Photos and screenshots"];
 const OUTPUTS = [
-  "Your Big Idea",
+  "Your big idea",
   "A three-act story",
   "A strong start",
-  "A clear, confident ending",
+  "A confident ending",
   "Speaker notes",
   "More powerful language",
 ];
@@ -135,10 +135,10 @@ const P_IN: Array<{ lines: string[]; col: 0 | 1; y: number }> = [
   { lines: ["Photos and", "screenshots"], col: 1, y: 154 },
 ];
 const P_OUT: Array<{ lines: string[]; col: 0 | 1; y: number }> = [
-  { lines: ["Your Big Idea"], col: 0, y: 662 },
+  { lines: ["Your big idea"], col: 0, y: 662 },
   { lines: ["A three-act story"], col: 1, y: 662 },
   { lines: ["A strong start"], col: 0, y: 720 },
-  { lines: ["A clear, confident", "ending"], col: 1, y: 720 },
+  { lines: ["A confident ending"], col: 1, y: 720 },
   { lines: ["Speaker notes"], col: 0, y: 778 },
   { lines: ["More powerful", "language"], col: 1, y: 778 },
 ];
@@ -174,7 +174,7 @@ function PhoneDiagram({ play }: { play: boolean }) {
       viewBox="-2 0 364 812"
       className="block w-full md:hidden"
       role="img"
-      aria-label="Input everything you've got: your notes and ideas, old slides, reports and papers, photos and screenshots. Answer a few simple questions about your audience and your goal. StoryMachine. Sharpen every element of your presentation until it's perfect. Output a fully developed presentation: your Big Idea, a three-act story, a strong start, a clear, confident ending, speaker notes and more powerful language."
+      aria-label="Input: everything you've got. Your notes and ideas, old slides, reports and papers, photos and screenshots. Answer a few simple questions about your audience and your goal. StoryMachine. Sharpen every element of your presentation until it's perfect. Output: a fully developed presentation. Your big idea, a three-act story, a strong start, a confident ending, speaker notes and more powerful language."
       style={{ fontFamily: "'Instrument Sans', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" }}
     >
       <defs>
@@ -185,8 +185,8 @@ function PhoneDiagram({ play }: { play: boolean }) {
         ))}
       </defs>
 
-      <text x={0} y={22} fontSize={15} fontWeight={600} fill={RED} className="hiw-fade" style={{ ["--d" as string]: "0s" }}>
-        Input everything you&rsquo;ve got
+      <text x={0} y={22} fontSize={17} fontWeight={600} fill={RED} className="hiw-fade" style={{ ["--d" as string]: "0s" }}>
+        Input: everything you&rsquo;ve got
       </text>
 
       {P_IN.map((c, i) => (
@@ -231,8 +231,8 @@ function PhoneDiagram({ play }: { play: boolean }) {
         <text x={180} y={P_S2.top + 48} textAnchor="middle" fontSize={15} fontWeight={600} fill={INK}>presentation until it&rsquo;s perfect</text>
       </g>
 
-      <text x={180} y={P_S2.bottom + 31} textAnchor="middle" fontSize={15} fontWeight={600} fill={RED} className="hiw-fade" style={{ ["--d" as string]: "2.5s", ...label }}>
-        Output a fully developed presentation
+      <text x={180} y={P_S2.bottom + 31} textAnchor="middle" fontSize={16} fontWeight={600} fill={RED} className="hiw-fade" style={{ ["--d" as string]: "2.5s", ...label }}>
+        Output: a fully developed presentation
       </text>
 
       {P_OUT.map((c, i) => (
@@ -274,7 +274,7 @@ export function HowItWorksDiagram({ children }: { children?: React.ReactNode }) 
           viewBox="-8 -40 1504 520"
           className="hidden w-full md:block"
           role="img"
-          aria-label="Input everything you've got: your notes and ideas, old slides, reports and papers, photos and screenshots. Answer a few simple questions about your audience and your goal. StoryMachine. Sharpen every element of your presentation until it's perfect. Output a fully developed presentation: your Big Idea, a three-act story, a strong start, a clear, confident ending, speaker notes and more powerful language."
+          aria-label="Input: everything you've got. Your notes and ideas, old slides, reports and papers, photos and screenshots. Answer a few simple questions about your audience and your goal. StoryMachine. Sharpen every element of your presentation until it's perfect. Output: a fully developed presentation. Your big idea, a three-act story, a strong start, a confident ending, speaker notes and more powerful language."
           style={{ fontFamily: "'Instrument Sans', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" }}
         >
           <defs>
@@ -285,11 +285,11 @@ export function HowItWorksDiagram({ children }: { children?: React.ReactNode }) 
             ))}
           </defs>
 
-          <text x={0} y={-14} fontSize={16} fontWeight={600} fill={RED} className="hiw-fade" style={{ ["--d" as string]: "0s" }}>
-            Input everything you&rsquo;ve got
+          <text x={0} y={-12} fontSize={22} fontWeight={600} fill={RED} className="hiw-fade" style={{ ["--d" as string]: "0s" }}>
+            Input: everything you&rsquo;ve got
           </text>
-          <text x={1488} y={-14} textAnchor="end" fontSize={16} fontWeight={600} fill={RED} className="hiw-fade" style={{ ["--d" as string]: "2.3s" }}>
-            Output a fully developed presentation
+          <text x={1488} y={-12} textAnchor="end" fontSize={22} fontWeight={600} fill={RED} className="hiw-fade" style={{ ["--d" as string]: "2.3s" }}>
+            Output: a fully developed presentation
           </text>
 
           {/* Lines first, so cards sit over their ends */}

@@ -155,7 +155,7 @@ export function signInRequired() {
 
 export function purchaseRequired() {
   return NextResponse.json(
-    { error: "Your free story is used. Buy a story, a month or a year to carry on.", code: "buy" },
+    { error: "You have used your free story. Buy a story, a month or a year to carry on.", code: "buy" },
     { status: 402 }
   );
 }

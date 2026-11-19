@@ -3,7 +3,7 @@ import path from "node:path";
 import PDFDocument from "pdfkit";
 import type { z } from "zod";
 import type { LandingInputSchema, Rhetoric, StoryInputSchema } from "./schema";
-import { RHETORIC_LEAD, RHETORIC_TITLE, cleanLine, hasRhetoric, pathLabel } from "./rhetoric";
+import { DEVICE_INTRO, RHETORIC_LEAD, RHETORIC_TITLE, checkDevice, cleanLine, hasRhetoric, pathLabel } from "./rhetoric";
 import { OWN_IT_LEAD, ownItAdvice } from "./ownIt";
 import { KINDS, kindOf } from "./kinds";
 import { LICENCE, METHOD, SIGN_OFF } from "./method";
@@ -208,13 +208,13 @@ export function renderPdf(
     // ---- Page 1 is reserved for the cover and contents, written last when the page numbers are known. ----
 
     // ---- Rhetoric suggestions sit under the line they improve (2 November: the reader no longer flips pages) ----
-    const sugg = (rhetoric?.suggestions ?? []).filter((s) => s.path && cleanLine(s.better));
+    const sugg = (rhetoric?.suggestions ?? []).filter((s) => s.path && cleanLine(s.better)).map((s) => checkDevice(s));
     const usedPaths = new Set<string>();
     const suggest = (path: string) => {
       for (const s of sugg.filter((x) => x.path === path || x.path === `landing.${path}`)) {
         usedPaths.add(s.path as string);
         const better = cleanLine(s.better);
-        const what = `${s.device}. ${s.what ?? ""}`.trim();
+        const what = `${DEVICE_INTRO} ${s.device}. ${s.what ?? ""}`.trim();
         keep(heightOf(better, font.said, 11.5, W - 14) + heightOf(what, font.sans, 9.5, W - 14) + 44);
         gap(6);
         const y0 = doc.y;
@@ -222,7 +222,7 @@ export function renderPdf(
         gap(3);
         text(`“${better}”`, font.said, 11.5, INK, {}, L + 14, W - 14);
         gap(3);
-        doc.font(font.bold).fontSize(9.5).fillColor(INK).text(`${s.device}.`, L + 14, doc.y, { width: W - 14, continued: true, lineGap: 3 });
+        doc.font(font.bold).fontSize(9.5).fillColor(INK).text(`${DEVICE_INTRO} ${s.device}.`, L + 14, doc.y, { width: W - 14, continued: true, lineGap: 3 });
         doc.font(font.sans).fillColor(INK2).text(` ${s.what ?? ""}`);
         doc.x = L;
         doc.rect(L, y0, 2, doc.y - y0).fillColor(RED).fill();
@@ -244,7 +244,7 @@ export function renderPdf(
     row("What they need to hear", story.audience.needToHear);
     row("What to leave out", story.audience.doNotNeedToHear);
     thinRule();
-    subhead("What you want your audience to do as a result of your presentation to them", "Your statement of intent. If you can't finish the sentence, the presentation is not ready.");
+    subhead("What you want your audience to do when you finish your presentation", "Your statement of intent. If you can't state it clearly, the presentation is not ready.");
     text(story.intent, font.sans, 11.5, INK);
     thinRule();
     subhead("Your argument", "Your case in one sentence. Everything in the three acts supports it.");
@@ -254,12 +254,12 @@ export function renderPdf(
     openSection(
       "presentation",
       "Your presentation",
-      "Your Big Idea and the talk itself: Prologue, three acts and Epilogue.",
+      "Your big idea and the talk itself: prologue, three acts and epilogue.",
       landing
         ? "The talk from the first word to the last. Words set in this typeface are for saying aloud. Where a line could carry more power, a suggestion in red sits under it."
-        : "Your Big Idea and the three acts. Add interest and impact in StoryMachine to get the opening, the signposts and the ending."
+        : "Your big idea and the three acts. Add interest and impact in StoryMachine to get the opening, the signposts and the ending."
     );
-    subhead("Your Big Idea", "The one line people repeat in the corridor afterwards. Everything in the three-act story builds to deliver it clearly and confidently.");
+    subhead("Your big idea", "The one line people repeat in the corridor afterwards. Everything in your story builds to deliver it clearly and confidently.");
     text(story.bigIdea, font.display, 24, INK, { lineGap: 4 });
     suggest("bigIdea");
     gap(18);
@@ -320,7 +320,7 @@ export function renderPdf(
     };
 
     if (landing) {
-      partHead("prologue", "Prologue", "The first 30 to 60 seconds, to grab your audience's attention. State the Big Idea, say why it matters now, and tell them what you need from them.", heightOf(landing.prologue, font.said, 12.5, W - 20) + 20);
+      partHead("prologue", "Prologue", "The first 30 to 60 seconds, to grab your audience's attention. State the big idea, say why it matters, and tell them what you need from them.", heightOf(landing.prologue, font.said, 12.5, W - 20) + 20);
       said(landing.prologue);
       small(timing(landing.prologue));
       suggest("landing.prologue");
@@ -384,7 +384,7 @@ export function renderPdf(
       "suggestions",
       "Suggestions from StoryMachine",
       "The gaps only you can fill, and what to do before you rehearse.",
-      "This is a first draft. Here's how we think you can make the message even stronger."
+      "This is a first draft. Here's how you can make the message even stronger."
     );
     const tick = (items: string[]) => {
       for (const it of items) {
@@ -399,7 +399,7 @@ export function renderPdf(
     };
     const gapsList = landing ? landing.gaps : story.gaps;
     if (gapsList.length) {
-      subhead("Make it your own: fill these gaps", "What your material does not say. Only you can supply these.", 100);
+      subhead("Fill these gaps", "What your material does not say. Only you can supply these.", 100);
       tick(gapsList);
       thinRule();
     }
@@ -413,7 +413,7 @@ export function renderPdf(
       subhead(RHETORIC_TITLE, RHETORIC_LEAD, 140);
       for (const s of leftover) {
         const better = cleanLine(s.better);
-        const what = `${s.device}. ${s.what ?? ""}`.trim();
+        const what = `${DEVICE_INTRO} ${s.device}. ${s.what ?? ""}`.trim();
         keep(heightOf(better, font.said, 11.5, W - 12) + heightOf(what, font.sans, 9.5, W - 12) + 56);
         const y0 = doc.y;
         text(pathLabel(s.path, story.kind) || s.where || "", font.bold, 9, MUTED, {}, L + 12, W - 12);
@@ -422,7 +422,7 @@ export function renderPdf(
         gap(3);
         text(`“${better}”`, font.said, 11.5, INK, {}, L + 12, W - 12);
         gap(4);
-        doc.font(font.bold).fontSize(9.5).fillColor(INK).text(`${s.device}.`, L + 12, doc.y, { width: W - 12, continued: true, lineGap: 3 });
+        doc.font(font.bold).fontSize(9.5).fillColor(INK).text(`${DEVICE_INTRO} ${s.device}.`, L + 12, doc.y, { width: W - 12, continued: true, lineGap: 3 });
         doc.font(font.sans).fillColor(INK2).text(` ${s.what ?? ""}`);
         doc.x = L;
         doc.rect(L, y0, 2, doc.y - y0).fillColor(RED).fill();
@@ -440,7 +440,7 @@ export function renderPdf(
         "Story first, then slides, then rehearsal. Make your slides on the StoryMachine slides page, then rehearse from this section. Speak from the cues, never from a script: each one reminds you what comes next, and the words come from you in the room. Learn the Prologue and the Epilogue by heart. Tell the acts in your own words."
       );
       const five = [landing.fiveLineStory.prologue, landing.fiveLineStory.why, landing.fiveLineStory.how, landing.fiveLineStory.what, landing.fiveLineStory.epilogue];
-      subhead("Your story in five lines", "The whole talk in 30 seconds. Say it first. If it works here, it will work in the room.", 50 + five.reduce((n, t) => n + heightOf(t, font.said, 11.5, W - 118) + 8, 0));
+      subhead("Your story in five lines", "The entire talk in 30 seconds. Say it first. It gives you a bird's eye view to make sure that the flow is complete and coherent.", 50 + five.reduce((n, t) => n + heightOf(t, font.said, 11.5, W - 118) + 8, 0));
       row("Prologue", landing.fiveLineStory.prologue, font.said, 11.5);
       row(`Act 1: ${acts[0]}`, landing.fiveLineStory.why, font.said, 11.5);
       row(`Act 2: ${acts[1]}`, landing.fiveLineStory.how, font.said, 11.5);

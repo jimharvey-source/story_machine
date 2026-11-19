@@ -15,33 +15,33 @@ export default function Privacy() {
 
       <h2>What we collect</h2>
       <ul>
-        <li><strong>Your material.</strong> The notes you paste or the words from a file you upload, your answers about the audience and intent, and the stories the StoryMachine writes from them. Files are read in your browser: the file itself never reaches us, only its words. Photos and screenshots are the exception: the picture is sent to us and to Anthropic to be read, the words go into your notes, and the picture is not stored.</li>
+        <li><strong>Your material.</strong> The notes you type or paste, and the words and numbers from files you upload, your answers to any questions that StoryMachine asks, and the stories that StoryMachine writes from them. Files are read in your browser: the files themselves never reach us, only the words and numbers. Photos and screenshots are the exception: the picture is sent to us and to Anthropic to be read, the words and numbers go into your notes, and the picture is then deleted.</li>
         <li><strong>Your email address,</strong> when you sign in, and your account details: your plan, stories left, and any programme code you used.</li>
         <li><strong>Payments.</strong> What you bought and when, and Stripe&apos;s reference for it. Your card details go to Stripe, never to us.</li>
-        <li><strong>Limits and security.</strong> A random code in a cookie (<code>sm_guest</code>) for people who have not signed in, and a scrambled (hashed) form of your internet address, so we can limit free use and wrong programme codes. We cannot turn the hashed form back into your address.</li>
+        <li><strong>Limits and security.</strong> A random code in a cookie (<code>sm_guest</code>) for people who have not signed in, and a scrambled (hashed) form of your internet address, so we can limit free use and wrong programme codes. We cannot convert the hashed form back into your address.</li>
         <li><strong>Sign-in.</strong> Cookies that keep you signed in. Your browser also keeps a draft of the form, so you do not lose your notes while you sign in. That draft stays on your device.</li>
       </ul>
       <p>We use no advertising or tracking cookies.</p>
 
-      <h2>Why we use it</h2>
+      <h2>How we use this information</h2>
       <ul>
-        <li>To run the StoryMachine for you: build, save and show your stories, and keep your account. This is needed to provide the service you asked for.</li>
+        <li>To run StoryMachine for you so that you can build, save and share your stories, and keep your account. It is necessary to provide the service.</li>
         <li>To take payment and keep the records the law requires.</li>
         <li>To keep the service working and fair: daily limits, stopping code guessing, fixing faults. This is in our legitimate interest and yours.</li>
         <li>
           To send you the Presentation Guru email. When you first sign in, your address joins the Presentation Guru
-          list: about one email a month from Jim Harvey on presenting. The sign-in box tells you this. Every email has an
-          unsubscribe link, and you can also ask us to remove you. If you buy, your list entry is tagged with what you
+          list: about one email a month from Jim Harvey and John Zimmer on presenting. The sign-in box tells you this.
+          Every email has an unsubscribe link. If you buy anything from us, your list entry is tagged with what you
           bought.
         </li>
       </ul>
-      <p>We do not sell your information, and we do not use your material to train AI models.</p>
+      <p>We will not sell your information, and we will not use your material to train AI models.</p>
 
       <h2>Who else handles it</h2>
       <p>These companies process your information for us, under contracts that limit them to doing so:</p>
       <ul>
         <li><strong>Anthropic</strong> (United States) runs the AI model that reads your material and writes your story. Under its commercial terms it does not use what we send it to train its models.</li>
-        <li><strong>Supabase</strong> (servers in Ireland) holds your account and your stories.</li>
+        <li><strong>Supabase</strong> (Ireland) holds your account and your stories.</li>
         <li><strong>Vercel</strong> (United States and worldwide) hosts the site.</li>
         <li><strong>Stripe</strong> (United States and Ireland) takes payments.</li>
         <li><strong>Resend</strong> (United States) sends the sign-in emails.</li>
@@ -54,7 +54,7 @@ export default function Privacy() {
 
       <h2>How long we keep it</h2>
       <p>
-        We keep your account and stories while your account is open, so you can come back to them. Ask us to delete
+        We keep your account and stories for as long as your account is open, so you can come back to them. Ask us to delete
         your account and we will delete it and your stories within 30 days. Payment records are kept for six years,
         because the law requires it. The hashed internet addresses used for limits are kept for no more than a year.
         Stories made without signing in are kept under the random browser code; if you sign in on that browser, they
@@ -70,7 +70,7 @@ export default function Privacy() {
       </p>
 
       <h2>Changes</h2>
-      <p>If we change this notice, the date at the top changes. If a change matters, we will tell signed-in users by email.</p>
+      <p>If we change this notice, the date at the top will change. If a change will affect users, we will tell signed-in users by email.</p>
     </LegalPage>
   );
 }
