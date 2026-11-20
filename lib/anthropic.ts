@@ -72,7 +72,7 @@ export async function generateStructured<T>(opts: {
   const thinking = big ? { type: "adaptive" as const, display: "omitted" as const } : { type: "disabled" as const };
   const effort = big ? ("medium" as const) : ("low" as const);
 
-  async function call(messages: Anthropic.MessageParam[]): Promise<{ parsed: T; raw: string }> {
+  async function call(messages: Anthropic.MessageParam[], effortNow: typeof effort = effort): Promise<{ parsed: T; raw: string }> {
     let res;
     try {
       res = await anthropic.messages.parse({
@@ -81,7 +81,7 @@ export async function generateStructured<T>(opts: {
         system: opts.system,
         messages,
         thinking,
-        output_config: { format, effort },
+        output_config: { format, effort: effortNow },
       });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -111,7 +111,18 @@ export async function generateStructured<T>(opts: {
 
   const messages: Anthropic.MessageParam[] = [{ role: "user", content: opts.user }, ...(opts.history ?? [])];
   let attempts = 1;
-  let { parsed, raw } = await call(messages);
+  // Adaptive thinking can occasionally spend the whole ceiling before the answer is written (Stage 1,
+  // 20 November 2026: cut off at 16,000). Retry once with thinking turned down, rather than fail the story.
+  let first: { parsed: T; raw: string };
+  try {
+    first = await call(messages);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    if (!big || effort === "low" || !/cut off before it finished/.test(msg)) throw e;
+    console.warn(JSON.stringify({ tag: "cutoff-retry", label: opts.label, error: msg.slice(0, 200) }));
+    first = await call(messages, "low");
+  }
+  let { parsed, raw } = first;
   if (opts.skipVoice) {
     return { data: repairDashes(parsed), model: MODEL, attempts: 1, violationsBefore: 0, violationsAfter: 0, unresolved: [] };
   }
