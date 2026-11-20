@@ -46,7 +46,10 @@ export async function POST(req: Request) {
     });
     await logGeneration(profile.id, "land", { attempts: result.attempts, violationsBefore: result.violationsBefore, violationsAfter: result.violationsAfter });
     // The ceiling on supporting slides is checked here as well as asked for in the prompt.
-    const landing = { ...result.data, supportingSlides: capSupporting(result.data.supportingSlides, supportingCap(minutes)) };
+    const cap = supportingCap(minutes);
+    const landing = { ...result.data, supportingSlides: capSupporting(result.data.supportingSlides, cap) };
+    const count = (s: Record<string, string[]>) => Object.values(s).reduce((n, v) => n + v.length, 0);
+    console.log(JSON.stringify({ tag: "slides", cap, written: count(result.data.supportingSlides), kept: count(landing.supportingSlides) }));
     return NextResponse.json({
       landing,
       meta: {

@@ -90,10 +90,10 @@ export const LandingActSchema = z.object({
 // needs to see something. Each is written in the act slide's shape: Words: "..." Picture: ...
 const supportingList = z
   .array(z.string())
-  .describe('Supporting slides for this beat, in the order they come. Each in exactly this shape: Words: "what the audience reads, ten words or fewer" Picture: one sentence, or "none; the words carry the slide". Empty when the beat needs none.');
+  .describe('Supporting slides for this beat, in the order they come. Each in exactly this shape: Words: "what the audience reads, ten words or fewer" Picture: one sentence, or "none; the words carry the slide". One for each number, quotation or named comparison in this beat that the audience should see, within the limit.');
 export const SupportingSlidesSchema = z
   .object({ prologue: supportingList, why: supportingList, how: supportingList, what: supportingList, epilogue: supportingList })
-  .describe("Supporting slides beyond the three act slides, grouped by beat. Most beats need none.");
+  .describe("Supporting slides beyond the three act slides, grouped by beat: impact, emphasis and illustration for the numbers, quotations and comparisons the story cites.");
 export type SupportingSlides = z.infer<typeof SupportingSlidesSchema>;
 
 export const LandingSchema = z.object({

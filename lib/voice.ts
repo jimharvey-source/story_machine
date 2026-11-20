@@ -58,7 +58,7 @@ const BANNED: Array<[RegExp, string]> = [
 // Everywhere else (headlines, core messages, supporting points, prologue, signposts, epilogue):
 // at most CONTRAST_BUDGET in the whole story, and never two in the same section.
 const CONTRAST_RULES = new Set(["antithesis", "antithesis-split", "antithesis-tail", "antithesis-fragments", "antithesis-splice", "antithesis-rather-than", "antithesis-instead-of", "antithesis-every-few", "antithesis-more-than", "antithesis-but"]);
-const CONTRAST_PATHS = /(^|\.)(bigIdea|titleSlide|closingSlide)$|(^|\.)soundbite(\.|$)|(^|\.)fiveLineStory(\.|$)/;
+const CONTRAST_PATHS = /(^|\.)(bigIdea|titleSlide|closingSlide)$|(^|\.)soundbite(\.|$)|(^|\.)fiveLineStory(\.|$)|(^|\.)supportingSlides(\.|$)/;
 const CONTRAST_NEVER = /(^|\.)(audience|hero|intent|argument|gaps|speechNotes)(\.|\[|$)/;
 export const CONTRAST_BUDGET = 2;
 
@@ -284,6 +284,25 @@ function avoidViolations(value: unknown, path: string, avoid: string[], out: Vio
   }
 }
 
+// Stage 2 (20 November 2026): when the notes cite numbers or quotations, the deck needs at least one supporting
+// slide. The AI twice returned none; this sends the answer back once, with the cue that should have had one.
+function missingSupportingSlides(value: unknown, out: Violation[]): void {
+  const o = (value && typeof value === "object" ? value : {}) as { supportingSlides?: Record<string, unknown>; speechNotes?: Record<string, unknown> };
+  const support = o.supportingSlides;
+  if (!support || typeof support !== "object") return;
+  const total = Object.values(support).reduce<number>((n, v) => n + (Array.isArray(v) ? v.length : 0), 0);
+  if (total > 0) return;
+  const cues: string[] = [];
+  allText(o.speechNotes, cues);
+  const cited = cues.find((c) => /\d|\bquote:/i.test(c));
+  if (!cited) return;
+  out.push({
+    path: "supportingSlides",
+    rule: "no-supporting-slides (the notes cite numbers or quotations the audience should see; add a supporting slide for each that matters, within the limit, and keep everything else as it is)",
+    sample: cited,
+  });
+}
+
 export function voiceViolations(value: unknown, options: VoiceOptions = {}): Violation[] {
   const out: Violation[] = [];
   const o = (value && typeof value === "object" ? value : {}) as { bigIdea?: unknown; story?: { bigIdea?: unknown } };
@@ -311,6 +330,7 @@ export function voiceViolations(value: unknown, options: VoiceOptions = {}): Vio
   if (options.source) sweepingViolations(value, "", norm(options.source), out);
   repeatedPoints(value, out);
   repeatedCases(value, out, options.source);
+  missingSupportingSlides(value, out);
   if (options.contractionsInWritten === false) contractionViolations(value, "", out);
   const texts: string[] = [];
   allText(value, texts);
