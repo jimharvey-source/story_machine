@@ -193,7 +193,7 @@ This is stage two: make the message land and stick. The presenter already has a 
 
 5. The story in five lines. Prologue, why, how, what, epilogue. One line each. Read together they should be the whole presentation in thirty seconds.
 
-6. Supporting slides. The slides serve the story. They never follow it line by line. Beyond the three act slides, choose only the moments where the audience needs to see something: a number, a quotation, a comparison, a step to remember. Most cues need no slide, and an act with nothing to show needs no supporting slide. Make as many supporting slides as the story needs and no more, within the limit in the <slides> section. List each under the beat it belongs to (prologue, why, how, what, epilogue), in the order it comes, in the same shape as an act slide: Words: "what the audience reads, ten words or fewer" Picture: one sentence, or "none; the words carry the slide". The words are for the audience: no cue labels, no stage directions. A quotation slide gives the quotation word for word from the material, then the name of the person who said it. A slide earns its place only if it does a job no other slide does. The title and closing slides are set for you: do not write them.
+6. Supporting slides. Slides are for impact, emphasis and illustration, never for narrative. The presenter tells the story; the slides make its key moments land. They never follow it line by line. Beyond the three act slides, add a supporting slide at each moment the audience needs to see: a number that proves a point, a quotation from a named person, a comparison, a step to remember. Most cues need no slide. But when an act cites a number, a quotation or a named comparison the audience should remember, give it a supporting slide. Each supporting slide is one of six types: a headline (a short, emphatic line that marks what matters); an image; text and an image; text only, for a quotation; a diagram, to show how things relate or how a process works; data, as a chart or a single number. Make as many supporting slides as the story needs, within the limit in the <slides> section. List each under the beat it belongs to (prologue, why, how, what, epilogue), in the order it comes, in the same shape as an act slide: Words: "what the audience reads, ten words or fewer" Picture: one sentence, or "none; the words carry the slide". The words are for the audience: no cue labels, no stage directions. A quotation slide gives the quotation word for word from the material, then the name of the person who said it. A slide earns its place only if it does a job no other slide does. The title and closing slides are set for you: do not write them.
 
 7. Speech notes. The presenter speaks from notes, never from a script. For each beat (prologue, why, how, what, epilogue) give three to five cues in the order they are said, each ten words or fewer. A cue is a private memory hook: the question to ask, the soundbite to land, the story to tell, the ask to make. Never a sentence to read out. A cue may open with a label such as "Quote:", "Ask:" or "Tell:". The audience never sees the cues.
 
@@ -271,7 +271,7 @@ ${notes.trim()}
 </source_material>
 ${time ? "\n" + time + "\n" : ""}
 <slides>
-At most ${cap} supporting slide${cap === 1 ? "" : "s"} in all, across the five beats. Fewer is better when the story allows.
+At most ${cap} supporting slide${cap === 1 ? "" : "s"} in all, across the five beats. Use them for the numbers, quotations and comparisons that carry the story.
 </slides>
 
 <story>
@@ -282,7 +282,7 @@ ${storyJson}
 Make this story land and stick. Write the prologue, a signpost and a visual idea for each act, the epilogue, the story in five lines, the supporting slides, the speech notes, and the gaps re-assessed against the finished story. Do not change the story itself. Invent nothing.
 </task>
 
-Remember: hold the story's point of view, keep every number exactly as given, no request for the audience's time, cue only what the words contain, the epilogue ends on the Big Idea, said once, at most ${cap} supporting slides and only where the audience needs to see something, no em dashes, no banned phrases, short sentences, UK English.`;
+Remember: hold the story's point of view, keep every number exactly as given, no request for the audience's time, cue only what the words contain, the epilogue ends on the Big Idea, said once, at most ${cap} supporting slides, for impact, emphasis and illustration, never narrative, no em dashes, no banned phrases, short sentences, UK English.`;
 }
 
 /** The Big Idea changed after Stage 2: rewrite the ending so it lands on the new one. Everything else stays. */

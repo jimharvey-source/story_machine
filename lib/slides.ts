@@ -229,7 +229,7 @@ function newSlidePrompt(story: Story, landing: Landing): string {
     "Never add a text box or a shape outside the placeholders, except a grouped diagram. Never put each item in its own box. Where a slide lists several items (stages, steps, a comparison), they are lines in the one content placeholder, one item per line, no bullet characters. A chart is one native chart object, with its labels inside it.",
     "Nothing else on the slides. No subtitles, no logos, no slide numbers, no footers.",
     "Words large, and two lines at most: 54 points on the title, closing and words-only slides; 36 points on slides with a picture, to leave room for it. Labels inside a chart or diagram at least 18 points. One typeface, two weights at most. Set fonts, sizes and colours in the slide master, its layouts and the theme, never on individual slides, so a company template can replace them.",
-    "One picture per slide at most, as described below. A picture illustrates and supports. It never decorates.",
+    "One picture per slide at most, as described below. Slides are for impact, emphasis and illustration, never for narrative: the presenter tells the story. A picture illustrates and supports. It never decorates.",
     "Where a slide has a list or a chart, build it one item at a time: lines appear by paragraph, a chart by category.",
     "A quiet palette: one dark, one light, one accent. Plenty of empty space. Television quality: a viewer across the room reads it at a glance.",
     "No transitions, no clip art, no gradients, no stock-photo people shaking hands.",
