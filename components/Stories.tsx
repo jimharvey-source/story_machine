@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 export type StorySummary = { id: string; title: string; updatedAt: string; landed: boolean };
 
-export function StoriesPanel({ onOpen, onClose, currentId }: { onOpen: (id: string) => void; onClose: () => void; currentId: string | null }) {
+export function StoriesPanel({ onOpen, onNew, onClose, currentId }: { onOpen: (id: string) => void; onNew: () => void; onClose: () => void; currentId: string | null }) {
   const [list, setList] = useState<StorySummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,9 +24,18 @@ export function StoriesPanel({ onOpen, onClose, currentId }: { onOpen: (id: stri
     <section className="mb-10 rounded-md border border-rule bg-paper-2 p-5">
       <div className="flex items-center justify-between">
         <p className="eyebrow">My stories</p>
-        <button type="button" onClick={onClose} className="text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink">
-          Close
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={onNew}
+            className="rounded-md bg-red px-3 py-1.5 text-sm font-medium text-paper hover:opacity-90"
+          >
+            Start a new story
+          </button>
+          <button type="button" onClick={onClose} className="text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink">
+            Close
+          </button>
+        </div>
       </div>
       {error && <p className="mt-3 text-sm text-red">{error}</p>}
       {list && list.length === 0 && <p className="mt-3 text-ink-2">Nothing saved yet. Stories save themselves as you work.</p>}

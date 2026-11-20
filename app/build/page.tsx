@@ -462,6 +462,29 @@ export default function Build() {
     setError(message);
   }
 
+  // Clears the page for a fresh story: the same reset as the link at the foot of a story, and the
+  // My stories panel's button (Jim, 20 November 2026: there was no way to start a new story from there).
+  function startNewStory() {
+    setStory(null);
+    setLanding(null);
+    setMeta(null);
+    setChat([]);
+    setStoryId(null);
+    setUnlocked(false);
+    setCapped(false);
+    setAiUsage({});
+    setRhetoric(null);
+    setCapNotice(null);
+    setQuestions(null);
+    setSaveState("idle");
+    setNotes("");
+    setKeys(BLANK_KEYS());
+    setKind("");
+    setUploadNote(null);
+    window.scrollTo({ top: 0 });
+    setShowStories(false);
+  }
+
   async function openStory(id: string, quiet = false) {
     try {
       const r = await fetch(`/api/stories/${id}`);
@@ -947,6 +970,7 @@ export default function Build() {
             <StoriesPanel
               currentId={storyId}
               onOpen={openStory}
+              onNew={startNewStory}
               onClose={() => setShowStories(false)}
             />
           </div>
@@ -1869,25 +1893,7 @@ export default function Build() {
             </button>
             <button
               type="button"
-              onClick={() => {
-                setStory(null);
-                setLanding(null);
-                setMeta(null);
-                setChat([]);
-                setStoryId(null);
-                setUnlocked(false);
-                setCapped(false);
-                setAiUsage({});
-                setRhetoric(null);
-                setCapNotice(null);
-                setQuestions(null);
-                setSaveState("idle");
-                setNotes("");
-                setKeys(BLANK_KEYS());
-                setKind("");
-                setUploadNote(null);
-                window.scrollTo({ top: 0 });
-              }}
+              onClick={startNewStory}
               className="text-sm text-muted underline decoration-rule underline-offset-4 hover:text-ink"
             >
               Start a new story
