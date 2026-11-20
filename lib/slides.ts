@@ -167,11 +167,32 @@ function supportingSlide(raw: string, name: string, serves: string): Slide | nul
   };
 }
 
-/** Share a beat's cues across its slides in spoken order: the first cues to the first slide, and so on. */
+/** Numbers in a line ("19x", "5.3%", "9 in 10" gives 9 and 10), for matching a cue to its slide. */
+function numbersIn(text: string): string[] {
+  return (text.match(/\d+(?:[.,]\d+)?/g) ?? []).map((n) => n.replace(",", "."));
+}
+
+/**
+ * Share a beat's cues across its slides. Each cue goes to the slide that shares its numbers or, failing that,
+ * most of its meaningful words; a cue that matches no slide better than another keeps its place in spoken order.
+ * (20 November 2026: order alone put the 19x cue on the chart and the tier figures on the 19x slide.)
+ */
 function shareCues(slides: Slide[], cues: string[]): void {
   const list = (cues ?? []).map((c) => c.trim()).filter(Boolean);
   if (!slides.length) return;
-  list.forEach((c, i) => slides[Math.floor((i * slides.length) / list.length)].notes.push(c));
+  const slideText = slides.map((s) => `${s.words} ${s.picture}`);
+  const slideNums = slideText.map((t) => new Set(numbersIn(t)));
+  const slideWords = slideText.map((t) => new Set(significant(t)));
+  list.forEach((c, i) => {
+    const byOrder = Math.floor((i * slides.length) / list.length);
+    const nums = numbersIn(c);
+    const words = significant(c.replace(CUE_LABEL, ""));
+    const scores = slides.map((_, k) => 3 * nums.filter((n) => slideNums[k].has(n)).length + words.filter((w) => slideWords[k].has(w)).length);
+    const best = Math.max(...scores);
+    const winners = scores.flatMap((sc, k) => (sc === best ? [k] : []));
+    const target = best >= 2 && winners.length === 1 ? winners[0] : byOrder;
+    slides[target].notes.push(c);
+  });
 }
 
 /** The deck for a landing with supporting slides. */
