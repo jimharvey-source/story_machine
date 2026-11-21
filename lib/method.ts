@@ -26,5 +26,9 @@ export const SIGN_OFF = "Jim Harvey  ·  The Message Business  ·  themessagebus
 export function splitSlideIdea(idea: string): { words: string; picture: string } {
   const m = idea.match(/Words:\s*["“]([^"”]*)["”]\s*(?:Picture:\s*)?([\s\S]*)$/i);
   if (m) return { words: m[1].trim(), picture: m[2].trim() };
+  // The AI sometimes drops or mangles the label (21 November 2026: ': "A 1,000 m3 tank..." Picture: ...').
+  // A quoted phrase with no more than a few characters before it is still the slide's words.
+  const loose = idea.match(/^\s*[^"“]{0,12}["“]([^"”]+)["”]\s*(?:Picture:\s*)?([\s\S]*)$/i);
+  if (loose) return { words: loose[1].trim(), picture: loose[2].trim() };
   return { words: "", picture: idea.trim() };
 }
