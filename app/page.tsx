@@ -80,7 +80,7 @@ export default async function Landing({ searchParams }: Props) {
             <Price label="Your first story" amount="Free" note="Start to finish, with the PDF. Just your email, no credit card." strong />
             <Price label="Each additional story" amount="$9.99" note="Edit as often as you like." />
             <Price label="One month" amount="$19.99" note="As many stories as you like for one month. Cancel any time." />
-            <Price label="One year" amount="$149.99" note="As many stories as you like for one year. Cancel any time." />
+            <Price label="One year" amount="$99.99" note="As many stories as you like for one year. Cancel any time." />
           </div>
         </section>
 
@@ -88,12 +88,12 @@ export default async function Landing({ searchParams }: Props) {
         <section className="panel mt-20 sm:mt-28 !p-8 sm:!p-14">
           <Icon name="quote" className="!h-12 !w-12" />
           <h2 className="display mt-6 max-w-2xl text-3xl leading-tight sm:text-[2.6rem]">
-            Try it for your next presentation.
+            Try StoryMachine for your next presentation.
           </h2>
           <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
             <BuildButton signedIn={signedIn} />
             <p className="text-sm text-muted">
-              For more information, read the{" "}
+              For more information, please see the{" "}
               <Link href="/guide" className="underline decoration-rule underline-offset-4 hover:text-ink">User Guide</Link>.
             </p>
           </div>
@@ -156,7 +156,7 @@ function HeroStory() {
 function BuildButton({ small = false, signedIn = false }: { small?: boolean; signedIn?: boolean }) {
   return (
     <Link
-      href="/build"
+      href={signedIn ? "/build?stories=1" : "/build"}
       className={
         "inline-flex items-center justify-center rounded-md bg-ink font-medium text-paper hover:opacity-90 " +
         (small ? "px-4 py-2 text-sm" : "px-7 py-3.5 text-base")

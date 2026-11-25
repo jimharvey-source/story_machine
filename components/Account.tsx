@@ -27,7 +27,7 @@ export type Me = {
 export const PRICES = {
   story: { label: "Each additional story", price: "$9.99", note: "Edit as often as you like." },
   monthly: { label: "One month", price: "$19.99", note: "As many stories as you like for one month. Cancel any time." },
-  annual: { label: "One year", price: "$149.99", note: "As many stories as you like for one year. Cancel any time. About $12.50 a month." },
+  annual: { label: "One year", price: "$99.99", note: "As many stories as you like for one year. Cancel any time. About $8.33 a month." },
 } as const;
 
 export type PlanKey = "story" | "monthly" | "annual";
@@ -317,7 +317,7 @@ export function Paywall({ me, onChange, onClose }: { me: Me; onChange: () => voi
       <h2 className="display mt-2 text-2xl sm:text-3xl">Your next story, start to finish.</h2>
       <p className="mt-3 max-w-xl text-ink-2">
         {usedFree
-          ? "Well done on your first story. For more, choose one more story, a month or a year. Each comes with unlimited reruns and AI edits."
+          ? "Well done on your first story. For additional stories, please choose from the options below. Each comes with unlimited reruns and AI edits."
           : "Unlimited reruns and AI edits."}
       </p>
       <div className="mt-6 grid gap-3 sm:grid-cols-3">

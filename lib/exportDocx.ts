@@ -114,7 +114,7 @@ export async function renderDocx(
       out.push(label("The three acts", "The rest of your time. Give each act about a third of it."));
     }
     out.push(h2("Prologue"));
-    out.push(p("The first 30 to 60 seconds, to grab your audience's attention. State the big idea, say why it matters, and tell them what you need from them.", { italic: true, small: true }));
+    out.push(p("The first 30 to 60 seconds, to grab your audience's attention. State the big idea, why it matters, and what you need from them.", { italic: true, small: true }));
     out.push(spoken(landing.prologue));
     out.push(p(timing(landing.prologue), { small: true }));
     suggest("landing.prologue");

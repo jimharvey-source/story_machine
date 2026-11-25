@@ -68,7 +68,7 @@ const PRODUCT_DESCRIPTION = "Jim Harvey's StoryMachine: turn rough notes into a 
 const PRICES = [
   { key: "story_machine_story", env: "STRIPE_PRICE_STORY", nickname: "One story", unit_amount: 999 },
   { key: "story_machine_monthly", env: "STRIPE_PRICE_MONTHLY", nickname: "One month", unit_amount: 1999, recurring: { interval: "month" } },
-  { key: "story_machine_annual", env: "STRIPE_PRICE_ANNUAL", nickname: "One year", unit_amount: 14999, recurring: { interval: "year" } },
+  { key: "story_machine_annual", env: "STRIPE_PRICE_ANNUAL", nickname: "One year", unit_amount: 9999, recurring: { interval: "year" } },
 ];
 const RETIRED_LOOKUP_KEYS = ["story_machine_lifetime"];
 const RETIRED_PROMO_CODE = "LAUNCH49";

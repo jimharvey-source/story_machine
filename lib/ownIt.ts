@@ -7,6 +7,9 @@ export const OWN_IT_TITLE = "Additional suggestions from StoryMachine";
 export const OWN_IT_LEAD =
   "StoryMachine gives you the structure and a first draft. Audiences believe speakers who sound like themselves, so this part is yours. Follow this advice before you rehearse.";
 
+// On the page (John, draft 10): one line that says how to act on the panel. The PDF and Word file keep OWN_IT_LEAD.
+export const OWN_IT_PAGE_LEAD = "Each point is a gap. Fill it by changing the line above, or ask Refine to do it.";
+
 export function ownItAdvice(story: Story, landing: Omit<Landing, "supportingSlides"> | null): string[] {
   const out: string[] = [];
   // The StoryMachine gives no legal advice. For bad news, this line always comes first.

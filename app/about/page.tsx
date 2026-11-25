@@ -18,7 +18,7 @@ export default async function About() {
           <Link href="/" className="text-ink-2 hover:text-ink">Home</Link>
           <Link href="/guide" className="text-ink-2 hover:text-ink">User Guide</Link>
           <Link
-            href="/build"
+            href={signedIn ? "/build?stories=1" : "/build"}
             className="inline-flex items-center justify-center rounded-md bg-ink px-4 py-2 text-sm font-medium text-paper hover:opacity-90"
           >
             {start}
@@ -28,9 +28,9 @@ export default async function About() {
       <main className="mx-auto w-full max-w-6xl px-5 pb-24 lg:px-10">
         <WhoWeAre />
         <section className="panel mt-20 sm:mt-28 !p-8 sm:!p-14">
-          <h2 className="display max-w-2xl text-3xl leading-tight sm:text-[2.6rem]">Try it for your next presentation.</h2>
+          <h2 className="display max-w-2xl text-3xl leading-tight sm:text-[2.6rem]">Try StoryMachine for your next presentation.</h2>
           <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
-            <Link href="/build" className="inline-flex items-center justify-center rounded-md bg-ink px-7 py-3.5 text-base font-medium text-paper hover:opacity-90">
+            <Link href={signedIn ? "/build?stories=1" : "/build"} className="inline-flex items-center justify-center rounded-md bg-ink px-7 py-3.5 text-base font-medium text-paper hover:opacity-90">
               {start}
             </Link>
             {!signedIn && <p className="text-sm text-muted">Your first story is free. Just your email, no credit card.</p>}

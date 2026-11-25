@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react";
 
-export type StorySummary = { id: string; title: string; updatedAt: string; landed: boolean };
+export type StorySummary = { id: string; title: string; createdAt: string; updatedAt: string; landed: boolean };
+
+// Date and time on each card (John, draft 10), so two stories with the same title can be told apart.
+function when(iso: string) {
+  return new Date(iso).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+}
 
 export function StoriesPanel({ onOpen, onNew, onClose, currentId }: { onOpen: (id: string) => void; onNew: () => void; onClose: () => void; currentId: string | null }) {
   const [list, setList] = useState<StorySummary[] | null>(null);
@@ -46,7 +51,7 @@ export function StoriesPanel({ onOpen, onNew, onClose, currentId }: { onOpen: (i
               <button type="button" onClick={() => onOpen(s.id)} className={"text-left hover:underline " + (s.id === currentId ? "font-medium" : "")}>
                 {s.title}
                 <span className="ml-2 tag text-muted">
-                  {s.landed ? "stages 1 and 2" : "stage 1"} · {new Date(s.updatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                  {s.landed ? "stages 1 and 2" : "stage 1"} · started {when(s.createdAt ?? s.updatedAt)} · last changed {when(s.updatedAt)}
                 </span>
               </button>
               <button type="button" onClick={() => remove(s.id)} className="text-xs text-muted hover:text-red">

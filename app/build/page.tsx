@@ -10,7 +10,7 @@ import { AccountBar, Paywall, SignIn, type Me } from "@/components/Account";
 import { clearPendingProgramme, normaliseCode, readPendingProgramme, savePendingProgramme } from "@/lib/pendingProgramme";
 import { StoriesPanel } from "@/components/Stories";
 import { Lockup } from "@/components/Logo";
-import { OWN_IT_LEAD, OWN_IT_TITLE, ownItAdvice } from "@/lib/ownIt";
+import { OWN_IT_PAGE_LEAD, OWN_IT_TITLE, ownItAdvice } from "@/lib/ownIt";
 import { FORM_KINDS, KINDS, kindOf, type Kind } from "@/lib/kinds";
 import Progress from "@/components/Progress";
 import { BLANK_KEYS, KEY_QUESTIONS, composeAnswers, minutesFrom, splitAnswers } from "@/lib/keyQuestions";
@@ -379,6 +379,8 @@ export default function Build() {
       } catch {
         if (fromLink) openStory(fromLink, true);
       }
+      // "Go to my stories" (John, draft 10): open the list straight away.
+      if (params.get("stories")) setShowStories(true);
       if (params.toString())
         window.history.replaceState({}, "", window.location.pathname);
     }, 0);
@@ -1095,11 +1097,10 @@ export default function Build() {
                 disabled={busy !== null}
                 className="rounded-md border border-ink bg-paper-2 px-4 py-2 font-medium text-ink disabled:opacity-40"
               >
-                {busy === "upload" ? "Reading the file..." : busy === "photo" ? "Reading the picture..." : "Upload files or photos"}
+                {busy === "upload" ? "Reading the file..." : busy === "photo" ? "Reading the picture..." : "Upload files"}
               </button>
               <span>
-                Choose up to ten at once. Your documents stay on your computer: only the words are read. The one exception is a photo or
-                screenshot, which goes to our servers, is read for the text, and then deleted. You can also paste a photo or screenshot into the box above.
+                Choose up to ten at once. Your documents stay on your computer: only the words are read. The only exceptions are photos and screenshots; they go to our servers, are read for the text, and then deleted. You can also paste photos and screenshots into the box above.
               </span>
               <input
                 ref={fileRef}
@@ -1328,7 +1329,7 @@ export default function Build() {
             <p>You have three options:</p>
             <ol className="mt-3 list-decimal space-y-1 pl-5">
               <li>Download the PowerPoint outline and work from that.</li>
-              <li>Follow the slide brief below and build your slides from that. The slide brief mirrors the downloadable PowerPoint outline.</li>
+              <li>Build your slides from the slide brief below. The slide brief mirrors the downloadable PowerPoint outline.</li>
               <li>Copy the prompt at the bottom of this page and paste it into your preferred AI tool.</li>
             </ol>
             <p className="mt-5">
@@ -1411,7 +1412,7 @@ export default function Build() {
               <p>
                 StoryMachine has added the following to the work that you did in Stage 1: the first minute (your prologue), a
                 signpost into each act, the ending (your epilogue) and your speaker notes. Under some lines you will also find a suggestion in red for more powerful language.
-                Use it, change it or ignore it.
+                Use it, change it, or ignore it.
               </p>
               <p>Click any text in a box to change it. When you are happy with every line, your story is ready.</p>
             </div>
@@ -1445,7 +1446,7 @@ export default function Build() {
             <SectionHead
               n={1}
               title="Your audience and your argument"
-              intro="These are the foundations of your story. Check them first. If one is wrong, everything built on it will be too. Click any line to change it."
+              intro="These are the foundations of your story. Check them first. If one is wrong, everything built on it will also be wrong. Click any line to change it."
             />
             <div>
               <SubHead title="Your audience analysis" about="Who is in the room, and what they need from you." />
@@ -1517,12 +1518,12 @@ export default function Build() {
               title="Your presentation"
               intro={
                 landing
-                  ? "Your talk from the first word to the last. Words with a quotation mark are for saying aloud. The red notes under some lines suggest a rhetorical device to add power: section 3 explains them."
+                  ? "Your talk from the first word to the last. Words with a quotation mark can be said as they are written. The red notes under some lines suggest a rhetorical device to add power: section 3 explains them."
                   : "Your big idea and the three acts. The opening, signposts and ending follow in Stage 2."
               }
             />
             <div>
-              <SubHead title="Your big idea" about="The one line people repeat in the corridor afterwards. Everything in your story builds to deliver it clearly and confidently." />
+              <SubHead title="Your big idea" about="The one line people will repeat in the corridor afterwards. Everything in your story builds to deliver it clearly and confidently." />
               <Editable
                 as="h2"
                 value={story.bigIdea}
@@ -1564,7 +1565,7 @@ export default function Build() {
             </div>
 
             {landing && (
-              <Part id="p-prologue" title="Prologue" about="The first 30 to 60 seconds, to grab your audience's attention. State the big idea, say why it matters, and tell them what you need from them.">
+              <Part id="p-prologue" title="Prologue" about="The first 30 to 60 seconds, to grab your audience's attention. State the big idea, why it matters, and what you need from them.">
                 <Editable
                   value={landing.prologue}
                   busy={busy === "landing.prologue"}
@@ -1693,7 +1694,7 @@ export default function Build() {
             <SectionHead n={3} title="Suggestions from StoryMachine" intro="This is a first draft. Here's how you can make the message even stronger." />
             <div className="rounded-md bg-red-soft px-5 py-6 sm:px-8 sm:py-8">
               <p className="eyebrow text-red">{OWN_IT_TITLE}</p>
-              <p className="said mt-2 text-xl leading-snug text-ink">{OWN_IT_LEAD}</p>
+              <p className="mt-2 text-base text-ink">{OWN_IT_PAGE_LEAD}</p>
               <ul className="mt-4 space-y-3 text-ink-2">
                 {[...gaps, ...ownItAdvice(story, landing)].map((g, i) => (
                   <li key={i} className="border-l-2 border-red pl-4">
@@ -1748,7 +1749,7 @@ export default function Build() {
               <h2 className="display mt-2 text-3xl leading-tight">Is your story straight?</h2>
               <p className="mt-3 max-w-2xl text-paper/80">
                 Everything that follows is built on your audience, your argument and your three acts. Check them now before you
-                click the button below. When you are satisfied with Stage 1, StoryMachine adds interest and impact: the first minute, a signpost into each act, the ending, your
+                click the button below. When you are satisfied with Stage 1, StoryMachine will add interest and impact: the first minute, a signpost into each act, the ending, your
                 speaker notes, and suggestions for more powerful language.
               </p>
               <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -1815,28 +1816,6 @@ export default function Build() {
               >
                 Upgrade for Stage 2, the PDF and your slides
               </button>
-            )}
-            {!landing && signedIn && !locked && (
-              <button
-                type="button"
-                onClick={() => exportFile("pdf")}
-                disabled={busy !== null}
-                className="rounded-md border border-ink bg-paper-2 px-5 py-3 text-base font-medium text-ink disabled:opacity-40"
-              >
-                {busy === "export-pdf" ? "Making the PDF..." : "Download the PDF (Stage 1 so far)"}
-              </button>
-            )}
-            {!landing && signedIn && !locked && (
-              <span className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
-                <button
-                  type="button"
-                  onClick={() => exportFile("docx")}
-                  disabled={busy !== null}
-                  className="underline decoration-rule underline-offset-4 hover:text-ink disabled:opacity-40"
-                >
-                  {busy === "export-docx" ? "Making the Word file..." : "or as a Word document"}
-                </button>
-              </span>
             )}
             {signedIn && !unlocked && me && !me.unlimited && (
               <span className="w-full text-sm text-muted">

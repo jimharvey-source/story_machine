@@ -39,16 +39,16 @@ export default function Terms() {
       <h2>Prices and payment</h2>
       <p>
         Your first story is free: both stages and the downloads, with one rerun and five AI edits. After that you can
-        buy one story, a month or a year, at the prices shown on the site when you buy. Prices are in US dollars. We are not
+        buy one story, one month or one year, at the prices shown on the site when you buy. Prices are in US dollars. We are not
         registered for VAT, so the price shown is the price you pay. Payments are taken by Stripe; we never see or
         store your card details.
       </p>
       <ul>
         <li>One story gives you that story, both stages and the downloads, for as long as your account is open.</li>
-        <li>A month gives you as many stories as you want during that month. It renews each month. Cancel any time from Billing in your account; you will have full access to the end of the month for which you have paid.</li>
-        <li>A year gives you as many stories as you want for twelve months. It renews each year. Cancel any time from Billing in your account; you will have full access to the end of the year for which you have paid.</li>
+        <li>One month gives you as many stories as you want during that month. It renews each month. Cancel any time from Billing in your account; you will have full access to the end of the month for which you have paid.</li>
+        <li>One year gives you as many stories as you want for twelve months. It renews each year. Cancel any time from Billing in your account; you will have full access to the end of the year for which you have paid.</li>
         <li>Lifetime access, sold until 11 October 2026, continues for those who bought it, for as long as we run StoryMachine.</li>
-        <li>A programme code from a {LEGAL.tradingAs} training programme adds the number of stories it states, for free, until the date it states.</li>
+        <li>A programme code from a {LEGAL.tradingAs} training programme adds a stated number of stories, for free, until a specific date.</li>
       </ul>
       <p>
         Refunds are set out on the <Link href="/refunds">refunds page</Link>.
@@ -58,8 +58,7 @@ export default function Terms() {
       <p>
         All information that you upload remains your exclusive property, as does the story that StoryMachine writes from
         it. You give us permission to store and process your material only to run StoryMachine for you. We will not
-        publish it, sell it or use it to train AI models. Files that you upload are read in your browser; only their
-        words are sent to us. How we handle your information is set out in the <Link href="/privacy">privacy notice</Link>.
+        publish it, sell it or use it to train AI models. Files that you upload are read in your browser; only their words are sent to us. The only exceptions are photos and screenshots; they go to our servers, are read for the text, and then deleted. How we handle your information is set out in the <Link href="/privacy">privacy notice</Link>.
       </p>
       <p>
         Only upload material or information that you have the right to use. If it belongs to your employer or a client,
@@ -72,7 +71,7 @@ export default function Terms() {
         The method behind StoryMachine (the three-act structure, the prologue and epilogue, the presentation types and
         the tests each part has to pass) is the intellectual property of {LEGAL.tradingAs}. You may use it, and what
         StoryMachine gives you, for your own presentations. You may not copy StoryMachine, its prompts or its method to
-        build a competing product, and you may not teach this method commercially without our agreement.
+        build a competing product, and you may not teach this method commercially without our written agreement.
       </p>
 
       <h2>Acceptable use</h2>
@@ -92,11 +91,10 @@ export default function Terms() {
 
       <h2>Our liability</h2>
       <p>
-        Nothing in these terms limits liability for death or personal injury caused by negligence, for fraud, or for
-        anything else the law does not allow us to limit. Otherwise, we accept no liability for any direct or indirect
+        Nothing in these terms limits our liability for anything the law does not allow us to limit. Otherwise, we accept no liability for any direct or indirect
         losses arising from any content that you produce using StoryMachine. You are responsible for everything that you
         produce using StoryMachine. Our total liability to you is limited to the amount you paid us in the twelve months
-        before the claim. If you buy as a consumer, you have legal rights these terms do not affect.
+        before the claim. As a consumer, you have legal rights these terms do not affect.
       </p>
 
       <h2>Changes to these terms</h2>

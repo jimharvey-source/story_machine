@@ -259,7 +259,7 @@ export function renderPdf(
         ? "The talk from the first word to the last. Words set in this typeface are for saying aloud. Where a line could carry more power, a suggestion in red sits under it."
         : "Your big idea and the three acts. Add interest and impact in StoryMachine to get the opening, the signposts and the ending."
     );
-    subhead("Your big idea", "The one line people repeat in the corridor afterwards. Everything in your story builds to deliver it clearly and confidently.");
+    subhead("Your big idea", "The one line people will repeat in the corridor afterwards. Everything in your story builds to deliver it clearly and confidently.");
     text(story.bigIdea, font.display, 24, INK, { lineGap: 4 });
     suggest("bigIdea");
     gap(18);
@@ -320,7 +320,7 @@ export function renderPdf(
     };
 
     if (landing) {
-      partHead("prologue", "Prologue", "The first 30 to 60 seconds, to grab your audience's attention. State the big idea, say why it matters, and tell them what you need from them.", heightOf(landing.prologue, font.said, 12.5, W - 20) + 20);
+      partHead("prologue", "Prologue", "The first 30 to 60 seconds, to grab your audience's attention. State the big idea, why it matters, and what you need from them.", heightOf(landing.prologue, font.said, 12.5, W - 20) + 20);
       said(landing.prologue);
       small(timing(landing.prologue));
       suggest("landing.prologue");
@@ -544,7 +544,7 @@ export function renderPdf(
       const what =
         "This is the first draft of your presentation story, built by StoryMachine from your notes and your answers. It holds everything you need to finish the story, make your slides and rehearse.";
       const steps: Array<[string, string]> = [
-        ["Check the foundations.", "Section 1 sets out your audience and your argument. If either is wrong, everything built on it will be too."],
+        ["Check the foundations.", "Section 1 sets out your audience and your argument. If either is wrong, everything built on it will also be wrong."],
         ["Read the talk out loud.", "Section 2 is your presentation, from the first word to the last, with your timing. Suggestions in red sit under the lines they would strengthen."],
         ["Make it yours.", "Section 3 lists the gaps only you can fill, and what to do before you rehearse."],
         landing

@@ -14,7 +14,7 @@ const SUGGESTIONS = [
   "Act 1 is too long.",
   "Make the opening more provocative.",
   "The CEO will hear this. Make it more strategic.",
-  "Give me three alternative Big Ideas.",
+  "Give me three alternative big ideas.",
   "Make the ask more confident.",
   "Connect the ending back to the opening.",
 ];

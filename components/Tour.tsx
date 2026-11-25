@@ -24,8 +24,8 @@ export function Tour({ programme = false, signedIn = false }: { programme?: bool
             </p>
           </div>
           <p>
-            StoryMachine helps you build a clear, strong story. A strong story means a more confident presenter and a more
-            engaged audience. A more engaged audience means better results.
+            StoryMachine helps you build a clear, strong story. A clear, strong story means a more engaged audience. A
+            more engaged audience means better results.
           </p>
         </Section>
 
@@ -51,12 +51,12 @@ export function Tour({ programme = false, signedIn = false }: { programme?: bool
                 Sign in to start
               </a>
             ) : (
-              <Link href="/build" className="inline-flex items-center justify-center rounded-md bg-ink px-7 py-3.5 text-base font-medium text-paper hover:opacity-90">
+              <Link href={signedIn ? "/build?stories=1" : "/build"} className="inline-flex items-center justify-center rounded-md bg-ink px-7 py-3.5 text-base font-medium text-paper hover:opacity-90">
                 {signedIn ? "Go to my stories" : "Start your first story"}
               </Link>
             )}
             <Link href="/guide" className="text-base text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
-              Or follow the step-by-step guide
+              Or follow the User Guide
             </Link>
           </div>
           {!programme && !signedIn && <p className="mt-3 text-sm text-muted">Your first story is free. Just your email, no credit card.</p>}
@@ -114,8 +114,7 @@ export function Tour({ programme = false, signedIn = false }: { programme?: bool
           </p>
           <p className="mt-4">
             Every story ends with a panel headed{" "}
-            <span className="font-semibold text-ink">Additional suggestions from StoryMachine</span>. This is a critical
-            part of the process because it is the moment for you to add what StoryMachine cannot: your examples, your
+            <span className="font-semibold text-ink">Additional suggestions from StoryMachine</span>. This is the moment for you to add what StoryMachine cannot: your examples, your
             numbers, your stories, the reason this talk matters to you. StoryMachine is not designed to do all the work for
             you; it is designed to help you do the necessary thinking that every presenter must do before they go on stage.
           </p>
@@ -152,10 +151,12 @@ export function Tour({ programme = false, signedIn = false }: { programme?: bool
             Each part of your story has a line explaining why it is there, so you learn the method while you work with
             StoryMachine. The PDF ends with a summary of the method, that you can use for your next presentation.
           </p>
-          <p className="said mt-8 text-2xl leading-snug text-ink sm:text-[1.7rem]">
-            You don&apos;t have to be a superstar to speak and present well. And even the superstars had help. Steve Jobs,
-            Barack Obama, Michelle Obama, Nelson Mandela, Margaret Thatcher: all of them worked with others on their words.
-          </p>
+          <div className="my-8 border-l-2 border-red pl-6">
+            <p className="said text-2xl leading-snug text-ink sm:text-[1.7rem]">
+              You don&apos;t have to be a superstar to speak and present well. And even the superstars had help. Steve Jobs,
+              Barack Obama, Michelle Obama, Nelson Mandela, Margaret Thatcher: all of them worked with others on their words.
+            </p>
+          </div>
           <p className="mt-4">
             StoryMachine will guide you through the maze of information, and help you structure and articulate the good
             ideas you already have.
@@ -205,7 +206,6 @@ const HOW: Array<[string, string]> = [
 
 // What you get (draft 9, John): the story's parts, then slides and speaker notes.
 const GET = [
-  "A clear goal.",
   "A confident start that captures attention.",
   "A three-act story with a beginning, middle and end.",
   "Headlines and signposts as you go.",
@@ -253,11 +253,14 @@ export function WhoWeAre() {
               <div className="p-7 sm:p-8">
               <p className="display text-2xl">Jim Harvey</p>
               <p className="mt-4 text-lg leading-relaxed text-ink-2">
-                Jim started his first business 35 years ago and had to learn to sell as he built it. Before long, clients
-                were asking him to help them launch products, run conferences and train their people. Today his company, The
-                Message Business, works with teams around the world in the technology, retail,
-                consulting and finance sectors. Jim has also written for television, done hundreds of gigs as a stand-up
-                comedian, and hosts conferences as a core part of his work.
+                Jim started his first business at 26 years old and had to learn to sell as he built it. Before long, generous
+                and supportive clients were asking him to help them launch products, run conferences and train their people.
+                Today, after three start-up-to-sell-out adventures, over three decades, his company, The Message Business,
+                works with businesses around the world in the technology, retail, consulting and finance sectors. Jim is
+                co-founder and co-owner of Presentation Guru, which has published a decade of articles on speaking and
+                presenting for more than 4,000 subscribers. He has published three books on presenting, charisma and
+                presentation technology. He has also written jokes for television and done many gigs in London and Key West
+                as a stand-up comedian.
               </p>
               <a href="https://www.themessagebusiness.com" target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-sm text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
                 The Message Business

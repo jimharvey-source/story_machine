@@ -1,6 +1,6 @@
 ## Meet StoryMachine
 
-You have an upcoming presentation. You have notes, documents, maybe some old slides, or perhaps just a head full of rough thinking. StoryMachine helps you turn that material into a story built for your audience, then gives you what you need to deliver it: the words for the first and last minute; speaker notes; and, if you need it, a brief for your slides.
+You have an upcoming presentation. You have notes, documents, maybe some old slides, or perhaps just a head full of rough thinking. StoryMachine helps you turn that material into a story built for your audience, then gives you what you need to deliver it: a well-structured story; the words for the first and last minute; speaker notes; and, if you need it, a brief for your slides.
 
 It takes six steps and less than 30 minutes:
 
@@ -50,7 +50,7 @@ Then the key questions:
 
 **Be specific about the objective.** For example, when you finish the sentence *After my presentation, the audience will...*, "...approve the second phase and name an owner by Friday" is much better than "...understand the project".
 
-Each answer can run to 3,000 characters. Give as much detail as you can. If you really don't know, leave it blank. StoryMachine will not guess: it will name what is missing as a gap, so you know what to find out before you present.
+Each answer can run to 3,000 characters. Give as much detail as you can. If you really don't know, leave it blank. StoryMachine will not guess. It will name what is missing as a gap, so you know what to find out before you present.
 
 **Tone of voice.** Choose formal, business or conversational. A line under each button says which rooms it suits.
 
@@ -78,7 +78,7 @@ These kinds of files stay on your computer. StoryMachine reads the words and add
 
 **Add photos and screenshots**: an image of a whiteboard, a flipchart, a slide, a page of handwritten notes. Upload them with the same button, or paste a screenshot straight into the box. StoryMachine writes out the words and the figures that it can read. Check them against the picture.
 
-Photos and screenshots must be uploaded to our servers for StoryMachine to be able to read them and convert them to text. Once this is done, the photo or screenshot is immediately deleted.
+Photos and screenshots must be uploaded to our servers for StoryMachine to be able to read them and convert them to text. Once this is done, the photos and screenshots are immediately deleted.
 
 Before you press **Find my story**, review what landed in the box and delete anything that does not belong.
 
@@ -131,11 +131,11 @@ Signing in also adds you to the Presentation Guru mailing list. One helpful emai
 
 Press **Add interest and impact** when your Stage 1 story is right. StoryMachine then adds:
 
-**The prologue: the golden minute.** Your opening, written in words for you to say. It earns attention in the first sentence, states the big idea, explains why it matters now and tells the audience what to expect. The word count and speaking time sit underneath. Aim for about a minute.
+**The prologue: the golden minute.** Your opening, written in words for you to say. It earns attention in the first sentence, states the big idea, explains why it matters now and tells the audience what to expect. The word count and speaking time appear underneath. Aim for about a minute.
 
 **A signpost that introduces each act.** The sentence that tells the audience what is coming next.
 
-**The epilogue: end with certainty.** Audiences need certainty. The epilogue recaps your headlines and the actions from here, and sends the audience away with your message ringing in their ears.
+**The epilogue: end with confidence.** Audiences need certainty. The epilogue recaps your headlines and the actions from here, and sends the audience away with your message ringing in their ears.
 
 **Your story in five lines.** The entire talk in 30 seconds. It gives you a bird's eye view to make sure that the flow is complete and coherent.
 
@@ -161,7 +161,7 @@ The epilogue ends on the big idea. If you change the big idea afterwards, a red 
 
 **Run it again.** Press **Rework the notes**, change your material or your answers, and press **Find my story again**. StoryMachine will rebuild the whole story.
 
-**Your free story** includes one rerun and five AI edits. A rerun rebuilds the whole story from your changed notes. An AI edit is one line StoryMachine rewrites for you, or one reply when you discuss it with StoryMachine. A line at the foot of the story shows how many reruns and AI edits remain. Edits by hand are always free. A story you pay for has no limits.
+**Your free story** includes one rerun and five AI edits. A rerun rebuilds the whole story from your changed notes. An AI edit is one line that StoryMachine rewrites for you, or one reply when you discuss it with StoryMachine. A note at the foot of the story shows how many reruns and AI edits remain. Edits by hand are always free. A story you pay for has no limits.
 
 Every story has a panel headed **Additional suggestions from StoryMachine**: the details only you can add, followed by advice to help you rehearse. Follow this advice before you present. Audiences believe speakers who sound authentic.
 
@@ -196,7 +196,7 @@ Press **Make your slides**. The slides page gives you:
 - **A prompt for your own AI tool.** The prompt with the rules for slides built in. Press **Copy the prompt** and paste it into whichever AI tool you use to make slides.
 - **The PowerPoint outline.** Each slide's words in the title placeholder. Slides with a picture leave the content area empty for you to fill, with the picture brief in the speaker notes beside your cues. Apply your company template and the slides take on its look.
 
-If you tell StoryMachine you will not use slides, it says so, and still gives you a brief in case you change your mind. A talk built for words alone is a strength.
+If you tell StoryMachine that you will not use slides, it acknowledges that, but still gives you a brief in case you change your mind. A talk built for words alone is a strength.
 
 ## Step 6: Rehearse it into life
 
@@ -224,7 +224,7 @@ After that, press **Upgrade** at the top of the page:
 
 - each additional story, $9.99: that story, for as long as you keep it, edited as often as you like;
 - one month, $19.99: as many stories as you like for one month, cancel any time;
-- one year, $149.99: as many stories as you like for one year, cancel any time.
+- one year, $99.99: as many stories as you like for one year, cancel any time.
 
 A story you pay for has no limits: rerun it, edit it and discuss it with StoryMachine as often as you like, and download it again whenever you want.
 

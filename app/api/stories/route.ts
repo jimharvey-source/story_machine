@@ -25,13 +25,13 @@ export async function GET() {
   if (!p) return signInRequired();
   const { data, error } = await supabaseAdmin()
     .from("stories")
-    .select("id, title, updated_at, landing")
+    .select("id, title, created_at, updated_at, landing")
     .eq("user_id", p.id)
     .order("updated_at", { ascending: false })
     .limit(100);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({
-    stories: (data ?? []).map((s) => ({ id: s.id, title: s.title, updatedAt: s.updated_at, landed: Boolean(s.landing) })),
+    stories: (data ?? []).map((s) => ({ id: s.id, title: s.title, createdAt: s.created_at, updatedAt: s.updated_at, landed: Boolean(s.landing) })),
   });
 }
 

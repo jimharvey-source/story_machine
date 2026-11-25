@@ -46,11 +46,11 @@ function Shell({ children, wide = false }: { children: React.ReactNode; wide?: b
 const STEPS: Array<[string, string]> = [
   [
     "Get your story straight",
-    "Answer some questions. Paste your notes and upload your documents. Then let StoryMachine find your Big Idea, your three-act story and any gaps that need filling.",
+    "Answer some questions. Paste your notes and upload your documents. Then let StoryMachine find your big idea, your three-act story and any gaps that need filling.",
   ],
   [
     "Add interest and impact",
-    "A strong start (Prologue) and a clear, confident ending (Epilogue), memorable headlines, key message signposts and quotable soundbites, with suggestions along the way to help you make your point with even more impact.",
+    "A strong start (prologue) and a clear, confident ending (epilogue), memorable headlines, key message signposts and quotable soundbites, with suggestions along the way to help you make your point with even more impact.",
   ],
   [
     "Take it with you",
@@ -146,7 +146,7 @@ function OpenWelcome({ invitation, tour }: { invitation: Extract<Invitation, { s
           <div id="how" className="scroll-mt-8">{tour}</div>
           {/* The close: back to the door. */}
           <section className="panel mt-20 !p-8 sm:mt-28 sm:!p-14">
-            <h2 className="display max-w-2xl text-3xl leading-tight sm:text-[2.6rem]">Try it for your next presentation.</h2>
+            <h2 className="display max-w-2xl text-3xl leading-tight sm:text-[2.6rem]">Try StoryMachine for your next presentation.</h2>
             <p className="mt-4 text-lg text-ink-2">
               {storiesInWords(invitation.stories)} waiting for you{invitation.until ? `. Join by ${invitation.until}.` : ", free."}
             </p>

@@ -105,7 +105,7 @@ export default async function Guide() {
       <header className="flex flex-wrap items-center gap-x-6 gap-y-3">
         <Lockup />
         <Link
-          href="/build"
+          href={signedIn ? "/build?stories=1" : "/build"}
           className="ml-auto inline-flex items-center rounded-md bg-ink px-4 py-2 text-sm font-medium text-paper hover:opacity-90"
         >
           {signedIn ? "Go to my stories" : "Build your first story"}

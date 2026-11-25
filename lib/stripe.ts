@@ -22,7 +22,7 @@ export function isPlan(v: unknown): v is Plan {
 }
 
 // The price for each plan is found by its lookup key, so a new price made by scripts/stripe-setup.mjs
-// (for example the 18 October prices: $9.99, $19.99, $149.99) takes effect without touching Vercel.
+// (for example the 18 October prices: $9.99, $19.99, $149.99; 24 November: year $99.99) takes effect without touching Vercel.
 // The STRIPE_PRICE_* variables are the fallback if the lookup fails.
 const LOOKUP: Record<Plan, string> = {
   story: "story_machine_story",
