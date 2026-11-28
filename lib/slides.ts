@@ -288,3 +288,52 @@ export function capSupporting<T extends Record<Beat, string[]>>(support: T, cap:
   }
   return out;
 }
+
+// ---------------------------------------------------------------------------------------------------------
+// The slide outline (Jim and John, 27 November 2026). Slide by slide: a number, a proposed title, proposed
+// content and a suggestion for the picture or chart. The presenter builds from it; the cues stay in the notes.
+// ---------------------------------------------------------------------------------------------------------
+
+export type OutlineSlide = { n: number; title: string; content: string[]; suggestion: string; serves: string; notes: string[] };
+
+const CHARTY = /\b(chart|graph|bar|line|pie|trend|figure|percent|per cent|%|\d)/i;
+
+/** What to put on the slide beyond its title, in one line. */
+function suggestionFor(s: Slide, first: boolean, last: boolean): string {
+  if (first) return "Keep it clean: the big idea alone, or with one image that carries it.";
+  if (last) return "Repeat the title slide, so the big idea is the last thing they see.";
+  if (!hasPicture(s) || /^no (visual|slide|picture|image)s?\b/i.test(s.picture.trim())) return "Words alone. Set the title large and let it carry the slide.";
+  const pic = s.picture.replace(/\.$/, "").trim();
+  const what = pic.charAt(0).toUpperCase() + pic.slice(1);
+  if (/\b(chart|graph)\b/i.test(pic)) return `Add a chart: ${what}. Use only the figures in your material.`;
+  if (/\b(diagram|steps?|stages?|flow|process)\b/i.test(pic)) return `Add a simple diagram: ${what}.`;
+  return `Add an image: ${what}.`;
+}
+
+/** The deck as an outline, slide by slide. */
+export function slideOutline(story: Story, landing: Landing): OutlineSlide[] {
+  const slides = deck(story, landing);
+  const actByLabel = new Map(actsOf(story).map(([key, label]) => [label, key] as const));
+  const seenAct = new Set<string>();
+  return slides.map((s, i) => {
+    const first = i === 0;
+    const last = i === slides.length - 1;
+    const cues = s.notes.filter((t) => !/^(Act \d|Signpost:|Prologue$|Epilogue$)/.test(t.trim()));
+    let content: string[] = [];
+    const key = actByLabel.get(s.serves);
+    if (first) content = [story.argument];
+    else if (last) content = [];
+    else if (key && !seenAct.has(key) && s.words === (splitSlideIdea(landing[key].visualIdea).words || story[key].headline)) {
+      // The act's opening slide: its evidence, which the presenter can cut down to what the eye needs.
+      seenAct.add(key);
+      content = story[key].supportingPoints.slice(0, 4);
+    } else {
+      content = cues.map((c) => c.replace(CUE_LABEL, "").replace(/[.;,]\s*$/, "")).filter((c) => c && !echoes(c, s.words)).slice(0, 3);
+    }
+    let suggestion = suggestionFor(s, first, last);
+    if (!first && !last && !hasPicture(s) && content.some((c) => CHARTY.test(c) && /\d/.test(c))) {
+      suggestion = "Consider a simple chart of the figure here, or set the number large on its own.";
+    }
+    return { n: i + 1, title: s.words, content, suggestion, serves: first ? "Title" : last ? "Close" : s.serves, notes: s.notes };
+  });
+}

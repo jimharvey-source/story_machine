@@ -1,4 +1,4 @@
-// The story as a Word document: the same sections, order and wording as the PDF (lib/exportPdf.ts).
+// The story as a Word document. Stage 1: the same sections as the PDF (lib/exportPdf.ts). Stage 2: the speech outline and speaker notes only (Jim and John, 27 November).
 // Built on Word's own styles (Title, Heading 1, Heading 2, Normal, List Bullet, Quote), so a company
 // template restyles it in one step: apply the template, or paste into a document that uses it.
 
@@ -56,6 +56,7 @@ export async function renderDocx(
   const sugg = (rhetoric?.suggestions ?? []).filter((x) => x.path && cleanLine(x.better));
   const used = new Set<string>();
   const suggest = (path: string) => {
+    if (landing) return; // the Word file in Stage 2 is the speech outline: suggestions stay in the PDF
     for (const x of sugg.filter((y) => y.path === path || y.path === `landing.${path}`)) {
       used.add(x.path as string);
       { const d = checkDevice(x); out.push(label("Add power to your words. For example, you could say this", `“${cleanLine(x.better)}” ${DEVICE_INTRO} ${d.device}.${d.what ? ` ${d.what}` : ""}`)); }
@@ -68,7 +69,8 @@ export async function renderDocx(
   out.push(p(`Jim Harvey's StoryMachine  ·  ${landing ? "Stage 2: Add interest and impact" : "Stage 1: Get your story straight"}  ·  ${date}`, { small: true }));
   out.push(p(kind.book === acts.join(", ") ? `Structure: ${kind.book}.` : `Structure: ${kind.book}. ${acts.join(", ")}.`, { small: true }));
 
-  // ---- 1 Your audience and your argument ----
+  // ---- 1 Your audience and your argument (Stage 1 only: in Stage 2 the Word file is the speech outline and speaker notes) ----
+  if (!landing) {
   section(
     "Your audience and your argument",
     "These are the foundations of your story. Check them first. If any of them is wrong, change it in StoryMachine and find your story again: everything else is built on them."
@@ -83,12 +85,13 @@ export async function renderDocx(
   out.push(p(story.intent));
   out.push(h2("Your argument"));
   out.push(p(story.argument));
+  }
 
   // ---- 2 Your presentation ----
   section(
-    "Your presentation",
+    landing ? "Your speech outline" : "Your presentation",
     landing
-      ? "The talk from the first word to the last. The indented lines are for saying aloud. Where a line could carry more power, a suggestion sits under it."
+      ? "The talk from the first word to the last. The indented lines are for saying aloud. Learn the Prologue and the Epilogue by heart. Tell the acts in your own words."
       : "Your big idea and the three acts. Add interest and impact in StoryMachine to get the opening, the signposts and the ending."
   );
   out.push(h2("Your big idea"));
@@ -152,9 +155,10 @@ export async function renderDocx(
     out.push(p("Every figure here comes from your material. Check each one against its source before you present.", { small: true }));
   }
 
-  // ---- 3 Suggestions from StoryMachine ----
+  // ---- 3 Suggestions from StoryMachine (Stage 1 only: in Stage 2 they are in the PDF) ----
+  if (!landing) {
   section("Suggestions from StoryMachine", "This is a first draft. Here's how you can make the message even stronger.");
-  const gapsList = landing ? landing.gaps : story.gaps;
+  const gapsList = story.gaps;
   if (gapsList.length) {
     out.push(h2("Fill these gaps"));
     out.push(p("What your material does not say. Only you can supply these.", { italic: true }));
@@ -169,13 +173,14 @@ export async function renderDocx(
     out.push(p(RHETORIC_LEAD, { italic: true }));
     for (const x of leftover) out.push(bullet(suggestionLine(x)));
   }
+  }
 
   if (landing) {
     // ---- 4 Rehearse it into life: five lines, speaker notes, signposts ----
     const notes = landing.speechNotes;
     section(
-      "Rehearse it into life",
-      "Story first, then slides, then rehearsal. Make your slides on the StoryMachine slides page, then rehearse from this section. Speak from the cues, never from a script. Learn the Prologue and the Epilogue by heart: the words are in section 2. Tell the acts in your own words."
+      "Your speaker notes",
+      "Speak from the cues, never from a script. Say the five lines first, then rehearse from the cues. The Prologue and the Epilogue word for word are in section 1."
     );
     out.push(h2("Your story in five lines"));
     out.push(p("The entire talk in 30 seconds. Say it first. It gives you a bird's eye view to make sure that the flow is complete and coherent.", { italic: true, small: true }));
@@ -184,11 +189,11 @@ export async function renderDocx(
     out.push(label(`Act 2: ${acts[1]}`, landing.fiveLineStory.how));
     out.push(label(`Act 3: ${acts[2]}`, landing.fiveLineStory.what));
     out.push(label("Epilogue", landing.fiveLineStory.epilogue));
-    out.push(h2("Speaker notes"));
+    out.push(h2("Your cues"));
     out.push(p("One cue per line, in the order you say them.", { italic: true, small: true }));
     out.push(h2("Prologue"));
     for (const c of notes.prologue) out.push(bullet(c));
-    out.push(p("Word for word: the Prologue is in section 2. Learn it by heart.", { small: true }));
+    out.push(p("Word for word: the Prologue is in section 1. Learn it by heart.", { small: true }));
     actKeys.forEach((k, i) => {
       out.push(h2(`Act ${i + 1}: ${acts[i]}`));
       out.push(label("Your signpost, word for word", landing[k].signpost));
@@ -196,13 +201,15 @@ export async function renderDocx(
     });
     out.push(h2("Epilogue"));
     for (const c of notes.epilogue) out.push(bullet(c));
-    out.push(p("Word for word: the Epilogue is in section 2. Learn it by heart.", { small: true }));
+    out.push(p("Word for word: the Epilogue is in section 1. Learn it by heart.", { small: true }));
   }
 
-  out.push(h1(`${n + 1}. How this was made`, true));
-  for (const [name, text] of METHOD) {
-    out.push(h2(name));
-    out.push(p(text));
+  if (!landing) {
+    out.push(h1(`${n + 1}. How this was made`, true));
+    for (const [name, text] of METHOD) {
+      out.push(h2(name));
+      out.push(p(text));
+    }
   }
   for (const para of LICENCE) out.push(p(para, { small: true }));
   out.push(new Paragraph({ alignment: AlignmentType.LEFT, children: [new TextRun({ text: SIGN_OFF, size: 18 })] }));

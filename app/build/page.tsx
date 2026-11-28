@@ -910,6 +910,63 @@ export default function Build() {
   const legacySuggestions = rhetoric ? rhetoric.suggestions.filter((x) => !x.path) : [];
   const inPlaceCount = rhetoric ? rhetoric.suggestions.filter((x) => x.path && cleanLine(x.better)).length : 0;
 
+  // Section 1 in Stage 1; in Stage 2 the same section closes the page.
+  const audienceSection = () => story && (
+          <section id="s-audience" className="scroll-mt-20 space-y-8">
+            <SectionHead
+              n={landing ? 3 : 1}
+              title="Your audience and your argument"
+              intro={landing ? "The foundations you built in Stage 1. Change a line here only if it is wrong: everything else is built on it." : "These are the foundations of your story. Check them first. If one is wrong, everything built on it will also be wrong. Click any line to change it."}
+            />
+            <div>
+              <SubHead title="Your audience analysis" about="Who is in the room, and what they need from you." />
+              <div className="space-y-4">
+                <Row label="Who they are">
+                  <Editable value={story.audience.who} onChange={(v) => applyPath("audience.who", v)} className="font-medium" />
+                </Row>
+                {story.hero.who && (
+                  <>
+                    <Row label="What they want">
+                      <Editable value={story.hero.wants} onChange={(v) => applyPath("hero.wants", v)} className="text-ink-2" />
+                    </Row>
+                    <Row label="What stands in the way">
+                      <Editable value={story.hero.obstacle} onChange={(v) => applyPath("hero.obstacle", v)} className="text-ink-2" />
+                    </Row>
+                  </>
+                )}
+                <Row label="What they need to hear">
+                  <Editable value={story.audience.needToHear} onChange={(v) => applyPath("audience.needToHear", v)} className="text-ink-2" />
+                </Row>
+                <Row label="What to leave out">
+                  <Editable value={story.audience.doNotNeedToHear} onChange={(v) => applyPath("audience.doNotNeedToHear", v)} className="text-ink-2" />
+                </Row>
+              </div>
+            </div>
+            <div className="border-t border-rule pt-8">
+              <SubHead title="What you want your audience to do when you finish your presentation" about="Your statement of intent. If you can't state it clearly, the presentation is not ready." />
+              <Editable
+                value={story.intent}
+                busy={busy === "intent"}
+                onChange={(v) => applyPath("intent", v)}
+                onAction={chips("intent", story.intent)}
+                actions={["sharper", "simpler", "another"]}
+                className="text-lg"
+              />
+            </div>
+            <div className="border-t border-rule pt-8">
+              <SubHead title="Your argument" about="Your case in one sentence. Everything in the three acts supports it." />
+              <Editable
+                value={story.argument}
+                busy={busy === "argument"}
+                onChange={(v) => applyPath("argument", v)}
+                onAction={chips("argument", story.argument)}
+                actions={["sharper", "simpler", "clearer", "another"]}
+                className="text-lg"
+              />
+            </div>
+          </section>
+  );
+
   return (
     <main className="mx-auto w-full max-w-3xl px-5 pb-24 pt-10 sm:pt-16 lg:max-w-5xl lg:px-10 2xl:max-w-6xl">
       <header className={story ? "mb-10" : "mb-6"}>
@@ -1408,13 +1465,14 @@ export default function Build() {
           {/* Two stages, each checked before the next (Jim and John, 2 November). */}
           {landing ? (
             <div className="max-w-2xl space-y-2 text-ink-2">
-              <p className="display text-2xl text-ink">Stage 2: Add interest and impact.</p>
+              {/* Stage 2 opens on the story (Jim and John, 27 November). The Stage 1 work sits below, closed. John is writing the final wording. */}
+              <p className="display text-2xl text-ink">Here is your story.</p>
               <p>
-                StoryMachine has added the following to the work that you did in Stage 1: the first minute (your prologue), a
+                You built it in Stage 1. StoryMachine has now added interest and impact: the first minute (your prologue), a
                 signpost into each act, the ending (your epilogue) and your speaker notes. Under some lines you will also find a suggestion in red for more powerful language.
                 Use it, change it, or ignore it.
               </p>
-              <p>Click any text in a box to change it. When you are happy with every line, your story is ready.</p>
+              <p>Click any text in a box to change it. Your audience and your argument from Stage 1 are at the foot of the page if you want to change them.</p>
             </div>
           ) : (
             <div className="max-w-2xl space-y-2 text-ink-2">
@@ -1430,9 +1488,9 @@ export default function Build() {
           {/* The story page follows the PDF (21 October): three sections, with a contents bar that stays in view. */}
           <nav aria-label="Your story" className="sticky top-0 z-20 -mx-2 flex flex-wrap gap-x-5 gap-y-1 border-b border-rule bg-paper-2/95 px-2 py-3 text-sm backdrop-blur">
             {[
-              ["s-audience", "1 Your audience and your argument"],
-              ["s-presentation", "2 Your presentation"],
-              ["s-suggestions", "3 Suggestions"],
+              ...(landing
+                ? [["s-presentation", "1 Your presentation"], ["s-suggestions", "2 Suggestions"], ["s-audience", "3 Your audience and your argument"]]
+                : [["s-audience", "1 Your audience and your argument"], ["s-presentation", "2 Your presentation"], ["s-suggestions", "3 Suggestions"]]),
               ...(signedIn && !locked ? [["s-next", landing ? "Next: your story is ready" : "Next: add interest and impact"]] : []),
             ].map(([id, t]) => (
               <a key={id} href={`#${id}`} className="text-ink-2 underline decoration-rule underline-offset-4 hover:text-ink">
@@ -1441,80 +1499,13 @@ export default function Build() {
             ))}
           </nav>
 
-          {/* 1. Your audience and your argument */}
-          <section id="s-audience" className="scroll-mt-20 space-y-8">
-            <SectionHead
-              n={1}
-              title="Your audience and your argument"
-              intro="These are the foundations of your story. Check them first. If one is wrong, everything built on it will also be wrong. Click any line to change it."
-            />
-            <div>
-              <SubHead title="Your audience analysis" about="Who is in the room, and what they need from you." />
-              <div className="space-y-4">
-                <Row label="Who they are">
-                  <Editable value={story.audience.who} onChange={(v) => applyPath("audience.who", v)} className="font-medium" />
-                </Row>
-                {story.hero.who && (
-                  <>
-                    <Row label="What they want">
-                      <Editable value={story.hero.wants} onChange={(v) => applyPath("hero.wants", v)} className="text-ink-2" />
-                    </Row>
-                    <Row label="What stands in the way">
-                      <Editable value={story.hero.obstacle} onChange={(v) => applyPath("hero.obstacle", v)} className="text-ink-2" />
-                    </Row>
-                  </>
-                )}
-                <Row label="What they need to hear">
-                  <Editable value={story.audience.needToHear} onChange={(v) => applyPath("audience.needToHear", v)} className="text-ink-2" />
-                </Row>
-                <Row label="What to leave out">
-                  <Editable value={story.audience.doNotNeedToHear} onChange={(v) => applyPath("audience.doNotNeedToHear", v)} className="text-ink-2" />
-                </Row>
-              </div>
-            </div>
-            <div className="border-t border-rule pt-8">
-              <SubHead title="What you want your audience to do when you finish your presentation" about="Your statement of intent. If you can't state it clearly, the presentation is not ready." />
-              <Editable
-                value={story.intent}
-                busy={busy === "intent"}
-                onChange={(v) => applyPath("intent", v)}
-                onAction={chips("intent", story.intent)}
-                actions={["sharper", "simpler", "another"]}
-                className="text-lg"
-              />
-            </div>
-            <div className="border-t border-rule pt-8">
-              <SubHead title="Your argument" about="Your case in one sentence. Everything in the three acts supports it." />
-              <Editable
-                value={story.argument}
-                busy={busy === "argument"}
-                onChange={(v) => applyPath("argument", v)}
-                onAction={chips("argument", story.argument)}
-                actions={["sharper", "simpler", "clearer", "another"]}
-                className="text-lg"
-              />
-            </div>
-            {landing && (
-              <div className="rounded-md bg-panel p-6 sm:p-8">
-                <SubHead title="Your story in five lines" about="The entire talk in 30 seconds. It gives you a bird's eye view to make sure that the flow is complete and coherent." />
-                <ol className="space-y-3">
-                  {(["prologue", "why", "how", "what", "epilogue"] as const).map((k, i) => (
-                    <li key={k} className="grid gap-1 sm:grid-cols-[9rem_1fr] sm:gap-4">
-                      <span className="pt-1.5 text-sm font-semibold text-muted">
-                        {k === "prologue" ? "Prologue" : k === "epilogue" ? "Epilogue" : `Act ${i}: ${KINDS[story.kind].acts[i - 1]}`}
-                      </span>
-                      <Editable value={landing.fiveLineStory[k]} onChange={(v) => applyPath(`landing.fiveLineStory.${k}`, v)} className="said text-lg" />
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            )}
-          </section>
+          {/* 1. Your audience and your argument. In Stage 2 it moves to the foot of the page (Jim and John, 27 November). */}
+          {!landing && audienceSection()}
 
           {/* 2. Your presentation */}
           <section id="s-presentation" className="scroll-mt-20 space-y-10">
             <SectionHead
-              n={2}
+              n={landing ? 1 : 2}
               title="Your presentation"
               intro={
                 landing
@@ -1691,7 +1682,7 @@ export default function Build() {
 
           {/* 3. Suggestions from StoryMachine */}
           <section id="s-suggestions" className="scroll-mt-20 space-y-10">
-            <SectionHead n={3} title="Suggestions from StoryMachine" intro="This is a first draft. Here's how you can make the message even stronger." />
+            <SectionHead n={landing ? 2 : 3} title="Suggestions from StoryMachine" intro="This is a first draft. Here's how you can make the message even stronger." />
             <div className="rounded-md bg-red-soft px-5 py-6 sm:px-8 sm:py-8">
               <p className="eyebrow text-red">{OWN_IT_TITLE}</p>
               <p className="mt-2 text-base text-ink">{OWN_IT_PAGE_LEAD}</p>
@@ -1740,6 +1731,8 @@ export default function Build() {
               </div>
             )}
           </section>
+
+          {landing && audienceSection()}
 
           {signedIn && <Refine messages={chat} busy={busy === "refine"} onSend={refine} />}
 

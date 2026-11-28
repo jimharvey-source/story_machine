@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Landing, Story } from "@/lib/schema";
-import { slideList, slidePrompt } from "@/lib/slides";
+import { isNewDeck, slideList, slideOutline, slidePrompt } from "@/lib/slides";
 import { KINDS, kindOf } from "@/lib/kinds";
 
 // After Stage 2: story, slides, rehearsal (Jim, 21 October). Both sit on the slides view, slides first.
@@ -97,6 +97,7 @@ export function GreatSlides() {
 export function Slides({ story, landing }: { story: Story; landing: Landing }) {
   const slides = slideList(story, landing);
   const prompt = slidePrompt(story, landing, slides);
+  const outline = isNewDeck(landing) ? slideOutline(story, landing) : null;
   const [copied, setCopied] = useState(false);
   // The presenter said the talk has no slides: every act's slide idea says so.
   const wordsAlone = (["why", "how", "what"] as const).every((k) => /\bno (visual|slide)s?\b|without slides|words alone/i.test(landing[k]?.visualIdea ?? ""));
@@ -120,16 +121,35 @@ export function Slides({ story, landing }: { story: Story; landing: Landing }) {
       )}
       <section className="border-t border-rule pt-8">
         <p className="eyebrow">Slide brief</p>
-        <ol className="mt-3 space-y-3">
-          {slides.map(([name, text, serves], i) => (
-            <li key={i} className="rounded-md bg-panel p-4">
-              <p className="tag text-muted">
-                Slide {i + 1} · {name} · serves {serves}
-              </p>
-              <p className="mt-1 text-ink-2">{text}</p>
-            </li>
-          ))}
-        </ol>
+        {outline ? (
+          <ol className="mt-3 space-y-3">
+            {outline.map((o) => (
+              <li key={o.n} className="rounded-md bg-panel p-4">
+                <p className="tag text-muted">
+                  Slide {o.n} · {o.serves}
+                </p>
+                <p className="mt-1 font-medium text-ink">{o.title}</p>
+                {o.content.length > 0 && (
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-2">
+                    {o.content.map((c, k) => <li key={k}>{c}</li>)}
+                  </ul>
+                )}
+                <p className="mt-2 text-sm italic text-ink-2">{o.suggestion}</p>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <ol className="mt-3 space-y-3">
+            {slides.map(([name, text, serves], i) => (
+              <li key={i} className="rounded-md bg-panel p-4">
+                <p className="tag text-muted">
+                  Slide {i + 1} · {name} · serves {serves}
+                </p>
+                <p className="mt-1 text-ink-2">{text}</p>
+              </li>
+            ))}
+          </ol>
+        )}
       </section>
 
       <section className="border-t border-rule pt-8">

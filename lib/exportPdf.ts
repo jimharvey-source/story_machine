@@ -230,25 +230,30 @@ export function renderPdf(
       }
     };
 
-    // ---- Section 1: Your audience and your argument ----
-    openSection(
-      "audience",
-      "Your audience and your argument",
-      "Who you are talking to, what you want them to do, and your case in one sentence.",
-      "These are the foundations of your story. Check them first. If any of them is wrong, change it in StoryMachine and find your story again: everything else is built on them."
-    );
-    subhead("Your audience analysis", "Who is in the room, and what they need from you.");
-    row("Who they are", story.audience.who);
-    if (story.hero?.wants) row("What they want", story.hero.wants);
-    if (story.hero?.obstacle) row("What stands in the way", story.hero.obstacle);
-    row("What they need to hear", story.audience.needToHear);
-    row("What to leave out", story.audience.doNotNeedToHear);
-    thinRule();
-    subhead("What you want your audience to do when you finish your presentation", "Your statement of intent. If you can't state it clearly, the presentation is not ready.");
-    text(story.intent, font.sans, 11.5, INK);
-    thinRule();
-    subhead("Your argument", "Your case in one sentence. Everything in the three acts supports it.");
-    text(story.argument, font.sans, 11.5, INK);
+    // ---- Your audience and your argument: section 1 in Stage 1, an appendix in Stage 2 (Jim and John, 27 November) ----
+    const audienceSection = () => {
+      openSection(
+        "audience",
+        "Your audience and your argument",
+        "Who you are talking to, what you want them to do, and your case in one sentence.",
+        landing
+          ? "The foundations you built in Stage 1, kept here for reference. If one of them is wrong, change it in StoryMachine and find your story again: everything else is built on them."
+          : "These are the foundations of your story. Check them first. If any of them is wrong, change it in StoryMachine and find your story again: everything else is built on them."
+      );
+      subhead("Your audience analysis", "Who is in the room, and what they need from you.");
+      row("Who they are", story.audience.who);
+      if (story.hero?.wants) row("What they want", story.hero.wants);
+      if (story.hero?.obstacle) row("What stands in the way", story.hero.obstacle);
+      row("What they need to hear", story.audience.needToHear);
+      row("What to leave out", story.audience.doNotNeedToHear);
+      thinRule();
+      subhead("What you want your audience to do when you finish your presentation", "Your statement of intent. If you can't state it clearly, the presentation is not ready.");
+      text(story.intent, font.sans, 11.5, INK);
+      thinRule();
+      subhead("Your argument", "Your case in one sentence. Everything in the three acts supports it.");
+      text(story.argument, font.sans, 11.5, INK);
+    };
+    if (!landing) audienceSection();
 
     // ---- Section 2: Your presentation ----
     openSection(
@@ -406,7 +411,7 @@ export function renderPdf(
     subhead("Before you rehearse", OWN_IT_LEAD, 100);
     tick(ownItAdvice(story, landing));
 
-    // Any suggestion whose line is not printed in section 2 still has a home.
+    // Any suggestion whose line is not printed in the presentation section still has a home.
     const leftover = sugg.filter((s) => !usedPaths.has(s.path as string));
     if (landing && hasRhetoric(rhetoric) && leftover.length) {
       thinRule();
@@ -468,7 +473,7 @@ export function renderPdf(
       };
       subhead("Speaker notes", "One cue per line, in the order you say them.", 80);
       const beats: Array<[string, string, string[], () => void]> = [
-        ["Prologue", "The first minute. Learn it by heart.", notes.prologue, () => wordsLink("prologue", "the Prologue is in section 2. Learn it by heart.")],
+        ["Prologue", "The first minute. Learn it by heart.", notes.prologue, () => wordsLink("prologue", "the Prologue is in section 1. Learn it by heart.")],
         ...actKeys.map((k, i): [string, string, string[], () => void] => [
           `Act ${i + 1}: ${acts[i]}`,
           story[k].headline,
@@ -480,7 +485,7 @@ export function renderPdf(
             gap(10);
           },
         ]),
-        ["Epilogue", "End with certainty. Learn it by heart.", notes.epilogue, () => wordsLink("epilogue", "the Epilogue is in section 2. Learn it by heart.")],
+        ["Epilogue", "End with certainty. Learn it by heart.", notes.epilogue, () => wordsLink("epilogue", "the Epilogue is in section 1. Learn it by heart.")],
       ];
       for (const [name, sub, list, extra] of beats) {
         keep(60 + list.length * 24);
@@ -495,14 +500,19 @@ export function renderPdf(
       }
     }
 
+    if (landing) audienceSection();
+
     // ---- Last section: How this was made ----
-    openSection("method", "How this was made", "The method behind your story.");
-    for (const [name, t] of METHOD) {
-      keep(50);
-      text(name, font.bold, 11, INK);
-      gap(2);
-      text(t, font.sans, 9.5, INK2);
-      gap(9);
+    // Stage 2 keeps the PDF short (Jim and John, 27 November): the method is in Stage 1's PDF; the licence closes the appendix.
+    if (!landing) {
+      openSection("method", "How this was made", "The method behind your story.");
+      for (const [name, t] of METHOD) {
+        keep(50);
+        text(name, font.bold, 11, INK);
+        gap(2);
+        text(t, font.sans, 9.5, INK2);
+        gap(9);
+      }
     }
     thinRule();
     LICENCE.forEach((para, i) => {
@@ -543,14 +553,18 @@ export function renderPdf(
     {
       const what =
         "This is the first draft of your presentation story, built by StoryMachine from your notes and your answers. It holds everything you need to finish the story, make your slides and rehearse.";
-      const steps: Array<[string, string]> = [
-        ["Check the foundations.", "Section 1 sets out your audience and your argument. If either is wrong, everything built on it will also be wrong."],
-        ["Read the talk out loud.", "Section 2 is your presentation, from the first word to the last, with your timing. Suggestions in red sit under the lines they would strengthen."],
-        ["Make it yours.", "Section 3 lists the gaps only you can fill, and what to do before you rehearse."],
-        landing
-          ? ["Make your slides, then rehearse.", "Build your slides from the StoryMachine slides page, then rehearse from section 4: your story in five lines and your speaker notes."]
-          : ["Add interest and impact.", "Press Add interest and impact in StoryMachine to get your opening, signposts, ending and speaker notes."],
-      ];
+      const steps: Array<[string, string]> = landing
+        ? [
+            ["Read the talk out loud.", "Section 1 is your presentation, from the first word to the last, with your timing. Suggestions in red sit under the lines they would strengthen."],
+            ["Make it yours.", "Section 2 lists the gaps only you can fill, and what to do before you rehearse."],
+            ["Make your slides, then rehearse.", "Build your slides from the StoryMachine slides page, then rehearse from section 3: your story in five lines and your speaker notes."],
+          ]
+        : [
+            ["Check the foundations.", "Section 1 sets out your audience and your argument. If either is wrong, everything built on it will also be wrong."],
+            ["Read the talk out loud.", "Section 2 is your presentation, from the first word to the last, with your timing. Suggestions in red sit under the lines they would strengthen."],
+            ["Make it yours.", "Section 3 lists the gaps only you can fill, and what to do before you rehearse."],
+            ["Add interest and impact.", "Press Add interest and impact in StoryMachine to get your opening, signposts, ending and speaker notes."],
+          ];
       const inner = W - 8;
       let h = 14 + heightOf("What is in this document", font.bold, 11, inner) + 4 + heightOf(what, font.sans, 10, inner) + 12;
       h += heightOf("How to use it", font.bold, 11, inner) + 6;
