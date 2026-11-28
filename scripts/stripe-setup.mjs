@@ -64,6 +64,9 @@ async function stripe(method, resource, params) {
 }
 
 const PRODUCT_NAME = "Jim Harvey's StoryMachine";
+// VAT (25 November): Stripe Tax product code for software as a service, personal use; prices include VAT.
+const TAX_CODE = "txcd_10103000";
+const TAX_BEHAVIOR = "inclusive";
 const PRODUCT_DESCRIPTION = "Jim Harvey's StoryMachine: turn rough notes into a presentation story that lands and sticks.";
 const PRICES = [
   { key: "story_machine_story", env: "STRIPE_PRICE_STORY", nickname: "One story", unit_amount: 999 },
@@ -86,6 +89,7 @@ if (!product) {
     description: PRODUCT_DESCRIPTION,
     metadata: { app: "story-machine" },
     statement_descriptor: "JH STORYMACHINE",
+    tax_code: TAX_CODE,
   });
   console.log("created product", product.id);
 } else {
@@ -94,11 +98,20 @@ if (!product) {
     console.log("renamed product", product.id);
   } else console.log("product exists", product.id);
 }
+if (product.tax_code !== TAX_CODE) {
+  product = await stripe("POST", `products/${product.id}`, { tax_code: TAX_CODE });
+  console.log("set product tax code", TAX_CODE);
+}
 
 // 2. Prices, found by lookup key. A price in another currency is retired and replaced.
 for (const p of PRICES) {
   let price = (await stripe("GET", "prices", { lookup_keys: [p.key], limit: 1 })).data[0];
-  if (price && (price.currency !== CURRENCY || price.unit_amount !== p.unit_amount)) {
+  // A price with no tax behaviour can be set to inclusive in place; one set otherwise cannot be changed, so it is replaced.
+  if (price && price.tax_behavior === "unspecified" && price.currency === CURRENCY && price.unit_amount === p.unit_amount) {
+    price = await stripe("POST", `prices/${price.id}`, { tax_behavior: TAX_BEHAVIOR });
+    console.log(`price ${p.nickname} now includes tax`, price.id);
+  }
+  if (price && (price.currency !== CURRENCY || price.unit_amount !== p.unit_amount || price.tax_behavior !== TAX_BEHAVIOR)) {
     console.log(`price ${p.nickname} is ${price.currency.toUpperCase()} ${price.unit_amount}; replacing with ${CURRENCY.toUpperCase()} ${p.unit_amount}`);
     await stripe("POST", `prices/${price.id}`, { active: false });
     price = undefined;
@@ -111,6 +124,7 @@ for (const p of PRICES) {
       nickname: `${p.nickname} ${SYMBOL}${(p.unit_amount / 100).toFixed(2)}`,
       lookup_key: p.key,
       transfer_lookup_key: true,
+      tax_behavior: TAX_BEHAVIOR,
       recurring: p.recurring,
       metadata: { app: "story-machine" },
     });

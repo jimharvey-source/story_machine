@@ -35,6 +35,12 @@ export async function POST(req: Request) {
       customer,
       line_items: [{ price: await priceId(plan), quantity: 1 }],
       allow_promotion_codes: true,
+      // VAT (25 November): prices include VAT (tax_behavior "inclusive", set by scripts/stripe-setup.mjs) and Stripe Tax
+      // works out what is due from the buyer's address. Needs Stripe Tax switched on in the account, sandbox and live.
+      automatic_tax: { enabled: true },
+      billing_address_collection: "required",
+      customer_update: { address: "auto", name: "auto" },
+      tax_id_collection: { enabled: true },
       success_url: `${base}/build?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${base}/build?checkout=cancelled`,
       metadata,

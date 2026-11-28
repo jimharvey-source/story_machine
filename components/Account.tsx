@@ -342,7 +342,7 @@ export function Paywall({ me, onChange, onClose }: { me: Me; onChange: () => voi
           );
         })}
       </div>
-      <p className="mt-3 text-xs text-muted">Card payments through Stripe. Offer codes go in at checkout. Cancel a month or a year from the billing page.</p>
+      <p className="mt-3 text-xs text-muted">Prices in US dollars, including VAT where it applies. Card payments through Stripe. Offer codes go in at checkout. Cancel a month or a year from the billing page.</p>
       <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-rule pt-4">
         <span className="text-sm text-muted">On a programme? Your code gives you your stories.</span>
         <CodeForm

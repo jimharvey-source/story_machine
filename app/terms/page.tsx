@@ -39,8 +39,7 @@ export default function Terms() {
       <h2>Prices and payment</h2>
       <p>
         Your first story is free: both stages and the downloads, with one rerun and five AI edits. After that you can
-        buy one story, one month or one year, at the prices shown on the site when you buy. Prices are in US dollars. We are not
-        registered for VAT, so the price shown is the price you pay. Payments are taken by Stripe; we never see or
+        buy one story, one month or one year, at the prices shown on the site when you buy. Prices are in US dollars and include VAT where it applies, so the price shown is the price you pay. We are registered for VAT in the UK (VAT number {LEGAL.vat}). Payments are taken by Stripe; we never see or
         store your card details.
       </p>
       <ul>

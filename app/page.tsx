@@ -82,6 +82,7 @@ export default async function Landing({ searchParams }: Props) {
             <Price label="One month" amount="$19.99" note="As many stories as you like for one month. Cancel any time." />
             <Price label="One year" amount="$99.99" note="As many stories as you like for one year. Cancel any time." />
           </div>
+          <p className="mt-4 text-sm text-muted">Prices are in US dollars and include VAT where it applies.</p>
         </section>
 
         {/* 10. Close */}

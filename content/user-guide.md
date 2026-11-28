@@ -226,6 +226,8 @@ After that, press **Upgrade** at the top of the page:
 - one month, $19.99: as many stories as you like for one month, cancel any time;
 - one year, $99.99: as many stories as you like for one year, cancel any time.
 
+Prices are in US dollars and include VAT where it applies.
+
 A story you pay for has no limits: rerun it, edit it and discuss it with StoryMachine as often as you like, and download it again whenever you want.
 
 If you cancel a monthly or yearly subscription, it stays active until the end of the month or year. You keep every story you made while you were subscribed, and you can still edit as often as you like even after your subscription has ended. If you want to start a new story, you will need to buy a new story or a new plan.
